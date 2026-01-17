@@ -30,8 +30,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [urlValidation, setUrlValidation] = useState<{ isValid: boolean; error?: string; isChecking?: boolean }>({ isValid: false });
   const [isValidating, setIsValidating] = useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputContainerRef = React.useRef<HTMLDivElement>(null);
 
   const themeColor = LEVEL_COLORS[level];
+
+  // Handle mobile keyboard with Visual Viewport API
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.visualViewport) return;
+    
+    const handleViewportChange = () => {
+      if (isFocused && inputContainerRef.current && window.innerWidth < 640) {
+        const viewport = window.visualViewport;
+        if (viewport) {
+          const rect = inputContainerRef.current.getBoundingClientRect();
+          const viewportHeight = viewport.height;
+          const inputBottom = rect.bottom;
+          
+          // If input is in the keyboard area, scroll it into view
+          if (inputBottom > viewportHeight - 50) {
+            inputContainerRef.current.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center',
+              inline: 'nearest' 
+            });
+          }
+        }
+      }
+    };
+
+    window.visualViewport.addEventListener('resize', handleViewportChange);
+    window.visualViewport.addEventListener('scroll', handleViewportChange);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleViewportChange);
+      window.visualViewport?.removeEventListener('scroll', handleViewportChange);
+    };
+  }, [isFocused]);
 
   // Basic format validation (synchronous)
   const isUrlFormatValid = useMemo(() => {
@@ -231,19 +266,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
           </motion.div>
         )}
         
-        <div className="relative glass-panel p-1.5 md:p-3 rounded-[2rem] md:rounded-[4.5rem] border bg-black/95 shadow-[0_40px_100px_rgba(0,0,0,0.8)] transition-all duration-500" style={{ borderColor: isFocused ? `${themeColor}4d` : (url.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)') }}>
+        <div ref={inputContainerRef} className="relative glass-panel p-1.5 md:p-3 rounded-[2rem] md:rounded-[4.5rem] border bg-black/95 shadow-[0_40px_100px_rgba(0,0,0,0.8)] transition-all duration-500" style={{ borderColor: isFocused ? `${themeColor}4d` : (url.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)') }}>
           <div className="flex flex-col lg:flex-row gap-2">
             <div className="flex-1 flex items-center px-3 sm:px-6 md:px-12 py-3 sm:py-5 md:py-8 bg-white/[0.02] rounded-[1.5rem] md:rounded-[4rem]">
               <Terminal className={`w-4 h-4 sm:w-5 sm:h-5 md:w-8 md:h-8 mr-3 sm:mr-4 md:mr-8 transition-colors shrink-0`} style={{ color: isFocused ? themeColor : (url.trim() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.25)') }} />
               <input 
+                ref={inputRef}
                 type="text"
                 value={url}
                 onFocus={(e) => {
                   setIsFocused(true);
-                  // Scroll input into view on mobile when keyboard appears
-                  setTimeout(() => {
-                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-                  }, 300);
+                  // Mobile keyboard handling - scroll after keyboard appears
+                  if (window.innerWidth < 640) {
+                    setTimeout(() => {
+                      if (inputContainerRef.current) {
+                        inputContainerRef.current.scrollIntoView({ 
+                          behavior: 'smooth', 
+                          block: 'center',
+                          inline: 'nearest' 
+                        });
+                      }
+                    }, 500); // Wait for keyboard animation
+                  }
                 }}
                 onBlur={() => setIsFocused(false)}
                 onChange={(e) => setUrl(e.target.value)}

@@ -101,7 +101,7 @@ body {
 
 /* Mobile keyboard handling */
 @media (max-width: 640px) {
-    /* Prevent layout shift when keyboard appears */
+    /* Use dynamic viewport height for mobile */
     html {
         height: -webkit-fill-available;
     }
@@ -109,10 +109,18 @@ body {
     body {
         min-height: 100vh;
         min-height: -webkit-fill-available;
+        /* Prevent zoom on input focus */
+        touch-action: manipulation;
     }
     
     /* Smooth scroll behavior for input focus */
     * {
         -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Better input field handling on mobile */
+    input[type="text"],
+    input[type="url"] {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
     }
 }
