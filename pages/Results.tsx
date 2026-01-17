@@ -124,9 +124,209 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.text(`${tEn('pdf.mission_intensity')}: ${level}`, 15, 75);
       doc.text(`${tEn('pdf.neural_load')}: ${usage.tokens.toLocaleString()} ${tEn('pdf.tokens')}`, 15, 80);
       
+      // Calculate starting yPos after Executive Intelligence
+      let yPos = 90;
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("courier", "bold");
+      doc.text(tEn('results.target_summary'), 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(9);
+      doc.setFont("courier", "normal");
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${tEn('results.domain')}: ${targetUrl}`, 15, yPos);
+      yPos += 6;
+      
+      if (targetIntelligence?.hosting?.ip && targetIntelligence.hosting.ip !== '0.0.0.0') {
+        doc.text(`${tEn('results.ip_address')}: ${targetIntelligence.hosting.ip}`, 15, yPos);
+        yPos += 6;
+      }
+      
+      if (targetIntelligence?.hosting?.provider && targetIntelligence.hosting.provider !== 'Unknown') {
+        doc.text(`${tEn('results.hosting_provider')}: ${targetIntelligence.hosting.provider}`, 15, yPos);
+        yPos += 6;
+      }
+      
+      if (targetIntelligence?.hosting?.location && targetIntelligence.hosting.location !== 'Unknown') {
+        doc.text(`${tEn('results.location')}: ${targetIntelligence.hosting.location}`, 15, yPos);
+        yPos += 6;
+      }
+      
+      if (targetIntelligence?.associatedLinks && targetIntelligence.associatedLinks.length > 0) {
+        yPos += 3;
+        doc.setFont("courier", "bold");
+        doc.text(`${tEn('results.subdomains')} / ${tEn('results.associated_links')}:`, 15, yPos);
+        yPos += 6;
+        doc.setFont("courier", "normal");
+        doc.setFontSize(8);
+        targetIntelligence.associatedLinks.forEach((link: string) => {
+          if (yPos > 280) {
+            doc.addPage();
+            yPos = 20;
+          }
+          const linkText = doc.splitTextToSize(`• ${link}`, 180);
+          linkText.forEach((line: string) => {
+            doc.text(line, 20, yPos);
+            yPos += 5;
+          });
+        });
+        yPos += 3;
+      }
+      
+      if (targetIntelligence?.apis && targetIntelligence.apis.length > 0) {
+        yPos += 3;
+        doc.setFont("courier", "bold");
+        doc.setFontSize(9);
+        doc.text(`${tEn('results.apis')}:`, 15, yPos);
+        yPos += 6;
+        doc.setFont("courier", "normal");
+        doc.setFontSize(8);
+        targetIntelligence.apis.forEach((api: string) => {
+          if (yPos > 280) {
+            doc.addPage();
+            yPos = 20;
+          }
+          const apiText = doc.splitTextToSize(`• ${api}`, 180);
+          apiText.forEach((line: string) => {
+            doc.text(line, 20, yPos);
+            yPos += 5;
+          });
+        });
+        yPos += 3;
+      }
+      yPos += 5;
+
+      // Level Scan Details Section
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("courier", "bold");
+      doc.text(tEn('results.level_scan_details'), 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(9);
+      doc.setFont("courier", "normal");
+      const levelDetails = en.level_details[level.toLowerCase() as 'fast' | 'standard' | 'deep'];
+      if (levelDetails) {
+        doc.text(`Data Collected: ${levelDetails.data_collected}`, 15, yPos);
+        yPos += 6;
+        doc.text(`AI Model: ${levelDetails.ai_model}`, 15, yPos);
+        yPos += 6;
+        doc.text(`Thinking Budget: ${levelDetails.thinking_budget}`, 15, yPos);
+        yPos += 8;
+        
+        doc.setFont("courier", "bold");
+        doc.text(tEn('results.scans_performed') + ':', 15, yPos);
+        yPos += 6;
+        doc.setFont("courier", "normal");
+        doc.setFontSize(8);
+        
+        levelDetails.scans.forEach((scan: any) => {
+          if (yPos > 280) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.setFont("courier", "bold");
+          doc.text(`${scan.test} (${scan.accuracy})`, 15, yPos);
+          yPos += 5;
+          doc.setFont("courier", "normal");
+          const methodText = doc.splitTextToSize(`Method: ${scan.method}`, 180);
+          methodText.forEach((line: string) => {
+            doc.text(line, 20, yPos);
+            yPos += 4;
+          });
+          yPos += 3;
+        });
+      }
+      yPos += 5;
+
+      // Business Logic Section
+      if (targetIntelligence?.purpose || targetIntelligence?.businessLogic || targetIntelligence?.attackSurfaceSummary) {
+        if (yPos > 280) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("courier", "bold");
+        doc.text(tEn('results.business_logic'), 15, yPos);
+        yPos += 8;
+        
+        doc.setFontSize(9);
+        doc.setFont("courier", "normal");
+        
+        if (targetIntelligence?.purpose && targetIntelligence.purpose !== '---') {
+          doc.setFont("courier", "bold");
+          doc.text(`${tEn('results.purpose')}:`, 15, yPos);
+          yPos += 6;
+          doc.setFont("courier", "normal");
+          const purposeText = doc.splitTextToSize(targetIntelligence.purpose, 180);
+          purposeText.forEach((line: string) => {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, 20, yPos);
+            yPos += 5;
+          });
+          yPos += 3;
+        }
+        
+        if (targetIntelligence?.businessLogic && targetIntelligence.businessLogic !== '---') {
+          if (yPos > 280) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.setFont("courier", "bold");
+          doc.text(`${tEn('results.business_logic')}:`, 15, yPos);
+          yPos += 6;
+          doc.setFont("courier", "normal");
+          const logicText = doc.splitTextToSize(targetIntelligence.businessLogic, 180);
+          logicText.forEach((line: string) => {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, 20, yPos);
+            yPos += 5;
+          });
+          yPos += 3;
+        }
+        
+        if (targetIntelligence?.attackSurfaceSummary && targetIntelligence.attackSurfaceSummary !== '---') {
+          if (yPos > 280) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.setFont("courier", "bold");
+          doc.text(`${tEn('results.attack_surface')}:`, 15, yPos);
+          yPos += 6;
+          doc.setFont("courier", "normal");
+          const surfaceText = doc.splitTextToSize(targetIntelligence.attackSurfaceSummary, 180);
+          surfaceText.forEach((line: string) => {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, 20, yPos);
+            yPos += 5;
+          });
+          yPos += 3;
+        }
+        yPos += 5;
+      }
+      
       // Data Quality Section
       if (dataQuality) {
-        let yPos = 95;
+        // yPos is already set from previous sections
         
         // AI Compensation Mode Section
         if (dataQuality.corsCompensation) {
@@ -172,8 +372,6 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         }
       }
 
-      let yPos = dataQuality ? 140 : 90;
-
       // Forensic Analysis
       const splitAnalysis = doc.splitTextToSize(`${tEn('pdf.forensic_deduction')}: ${targetIntelligence?.forensicAnalysis || tEn('pdf.no_analysis')}`, 180);
       doc.setFontSize(10);
@@ -182,6 +380,38 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         doc.text(line, 15, yPos);
         yPos += 5;
       });
+      yPos += 10;
+
+      // Topology Stats Section
+      if (yPos > 280) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("courier", "bold");
+      doc.text(tEn('labels.risk_topology'), 15, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(9);
+      doc.setFont("courier", "normal");
+      const topologyCounts = {
+        logic: findings.filter((f: VulnerabilityFinding) => (f.title || "").toLowerCase().includes('logic') || (f.title || "").toLowerCase().includes('auth')).length,
+        injection: findings.filter((f: VulnerabilityFinding) => (f.title || "").toLowerCase().includes('injection') || (f.title || "").toLowerCase().includes('xss') || (f.title || "").toLowerCase().includes('sql')).length,
+        network: findings.filter((f: VulnerabilityFinding) => (f.title || "").toLowerCase().includes('header') || (f.title || "").toLowerCase().includes('dns') || (f.title || "").toLowerCase().includes('ssl')).length,
+        config: findings.filter((f: VulnerabilityFinding) => {
+          const title = (f.title || "").toLowerCase();
+          return !title.includes('logic') && !title.includes('auth') && !title.includes('injection') && !title.includes('xss') && !title.includes('sql') && !title.includes('header') && !title.includes('dns') && !title.includes('ssl');
+        }).length
+      };
+      
+      doc.text(`${tEn('results.logic_flow')}: ${topologyCounts.logic}`, 15, yPos);
+      yPos += 6;
+      doc.text(`${tEn('results.injections')}: ${topologyCounts.injection}`, 15, yPos);
+      yPos += 6;
+      doc.text(`${tEn('results.net_hygiene')}: ${topologyCounts.network}`, 15, yPos);
+      yPos += 6;
+      doc.text(`${tEn('results.config_dna')}: ${topologyCounts.config}`, 15, yPos);
       yPos += 10;
 
       // Technology DNA Section
@@ -744,6 +974,74 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
             </div>
           </SectionCard>
         )}
+
+        {/* Target Summary Section */}
+        <SectionCard 
+          title={t('results.target_summary')} 
+          subtitle={t('results.target_summary_subtitle')} 
+          icon={Globe} 
+          themeColor={themeColor}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div className="space-y-4">
+              <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/60 border border-white/5">
+                <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-2" style={{ color: themeColor }}>{t('results.domain')}</div>
+                <div className="text-sm md:text-lg font-mono text-white/90 break-all">{targetUrl}</div>
+              </div>
+              
+              {targetIntelligence?.hosting?.ip && targetIntelligence.hosting.ip !== '0.0.0.0' && (
+                <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/60 border border-white/5">
+                  <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-2" style={{ color: themeColor }}>{t('results.ip_address')}</div>
+                  <div className="text-sm md:text-lg font-mono text-white/90">{targetIntelligence.hosting.ip}</div>
+                </div>
+              )}
+
+              {targetIntelligence?.hosting?.provider && targetIntelligence.hosting.provider !== 'Unknown' && (
+                <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/60 border border-white/5">
+                  <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-2" style={{ color: themeColor }}>{t('results.hosting_provider')}</div>
+                  <div className="text-sm md:text-lg font-mono text-white/90">{targetIntelligence.hosting.provider}</div>
+                </div>
+              )}
+
+              {targetIntelligence?.hosting?.location && targetIntelligence.hosting.location !== 'Unknown' && (
+                <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/60 border border-white/5">
+                  <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-2" style={{ color: themeColor }}>{t('results.location')}</div>
+                  <div className="text-sm md:text-lg font-mono text-white/90">{targetIntelligence.hosting.location}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              {targetIntelligence?.associatedLinks && targetIntelligence.associatedLinks.length > 0 && (
+                <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/60 border border-white/5">
+                  <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-3" style={{ color: themeColor }}>{t('results.subdomains')} / {t('results.associated_links')}</div>
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                    {targetIntelligence.associatedLinks.map((link: string, i: number) => (
+                      <div key={i} className="text-xs md:text-sm font-mono text-white/70 break-all flex items-center gap-2">
+                        <Link2 className="w-3 h-3 flex-shrink-0" style={{ color: themeColor }} />
+                        <span>{link}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {targetIntelligence?.apis && targetIntelligence.apis.length > 0 && (
+                <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/60 border border-white/5">
+                  <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-3" style={{ color: themeColor }}>{t('results.apis')}</div>
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                    {targetIntelligence.apis.map((api: string, i: number) => (
+                      <div key={i} className="text-xs md:text-sm font-mono text-white/70 break-all flex items-center gap-2">
+                        <Code className="w-3 h-3 flex-shrink-0" style={{ color: themeColor }} />
+                        <span>{api}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </SectionCard>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
            {[
@@ -761,6 +1059,44 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
              </div>
            ))}
         </div>
+
+        {/* Level Scan Details Section */}
+        <SectionCard 
+          title={t('results.level_scan_details')} 
+          subtitle={t('results.level_scan_details_subtitle')} 
+          icon={Microscope} 
+          themeColor={LEVEL_COLORS[level]}
+        >
+          <div className="space-y-6">
+            <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/60 border border-white/5">
+              <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-3" style={{ color: LEVEL_COLORS[level] }}>
+                {t('level_details.' + level.toLowerCase() + '.data_collected')}
+              </div>
+              <div className="text-xs md:text-sm font-mono text-white/70">
+                {t('level_details.' + level.toLowerCase() + '.ai_model')} | {t('level_details.' + level.toLowerCase() + '.thinking_budget')}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-4" style={{ color: LEVEL_COLORS[level] }}>
+                {t('results.scans_performed')}
+              </div>
+              <div className="space-y-3">
+                {(en.level_details[level.toLowerCase() as 'fast' | 'standard' | 'deep']?.scans || []).map((scan: any, i: number) => (
+                  <div key={i} className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-black/40 border border-white/5">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+                      <div className="text-sm md:text-base font-black text-white uppercase">{scan.test}</div>
+                      <div className="text-xs font-mono px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-white/60">
+                        {scan.accuracy}
+                      </div>
+                    </div>
+                    <div className="text-xs md:text-sm font-mono text-white/50">{scan.method}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </SectionCard>
 
         <SectionCard title={t('results.executive_intel')} subtitle={t('results.forensic_target_reasoning')} icon={Target} themeColor={themeColor}>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-6 md:mb-10">
@@ -829,6 +1165,99 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
               </div>
            </div>
         </SectionCard>
+
+        {/* Business Logic Section */}
+        <SectionCard 
+          title={t('results.business_logic')} 
+          subtitle={t('results.business_logic_subtitle')} 
+          icon={Braces} 
+          themeColor={themeColor}
+        >
+          <div className="space-y-6 md:space-y-8">
+            {targetIntelligence?.purpose && targetIntelligence.purpose !== '---' && (
+              <div className="p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-white/[0.02] border border-white/5">
+                <div className="flex items-center gap-3 mb-4 md:mb-6">
+                  <Target size={16} style={{ color: themeColor }} />
+                  <div className="text-[10px] md:text-[12px] font-black text-white/20 uppercase tracking-widest">{t('results.purpose')}</div>
+                </div>
+                <p className="text-sm md:text-lg font-mono text-white/70 leading-relaxed uppercase whitespace-pre-wrap">{targetIntelligence.purpose}</p>
+              </div>
+            )}
+
+            {targetIntelligence?.businessLogic && targetIntelligence.businessLogic !== '---' && (
+              <div className="p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-white/[0.02] border border-white/5">
+                <div className="flex items-center gap-3 mb-4 md:mb-6">
+                  <Braces size={16} style={{ color: themeColor }} />
+                  <div className="text-[10px] md:text-[12px] font-black text-white/20 uppercase tracking-widest">{t('results.business_logic')}</div>
+                </div>
+                <p className="text-sm md:text-lg font-mono text-white/70 leading-relaxed uppercase whitespace-pre-wrap">{targetIntelligence.businessLogic}</p>
+              </div>
+            )}
+
+            {targetIntelligence?.attackSurfaceSummary && targetIntelligence.attackSurfaceSummary !== '---' && (
+              <div className="p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-white/[0.02] border border-white/5">
+                <div className="flex items-center gap-3 mb-4 md:mb-6">
+                  <ShieldAlert size={16} style={{ color: themeColor }} />
+                  <div className="text-[10px] md:text-[12px] font-black text-white/20 uppercase tracking-widest">{t('results.attack_surface')}</div>
+                </div>
+                <p className="text-sm md:text-lg font-mono text-white/70 leading-relaxed uppercase whitespace-pre-wrap">{targetIntelligence.attackSurfaceSummary}</p>
+              </div>
+            )}
+          </div>
+        </SectionCard>
+
+        {/* Probe Execution Details Section */}
+        {dispatchedProbes && dispatchedProbes.length > 0 && (
+          <SectionCard 
+            title={t('pdf.probe_execution_details')} 
+            subtitle={t('pdf.probe_execution_subtitle')} 
+            icon={Activity} 
+            themeColor={themeColor}
+          >
+            <div className="space-y-4 md:space-y-6">
+              {dispatchedProbes.map((probe: DispatchedProbe, i: number) => (
+                <div key={i} className="p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-black/40 border border-white/5">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-white/5 border border-white/10" style={{ color: themeColor }}>
+                        <Terminal size={16} />
+                      </div>
+                      <div>
+                        <div className="text-sm md:text-lg font-black text-white uppercase font-mono">
+                          {probe.method} {probe.endpoint}
+                        </div>
+                        <div className="text-xs md:text-sm text-white/40 font-mono mt-1">
+                          {probe.status || 'N/A'} | {probe.responseTime ? `${probe.responseTime}ms` : 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      {probe.vulnerable && (
+                        <span className="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-500 text-[10px] md:text-xs font-black uppercase border border-red-500/20">
+                          {t('pdf.vulnerable')}
+                        </span>
+                      )}
+                      {probe.corsBlocked && (
+                        <span className="px-3 py-1.5 rounded-xl bg-orange-500/10 text-orange-500 text-[10px] md:text-xs font-black uppercase border border-orange-500/20">
+                          {t('pdf.cors_blocked')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {probe.description && (
+                    <div className="mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                      <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-2 text-white/40">
+                        {t('pdf.description')}
+                      </div>
+                      <p className="text-xs md:text-sm font-mono text-white/70 leading-relaxed">{probe.description}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        )}
 
         {findings.length > 0 && (
           <SectionCard title={t('results.vulnerability_ledger')} subtitle={t('results.verified_findings')} icon={ShieldAlert} themeColor={LEVEL_COLORS.DEEP}>

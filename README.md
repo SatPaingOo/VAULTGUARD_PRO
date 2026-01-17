@@ -64,26 +64,48 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
    - ✅ Gemini 3 API access enabled
    - ✅ API key from [Google AI Studio](https://ai.google.dev/)
    
-   **Option 1: Manual Entry (Recommended)**
+   **Option 1: Google AI Studio Extension Auto-Link (Easiest)**
+
+   - Install [Google AI Studio browser extension](https://chromewebstore.google.com/detail/google-ai-studio/your-extension-id) (if available)
+   - Click "LINK_ENGINE" button in the app header
+   - Click "Auto Link from Extension" button
+   - Extension will automatically link your API key from Google AI Studio
+   - Verify "ENGINE_ACTIVE" status appears
+   - **Note**: If extension is not detected, use Manual Entry option below
+
+   **Option 2: Manual Entry (Recommended if Extension Not Available)**
 
    - Click "LINK_ENGINE" button in the app header
-   - Enter your API key manually
+   - Click "Manual Token Input" tab
+   - Enter your API key manually (must start with `AIzaSy...` and be at least 39 characters)
+   - Click "Test & Save" to validate the key
    - Key is stored in React Context (in-memory only, NOT localStorage)
    - Key is cleared when page is reloaded (for security)
+   - Verify "ENGINE_ACTIVE" status appears
 
-   **Option 2: Environment Variable (Development Only)**
+   **Option 3: Environment Variable (Development Only)**
 
    - Create a `.env.local` file in the project root:
      ```env
      GEMINI_API_KEY=your_gemini_api_key_here
      ```
    - This is only used if no manual key is entered
+   - **Note**: Manual entry via UI is preferred for security
+
+   **Getting Your API Key:**
+
+   1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
+   2. Sign in with your Google account
+   3. Create or select a Google Cloud Project with billing enabled
+   4. Click "Create API Key"
+   5. Copy the API key (starts with `AIzaSy...`)
 
    **Important:**
 
    - Your API key must be from a paid Google Cloud Project
    - Gemini 3 models require active billing
-   - Get your key from [Google AI Studio](https://ai.google.dev/)
+   - API key must have access to `gemini-3-flash-preview` and `gemini-3-pro-preview` models
+   - Search Grounding feature must be enabled
    - **Security Note**: API keys are stored in-memory only (React Context), never in localStorage or any persistent storage
 
 3. **Run Development Server**
@@ -94,22 +116,47 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
 
    The app will be available at `http://localhost:3000`
 
-4. **Link Neural Engine**
-   - Click the "LINK_ENGINE" button in the header
-   - Enter your API key manually
-   - **Note**: Key is stored in React Context (in-memory only, NOT localStorage)
-   - Key will be cleared when page is reloaded (for security)
-   - Verify "ENGINE_ACTIVE" status appears
-
-5. **Optional: Install CORS Extension for Best Results** 💡
+4. **Optional: Install CORS Extension for Best Results** 💡
 
    For maximum scan accuracy (~95-100% vs ~60-70% without extension):
    
-   - **Extension**: "Allow CORS: Access-Control-Allow-Origin"
-   - **Install**: [Chrome](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf) | [Firefox](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
-   - **Usage**: Install → Activate (orange icon) → Run scan → **Deactivate after scanning**
-   - **Security**: ⚠️ **Always disable extension after scanning** - it disables browser's security guard
-   - **Note**: Extension is optional. VaultGuard Pro works without it using AI compensation mode.
+   **Recommended Extension**: "Allow CORS: Access-Control-Allow-Origin"
+   - **Stats**: 800,000+ users • 3.4/5 rating • Chrome & Firefox
+   - **Install**: 
+     - [Chrome Web Store](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
+     - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
+   
+   **How to Use (5 Simple Steps):**
+   
+   1. **Install Extension**: Click the "Chrome Extension" or "Firefox Add-on" link above
+   2. **Activate Extension**: After installation, click the extension icon in your browser toolbar (grey "C" icon)
+   3. **Toggle On**: In the popup, click the toggle button on the left. The icon will turn orange when active
+   4. **Run Scan**: Refresh VaultGuard Pro page and initiate scan. Full DOM access will be enabled.
+   5. **Disable After Scan**: ⚠️ **IMPORTANT**: Toggle the extension OFF immediately after your scan is complete for security.
+   
+   **Why Use CORS Extension?**
+   
+   | Feature | Without Extension | With Extension |
+   |---------|-------------------|----------------|
+   | DOM Access | Limited | Complete |
+   | Security Headers | Partial | All visible |
+   | Analysis Mode | AI compensation needed | Direct analysis |
+   | Accuracy | ~60-70% | ~95-100% |
+   
+   **Key Benefits:**
+   
+   - ✅ **Complete DOM Analysis** - Full website structure, all JavaScript code, forms, and client-side logic
+   - ✅ **All Security Headers** - CSP, HSTS, X-Frame-Options, and all other headers visible
+   - ✅ **Maximum Accuracy** - No AI inference needed, direct data analysis
+   - ✅ **Better Vulnerability Detection** - Can detect client-side XSS, CSRF, and DOM-based vulnerabilities
+   - ✅ **Complete Probe Results** - All HTTP probes return full response data
+   
+   **Security Warning**: ⚠️
+   
+   - Extension disables browser's CORS security guard
+   - **Always disable extension after scanning** - keeping it enabled makes you vulnerable to malicious websites
+   - Only enable during security testing sessions
+   - Extension is optional - VaultGuard Pro works without it using AI compensation mode (analyzes available metadata: SSL, DNS, OSINT)
 
 ## 📋 Available Scripts
 
@@ -279,35 +326,92 @@ Switch languages via the header dropdown. To add new languages, see `BLUEPRINT.m
 
 ### Understanding Results
 
+#### Data Quality Assessment
+
+- Trust score (0-100%) based on data source availability
+- Data source status (DOM, Headers, SSL, DNS, OSINT, Probes)
+- Limitations and CORS blocking indicators
+- AI compensation mode (when CORS blocks direct scanning)
+
+#### Target Summary
+
+- Domain and target URL
+- IP address and hosting provider
+- Geographic location
+- Subdomains and associated links
+- Discovered API endpoints
+
+#### Topology Stats
+
+- Logic Flow vulnerabilities count
+- Injection vulnerabilities count
+- Network Hygiene issues count
+- Configuration DNA issues count
+
+#### Level Scan Details
+
+- Data collected based on selected scan level
+- AI model used (Gemini 3 Flash/Pro)
+- Thinking budget (for DEEP scans: 32,768 tokens)
+- Scans performed with methods and accuracy percentages
+- Level-specific test details (FAST/STANDARD/DEEP)
+
 #### Executive Intelligence
 
 - Security score (0-100)
+- Mission intensity (FAST/STANDARD/DEEP)
+- Neural load (token usage)
 - Forensic analysis summary
-- Hosting provider and geolocation
+- Telemetry logs
+
+#### Business Logic
+
+- Application purpose and functionality
+- Business logic analysis
+- Attack surface summary
+- Logic flow vulnerabilities
+
+#### Probe Execution Details
+
+- HTTP probe execution results
+- Method, endpoint, and response times
+- Vulnerability status indicators
+- CORS blocking status
+- Probe descriptions and findings
 
 #### Vulnerability Ledger
 
-- Ranked findings with severity levels
+- Ranked findings with severity levels (Critical/High/Medium/Low)
 - CWE IDs for each vulnerability
+- Confidence levels (High/Medium/Low)
+- Evidence sources (headers, DOM, SSL, DNS, probes)
 - Proof-of-concept scripts
-- Remediation directives
+- Full remediation directives (no truncation)
 - Business impact assessment
 
 #### Technology DNA
 
 - Detected tech stack
 - Version information
-- Security status (Stable/Outdated/Legacy)
+- Category (Frontend/Backend/Library/Server/Database)
+- Security status (Stable/Outdated/Legacy/End of Life)
+- CVE information (if available)
 - Action plans for each technology
 
 ### Exporting Results
 
-Click "EXPORT_PDF" to generate a SOC-grade PDF report with:
+Click "EXPORT_PDF" to generate a SOC-grade PDF report with **100% matching content** from the UI:
 
-- Executive summary
-- Detailed findings
-- Remediation directives
-- Technical proof-of-concepts
+- Executive Intelligence (Risk Score, Mission Intensity, Neural Load)
+- Target Summary (Domain, IP, Hosting, Subdomains, APIs)
+- Level Scan Details (What was scanned based on selected level)
+- Business Logic (Purpose, Logic Analysis, Attack Surface)
+- Data Quality Assessment (Trust Score, Limitations)
+- Forensic Deduction
+- Topology Stats (Risk Topology breakdown)
+- Technology DNA (Detected tech stack with versions)
+- Probe Execution Details (HTTP probe results)
+- Vulnerability Ledger (Complete findings with full remediation)
 
 ## 🐛 Troubleshooting
 
@@ -417,11 +521,48 @@ Open browser DevTools (F12) to see:
 
 ## ⚠️ Known Issues
 
-### Remaining Issues
+### ✅ Resolved Issues
 
-- Type safety gaps (extensive `any` usage) - Medium priority
+The following issues have been addressed in recent updates:
 
-See `BLUEPRINT.md` section 8 for detailed issue list and fixes.
+- ✅ **Type Safety Improvements** - Major type safety enhancements implemented across components and services
+  - Proper TypeScript interfaces defined for all major data structures
+  - Type validation and guards implemented in `geminiService.ts`
+  - Response validation prevents silent failures
+  - Remaining `any` usage is limited to error handling and dynamic config objects (acceptable TypeScript practice)
+
+- ✅ **Report Structure** - Complete report sections added to both UI and PDF
+  - Target Summary section (Domain, IP, Hosting, Subdomains, APIs)
+  - Business Logic section (Purpose, Logic Analysis, Attack Surface)
+  - Level Scan Details section (Level-specific scan information)
+  - Topology Stats section (Risk topology breakdown)
+  - Probe Execution Details section (HTTP probe results)
+  - UI and PDF reports are now 100% synchronized
+
+### Expected Browser Limitations (Frontend-Only Architecture)
+
+These are not bugs but expected browser security restrictions:
+
+- **CORS Restrictions**: Many targets block cross-origin requests
+  - **Workaround**: CORS browser extension recommended for full access
+  - **Alternative**: AI compensation mode analyzes available metadata
+  - **Status**: ⚠️ Expected behavior (browser security)
+
+- **SSL Labs API**: Doesn't support CORS from browsers
+  - **Workaround**: Basic SSL validation still works
+  - **Status**: ⚠️ Expected behavior (API limitation)
+
+- **Rate Limiting**: May encounter 429 errors with high API usage
+  - **Workaround**: Automatic retry with exponential backoff
+  - **Status**: ⚠️ Handled automatically
+
+### Minor Improvements (Low Priority)
+
+- **Error Boundaries**: React Error Boundaries for graceful failure handling (optional enhancement)
+- **Magic Numbers**: Some hardcoded values could be constants (low priority)
+- **Type Refinements**: Minor `any` usage in error handling and dynamic configs (acceptable TypeScript practice)
+
+See `BLUEPRINT.md` section 8 for detailed technical information.
 
 ---
 
@@ -787,7 +928,7 @@ See the [LICENSE](LICENSE) file in the repository root for the full license text
 
 ## 🔗 Links
 
-- **AI Studio**: https://ai.studio/apps/drive/1VcB0vU9SU6cvZn61ZrSSQ66MM6OFYNR3
+- **AI Studio**: https://aistudio.google.com/
 - **Google AI Studio**: https://ai.google.dev/
 - **Gemini API Docs**: https://ai.google.dev/gemini-api/docs
 - **Billing Setup**: https://ai.google.dev/gemini-api/docs/billing

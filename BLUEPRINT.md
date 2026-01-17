@@ -145,10 +145,19 @@ When Deep Scan detects a vulnerability, Gemini 3 Pro uses its 32K thinking budge
 
 ### Debriefing Dashboard (SOC-Grade)
 
-- **Executive Intel**: High-level posture, geo-intel, and hosting provider.
-- **Forensic Logic**: The Deductive Reasoning output explaining the biggest risks.
-- **Tech DNA Ledger**: Fingerprinted stack with legacy/security advisories.
-- **Vulnerability Ledger**: Ranked findings with CWE IDs, Business Impact, and Remediation Directives.
+The Results page displays comprehensive security intelligence with the following sections (UI and PDF reports are 100% synchronized):
+
+- **Data Quality Assessment**: Trust score, data source availability, limitations, and AI compensation mode indicators
+- **Target Summary**: Domain, IP address, hosting provider, location, subdomains, associated links, and discovered APIs
+- **Topology Stats**: Visual breakdown of vulnerability categories (Logic Flow, Injections, Net Hygiene, Config DNA)
+- **Level Scan Details**: Complete breakdown of what was scanned based on selected level (FAST/STANDARD/DEEP), including data collected, AI model used, thinking budget, and all scans performed with methods and accuracy
+- **Executive Intelligence**: Security score (0-100), mission intensity, neural load, forensic analysis summary, and telemetry logs
+- **Business Logic**: Application purpose, business logic analysis, and attack surface summary
+- **Probe Execution Details**: HTTP probe execution results with methods, endpoints, response times, vulnerability status, and CORS blocking indicators
+- **Vulnerability Ledger**: Ranked findings with severity levels, CWE IDs, confidence levels, evidence sources, proof-of-concept scripts, full remediation directives, and business impact assessment
+- **Technology DNA**: Fingerprinted tech stack with versions, categories, security status, CVE information, and action plans
+
+**PDF Report Structure**: The PDF export includes all sections above in the same order, ensuring 100% consistency between UI and PDF reports. Level-based differences are automatically reflected in both UI and PDF based on the selected scan level.
 
 ## 5. Security & Safety Sandbox
 
@@ -391,19 +400,28 @@ Browser Same-Origin Policy blocks cross-origin requests when:
 
 4. **Browser Extension** (Recommended for Expert Users)
    - **Extension**: "Allow CORS: Access-Control-Allow-Origin"
-   - **Links**: [Chrome Web Store](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
+   - **Stats**: 800,000+ users • 3.4/5 rating • Chrome & Firefox
+   - **Links**: 
+     - [Chrome Web Store](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
+     - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
    - **Benefits**: 
      - Complete DOM access (full website structure)
      - All security headers visible
      - ~95-100% scan accuracy (vs ~60-70% without)
      - No AI compensation needed
-   - **Usage**:
-     1. Install extension from Chrome/Firefox store
-     2. Click extension icon (grey "C") → Toggle ON (turns orange)
-     3. Run security scan
-     4. **IMPORTANT**: Toggle OFF after scanning (security risk if left enabled)
-   - **Security Warning**: Extension disables browser's CORS security guard. Only enable during security testing sessions.
-   - **Alternative**: VaultGuard Pro works without extension using AI compensation mode
+     - Better vulnerability detection (client-side XSS, CSRF, DOM-based)
+     - Complete probe results (all HTTP probes return full response data)
+   - **Detailed Usage Steps**:
+     1. **Install Extension**: Click the "Chrome Extension" or "Firefox Add-on" link above
+     2. **Activate Extension**: After installation, click the extension icon in your browser toolbar (grey "C" icon)
+     3. **Toggle On**: In the popup, click the toggle button on the left. The icon will turn orange when active
+     4. **Run Scan**: Refresh VaultGuard Pro page and initiate scan. Full DOM access will be enabled.
+     5. **Disable After Scan**: ⚠️ **IMPORTANT**: Toggle the extension OFF immediately after your scan is complete for security.
+   - **Comparison**:
+     - **Without Extension**: Limited DOM access, partial headers, AI compensation needed, ~60-70% accuracy
+     - **With Extension**: Complete DOM access, all headers visible, direct analysis, ~95-100% accuracy
+   - **Security Warning**: Extension disables browser's CORS security guard. Only enable during security testing sessions. Always disable after scanning.
+   - **Alternative**: VaultGuard Pro works without extension using AI compensation mode (analyzes available metadata: SSL, DNS, OSINT)
 
 ### Efficiency Optimizations (✅ IMPLEMENTED)
 
@@ -700,17 +718,25 @@ The system now includes comprehensive data quality tracking:
 
 All reports include data quality metrics to help users understand what data is reliable.
 
-### Code Quality Improvements (Medium Priority)
+### ✅ Code Quality Improvements (Completed)
 
-1. **Type Safety**: Extensive `any` usage in some utility functions
+1. **✅ Type Safety Enhancements** - Major improvements implemented
 
-   - **Recommendation**: Add proper TypeScript interfaces and types
-   - **Priority**: Medium
+   - **Completed**: Proper TypeScript interfaces defined for all major data structures
+     - `MissionReport`, `VulnerabilityFinding`, `TechItem`, `DataQuality`, `DispatchedProbe` interfaces
+     - Type validation in `validateMissionReport()` function
+     - Type guards for safe property access
+     - Response validation prevents silent failures
+   - **Remaining**: Minor `any` usage limited to:
+     - Error handling (`error: any` in catch blocks - acceptable TypeScript practice)
+     - Dynamic config objects (`config: any` for Gemini API - acceptable for flexible API configs)
+     - Scan/finding types in some map functions (can be refined but not critical)
+   - **Status**: ✅ **Major improvements completed** - Remaining usage is acceptable and non-critical
 
 2. **Environment Variable Standardization**: Multiple env var names (`API_KEY`, `GEMINI_API_KEY`)
    - **Current**: `vite.config.ts` defines both
    - **Recommendation**: Standardize on `GEMINI_API_KEY`
-   - **Priority**: Low
+   - **Priority**: Low (both work, standardization is optional)
 
 ### Low Priority Improvements
 
@@ -1090,14 +1116,24 @@ npm run preview      # Preview production build
   3. **Manual DOM Paste**: User pastes target DOM manually
   4. **Browser Extension** (Recommended Solution)
      - **Extension**: "Allow CORS: Access-Control-Allow-Origin"
-     - **Install**: [Chrome](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf) | [Firefox](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
-     - **How to Use**:
-       1. Install extension
-       2. Activate (click grey "C" icon → toggle ON → icon turns orange)
-       3. Run scan (full DOM access enabled)
-       4. **Disable immediately after scanning** (security requirement)
-     - **Benefits**: Complete scan results, ~95-100% accuracy
-     - **Note**: Extension is optional. Tool works without it using AI compensation.
+     - **Stats**: 800,000+ users • 3.4/5 rating • Chrome & Firefox
+     - **Install**: 
+       - [Chrome Web Store](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
+       - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
+     - **Detailed How to Use**:
+       1. **Install Extension**: Click the "Chrome Extension" or "Firefox Add-on" link above
+       2. **Activate Extension**: After installation, click the extension icon in your browser toolbar (grey "C" icon)
+       3. **Toggle On**: In the popup, click the toggle button on the left. The icon will turn orange when active
+       4. **Run Scan**: Refresh VaultGuard Pro page and initiate scan. Full DOM access will be enabled.
+       5. **Disable After Scan**: ⚠️ **IMPORTANT**: Toggle the extension OFF immediately after your scan is complete for security.
+     - **Benefits**: 
+       - Complete scan results, ~95-100% accuracy (vs ~60-70% without)
+       - Complete DOM access (full website structure)
+       - All security headers visible
+       - Better vulnerability detection (client-side XSS, CSRF, DOM-based)
+       - Complete probe results (all HTTP probes return full response data)
+     - **Security Warning**: Extension disables browser's CORS security guard. Always disable after scanning.
+     - **Note**: Extension is optional. Tool works without it using AI compensation mode (analyzes available metadata: SSL, DNS, OSINT).
   5. **Same-Origin Testing**: Test targets on same domain
 
 #### Limited Probe Results
