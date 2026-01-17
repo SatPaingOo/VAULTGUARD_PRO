@@ -1,0 +1,74 @@
+{
+  "id": "ssl-tls",
+  "title": "SSL/TLS လုံခြုံရေး",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "SSL/TLS (Secure Sockets Layer/Transport Layer Security) သည် သင့် Website နှင့် User များ၏ Browser ကြားတွင် ပေးပို့သော အချက်အလက်အားလုံးကို ကုဒ်ပြောင်း (Encrypt) ပေးထားသော စနစ်ဖြစ်ပါသည်။ Password များ၊ Credit Card နံပါတ်များ၊ ကိုယ်ရေးအချက်အလက်များကို Hacker များ ခိုးယူ၍ မရအောင် ကာကွယ်ပေးပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာကြောင့် စစ်ဆေးရသလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "SSL/TLS encryption မရှိပါက Hacker များသည် Network ပေါ်မှ ပေးပို့သော အရေးကြီး အချက်အလက်များကို ကြားကနေ ခိုးယူနိုင်ပါသည်။ User authentication၊ Payment processing သို့မဟုတ် ကိုယ်ရေးအချက်အလက်များ ကိုင်တွယ်သော Website များအတွက် အထူးအရေးကြီးပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာတွေ စစ်ဆေးတာလဲ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Certificate သက်တမ်း ရှိ/မရှိ နှင့် ကုန်ဆုံးရက်",
+        "TLS version (လုံခြုံရေးအတွက် 1.2 သို့မဟုတ် ပိုမြင့်ရမည်)",
+        "Certificate chain မှန်ကန်မှု",
+        "SSL grade (A+, A, B, C, D, F) - SSL Labs API မှ",
+        "Cipher suite အားကောင်းမှု",
+        "Certificate issuer ယုံကြည်စိတ်ချရမှု"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "အကောင်းဆုံး လုပ်ဆောင်ချက်များ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "TLS 1.2 သို့မဟုတ် ပိုမြင့်သော version သုံးပါ (TLS 1.3 ကို အကြံပြုသည်)",
+        "Certificate များကို အမြဲ update လုပ်ပြီး ကုန်ဆုံးမီ သက်တမ်းတိုးပါ",
+        "အားကောင်းသော cipher suites သုံးပါ (RC4, MD5 ကဲ့သို့ အားနည်းသော ciphers ကို ရှောင်ပါ)",
+        "HSTS (HTTP Strict Transport Security) ဖွင့်ထားပါ",
+        "ယုံကြည်စိတ်ချရသော Certificate Authorities (CAs) များမှ မှန်ကန်သော certificates သုံးပါ",
+        "Mobile apps များအတွက် သင့်လျော်သော certificate pinning ထည့်သွင်းပါ"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "အဖြစ်များသော SSL/TLS အားနည်းချက်များ:"
+    },
+    {
+      "type": "subsection",
+      "title": "ကုန်ဆုံးသွားသော Certificates",
+      "text": "ကုန်ဆုံးသွားသော Certificates များသည် Browser warnings များ ပေါ်စေပြီး User များကို Website သို့ ဝင်ရောက်ခွင့် ပိတ်ပင်နိုင်ပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "အားနည်းသော TLS Versions",
+      "text": "ဟောင်းနွမ်းသော TLS versions (1.0, 1.1) များတွင် အားနည်းချက်များ ရှိပြီး ပိတ်ထားသင့်ပါသည်။ အမြဲ TLS 1.2 သို့မဟုတ် ပိုမြင့်သော version သုံးပါ။"
+    },
+    {
+      "type": "subsection",
+      "title": "Self-Signed Certificates",
+      "text": "Self-signed certificates များကို Browser များက ယုံကြည်မထားပါ။ User များအတွက် လုံခြုံရေး warnings များ ပေါ်စေပြီး Website အတွက် ယုံကြည်မှု လျော့နည်းစေပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "Mixed Content",
+      "text": "HTTPS pages များက HTTP resources များကို load လုပ်ခြင်း (mixed content) သည် လုံခြုံရေးကို ထိခိုက်စေနိုင်ပြီး ရှောင်ကြဉ်သင့်ပါသည်။"
+    }
+  ],
+  "related": ["headers", "dns"]
+}

@@ -1,0 +1,95 @@
+{
+  "id": "cve",
+  "title": "CVE Cross-Reference",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "CVE (Common Vulnerabilities and Exposures) သည် လူသိရှင်ကြား သိရှိထားသော cybersecurity vulnerabilities များ၏ ကမ္ဘာလုံးဆိုင်ရာ dictionary တစ်ခု ဖြစ်ပြီး တစ်ခုစီတွင် unique identifier (ဥပမာ- CVE-2024-12345) တစ်ခု assign လုပ်ထားပါသည်။ ၎င်းကို MITRE Corporation က maintain လုပ်ပြီး cybersecurity community တစ်ခုလုံးတွင် security vulnerabilities များကို reference လုပ်ရန် standardized way တစ်ခု အဖြစ် အသုံးပြုပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "CVE နံပါတ်များကို နားလည်ရန်:"
+    },
+    {
+      "type": "paragraph",
+      "text": "CVE identifier တစ်ခုတွင် အပိုင်း (၃) ပိုင်း ပါဝင်ပါသည်: CVE-YYYY-NNNNN"
+    },
+    {
+      "type": "list",
+      "items": [
+        "CVE: ၎င်းသည် vulnerability record တစ်ခု ဖြစ်ကြောင်း ညွှန်ပြသည်",
+        "YYYY: Vulnerability ကို တွေ့ရှိ သို့မဟုတ် assign လုပ်ခဲ့သော ခုနှစ်",
+        "NNNNN: အဲဒီနှစ်အတွက် unique ID နံပါတ် (sequential number)"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "CVSS Scoring System:"
+    },
+    {
+      "type": "paragraph",
+      "text": "CVE တစ်ခုစီတွင် 0.0 မှ 10.0 အထိ severity score (CVSS - Common Vulnerability Scoring System) တစ်ခု ရှိပြီး vulnerability သည် မည်မျှ critical ဖြစ်သည်ကို ညွှန်ပြပါသည်:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "0.1 - 3.9 (Low): အန္တရာယ် နည်းသည်၊ address လုပ်သင့်သော်လည်း urgent မဟုတ်ပါ",
+        "4.0 - 6.9 (Medium): အလယ်အလတ် အန္တရာယ်၊ အမြန် patch လုပ်သင့်သည်",
+        "7.0 - 8.9 (High): အန္တရာယ် ကြီးသည်၊ ချက်ချင်း patch လုပ်သင့်သည်",
+        "9.0 - 10.0 (Critical): အဆိုးရွားဆုံး၊ urgent action နှင့် immediate patching လိုအပ်သည်"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "VaultGuard Pro က CVE ကို ဘယ်လို အသုံးပြုတာလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "VaultGuard Pro သည် သင့် technology stack (ဥပမာ- WordPress version, PHP version, JavaScript libraries, frameworks) ကို detect လုပ်ပြီး Google Search Grounding အသုံးပြု၍ live CVE databases များနှင့် cross-reference လုပ်ပါသည်။ ဤအရာသည် သင်အသုံးပြုနေသော specific versions များတွင် known vulnerabilities များကို real-time detection လုပ်ခွင့် ပေးပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "အရေးကြီးသော CVE Resources များ:"
+    },
+    {
+      "type": "subsection",
+      "title": "CVE.org (Official List)",
+      "text": "CVE identifiers အားလုံး၏ official source ဖြစ်ပါသည်။ CVE နံပါတ်အားလုံး register လုပ်ထားပြီး maintain လုပ်ထားသော နေရာ ဖြစ်ပါသည်။ Website: https://www.cve.org/"
+    },
+    {
+      "type": "subsection",
+      "title": "NVD (National Vulnerability Database)",
+      "text": "NIST က maintain လုပ်ပြီး CVSS scores, affected products, remediation guidance အပါအဝင် CVE တစ်ခုစီ၏ အသေးစိတ် အချက်အလက်များကို ပေးပါသည်။ Website: https://nvd.nist.gov/"
+    },
+    {
+      "type": "subsection",
+      "title": "CVE Details",
+      "text": "Vendor, product, သို့မဟုတ် vulnerability type အလိုက် CVEs များကို search လုပ်ရန် user-friendly interface ဖြစ်ပါသည်။ Specific technologies များအတွက် relevant CVEs များကို ရှာဖွေရန် ပိုမို လွယ်ကူစေပါသည်။ Website: https://www.cvedetails.com/"
+    },
+    {
+      "type": "heading",
+      "text": "CVE Cross-Reference ဘာကြောင့် အရေးကြီးတာလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "သင့် technology stack ကို ထိခိုက်စေသော CVEs များကို သိရှိခြင်းသည် security updates များကို prioritize လုပ်ရန် အကူအညီ ဖြစ်စေပါသည်။ Critical နှင့် High severity CVEs များကို ချက်ချင်း patch လုပ်သင့်ပြီး Medium နှင့် Low severity ones များကို regular maintenance windows များအတွက် schedule လုပ်နိုင်ပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "အကောင်းဆုံး လုပ်ဆောင်ချက်များ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "သင့် technology stack ကို ထိခိုက်စေသော CVEs များအတွက် ပုံမှန် check လုပ်ပါ",
+        "Critical နှင့် High severity CVEs များကို immediate patching အတွက် prioritize လုပ်ပါ",
+        "သင်အသုံးပြုသော technologies များအတွက် security advisories များကို subscribe လုပ်ပါ",
+        "Dependencies နှင့် components အားလုံးကို up to date ထားပါ",
+        "CVEs များကို detect လုပ်ရန် automated tools (VaultGuard Pro ကဲ့သို့) သုံးပါ",
+        "Software components နှင့် versions အားလုံး၏ inventory တစ်ခု maintain လုပ်ပါ"
+      ]
+    }
+  ],
+  "related": ["owasp", "tech-dna"]
+}

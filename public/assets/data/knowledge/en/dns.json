@@ -1,0 +1,90 @@
+{
+  "id": "dns",
+  "title": "DNS Security",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "DNS (Domain Name System) is like the phone book of the internet, translating human-readable domain names (like example.com) into IP addresses that computers use to communicate. DNS security is crucial because DNS misconfigurations can lead to serious security breaches."
+    },
+    {
+      "type": "heading",
+      "text": "Why We Check It:"
+    },
+    {
+      "type": "paragraph",
+      "text": "If DNS configuration is incorrect or compromised, hackers can redirect your legitimate website traffic to malicious sites (DNS hijacking), steal user credentials, perform phishing attacks, or intercept sensitive data. DNS is often the first point of attack in sophisticated cyber attacks."
+    },
+    {
+      "type": "heading",
+      "text": "What We Check:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "DNS record resolution (A records, AAAA records)",
+        "IP address mapping and consistency",
+        "DNS configuration integrity",
+        "Subdomain enumeration",
+        "DNS server security",
+        "SPF, DKIM, DMARC records for email security"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Common DNS Attacks:"
+    },
+    {
+      "type": "subsection",
+      "title": "DNS Hijacking",
+      "text": "Attackers redirect legitimate DNS queries to malicious servers, sending users to fake websites that steal credentials or install malware. This can happen at the router level, ISP level, or through malware."
+    },
+    {
+      "type": "subsection",
+      "title": "DNS Spoofing (Cache Poisoning)",
+      "text": "Attackers inject false DNS records into a DNS resolver's cache, causing it to return incorrect IP addresses for legitimate domains. Users are then redirected to malicious sites."
+    },
+    {
+      "type": "subsection",
+      "title": "DNS Tunneling",
+      "text": "Attackers use DNS queries to exfiltrate data or establish command and control channels, bypassing network security controls that might block other protocols."
+    },
+    {
+      "type": "subsection",
+      "title": "DDoS Attacks on DNS",
+      "text": "Attackers overwhelm DNS servers with traffic, making websites unreachable even though the servers themselves are functioning correctly."
+    },
+    {
+      "type": "heading",
+      "text": "Best Practices:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Use DNSSEC (DNS Security Extensions) to authenticate DNS responses",
+        "Implement DNS monitoring and logging",
+        "Use reputable DNS providers with DDoS protection",
+        "Regularly audit DNS records for unauthorized changes",
+        "Implement SPF, DKIM, and DMARC for email security",
+        "Use DNS filtering to block malicious domains",
+        "Enable DNS over HTTPS (DoH) or DNS over TLS (DoT)",
+        "Monitor for DNS anomalies and suspicious queries"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "DNS Security Features:"
+    },
+    {
+      "type": "subsection",
+      "title": "DNSSEC",
+      "text": "DNSSEC adds cryptographic signatures to DNS records, allowing resolvers to verify that DNS responses are authentic and haven't been tampered with."
+    },
+    {
+      "type": "subsection",
+      "title": "DNS over HTTPS (DoH) / DNS over TLS (DoT)",
+      "text": "Encrypts DNS queries to prevent eavesdropping and manipulation. DoH uses HTTPS protocol, while DoT uses TLS protocol for DNS queries."
+    }
+  ],
+  "related": ["ssl-tls"]
+}

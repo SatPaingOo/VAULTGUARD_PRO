@@ -1,0 +1,172 @@
+{
+  "id": "owasp",
+  "title": "OWASP Top 10",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "OWASP Top 10 သည် ကမ္ဘာတစ်ဝှမ်းရှိ Web applications များအတွက် အရေးကြီးဆုံး လုံခြုံရေး အန္တရာယ်များကို ကိုယ်စားပြုသော စံသတ်မှတ်ထားသော အသိပညာ document တစ်ခု ဖြစ်ပါသည်။ ၎င်းကို Open Web Application Security Project (OWASP) က compile လုပ်ပြီး လက်တွေ့ကမ္ဘာ vulnerability data များအပေါ် အခြေခံ၍ ပုံမှန် update လုပ်ပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "OWASP Top 10 ဘာကြောင့် အရေးကြီးတာလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "OWASP Top 10 သည် Web applications များတွင် တွေ့ရှိရသော အဖြစ်များဆုံး နှင့် အန္တရာယ်ရှိဆုံး လုံခြုံရေး အားနည်းချက်များ၏ focused list တစ်ခု ပေးပါသည်။ ဤ အန္တရာယ်များကို နားလည်ခြင်း နှင့် ဖြေရှင်းခြင်းသည် secure applications များ တည်ဆောက်ရန် အရေးကြီးပါသည်။ VaultGuard Pro သည် Website ကို ကာကွယ်ရန် အကူအညီပေးရန် ဤ အားနည်းချက်များကို အထူးသဖြင့် scan လုပ်ပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "အရေးကြီးဆုံး လုံခြုံရေး အန္တရာယ် (၁၀) ခု:"
+    },
+    {
+      "type": "subsection",
+      "title": "A01: Broken Access Control (ဝင်ရောက်ခွင့် ထိန်းချုပ်မှု ပျက်ယွင်းခြင်း)",
+      "text": "User များသည် သူတို့၏ intended permissions အပြင်ဘက်ရှိ resources များကို access လုပ်နိုင်ပြီး actions များ perform လုပ်နိုင်ပါသည်။ ဤသည် အဖြစ်များဆုံး vulnerability ဖြစ်ပြီး sensitive data သို့မဟုတ် administrative functions များသို့ unauthorized access ကို ခွင့်ပြုပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: သာမန် User များက Admin panels များကို access လုပ်ခြင်း",
+        "ဥပမာ: URL parameters များကို ပြောင်းလဲခြင်းဖြင့် တစ်ခြား User များ၏ private data ကို ကြည့်ရှုခြင်း",
+        "ဥပမာ: Authentication checks များကို bypass လုပ်ခြင်း",
+        "ဥပမာ: Privilege escalation attacks"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A02: Cryptographic Failures (ဒေတာ လုံခြုံအောင် သိမ်းဆည်းနိုင်မှု မရှိခြင်း)",
+      "text": "Sensitive data ကို သင့်လျော်စွာ encrypt မလုပ်ထားခြင်း သို့မဟုတ် အားနည်းသော encryption သုံးထားခြင်း။ ယခင်က 'Sensitive Data Exposure' ဟု ခေါ်ဆိုပြီး ဤ risk သည် cryptography နှင့် ဆက်စပ်သော failures များကို focus လုပ်ပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: Password များကို plain text ဖြင့် သိမ်းဆည်းခြင်း",
+        "ဥပမာ: ခေတ်မမီတော့သော encryption algorithms (MD5, SHA1) သုံးခြင်း",
+        "ဥပမာ: Unencrypted connections ပေါ်မှ sensitive data ပေးပို့ခြင်း",
+        "ဥပမာ: အားနည်းသော encryption keys"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A03: Injection (မသမာသော ကုဒ်များ ထည့်သွင်းခြင်း)",
+      "text": "Untrusted data ကို command သို့မဟုတ် query ၏ အစိတ်အပိုင်းတစ်ခုအဖြစ် interpreter သို့ ပေးပို့ပြီး attackers များကို malicious code execute လုပ်ခွင့် ပေးပါသည်။ ၎င်းတွင် SQL, NoSQL, OS command, LDAP injection များ ပါဝင်ပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: SQL Injection - database queries များကို manipulate လုပ်ခြင်း",
+        "ဥပမာ: Command Injection - system commands များ execute လုပ်ခြင်း",
+        "ဥပမာ: NoSQL Injection - NoSQL databases များကို exploit လုပ်ခြင်း",
+        "ဥပမာ: LDAP Injection - LDAP queries များကို manipulate လုပ်ခြင်း"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A04: Insecure Design (ဒီဇိုင်းပိုင်းဆိုင်ရာ လုံခြုံရေး အားနည်းခြင်း)",
+      "text": "Applications ၏ design phase တွင် လုံခြုံရေး flaws များ။ ဤသည် design နှင့် architectural flaws များနှင့် ဆက်စပ်သော risks များကို focus လုပ်သော category အသစ်တစ်ခု ဖြစ်ပြီး implementation issues များထက် design flaws များကို focus လုပ်ပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: Authentication တွင် rate limiting မရှိခြင်း",
+        "ဥပမာ: စတင်ကတည်းက အားနည်းသော authentication mechanisms များ design လုပ်ထားခြင်း",
+        "ဥပမာ: Design တွင် security controls များ မရှိခြင်း",
+        "ဥပမာ: Insecure default configurations"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A05: Security Misconfiguration (လုံခြုံရေး ဆက်တင်များ မှားယွင်းခြင်း)",
+      "text": "Default configurations တွင် မှားယွင်းသော security settings များ၊ incomplete configurations များ၊ open cloud storage၊ misconfigured HTTP headers များ၊ verbose error messages များ။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: Default passwords များ မပြောင်းလဲထားခြင်း",
+        "ဥပမာ: မလိုအပ်သော features များ ဖွင့်ထားခြင်း",
+        "ဥပမာ: System details များကို expose လုပ်သော verbose error messages",
+        "ဥပမာ: Security headers များ မရှိခြင်း"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A06: Vulnerable and Outdated Components (ခေတ်မမီတော့သော အစိတ်အပိုင်းများ သုံးခြင်း)",
+      "text": "အားနည်းချက်များ သိရှိထားသော components (libraries, frameworks, plugins) များ သုံးခြင်း။ ၎င်းတွင် client-side နှင့် server-side components နှစ်ခုလုံး ပါဝင်ပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: CVEs များ သိရှိထားသော ခေတ်မမီတော့သော WordPress plugins များ",
+        "ဥပမာ: လုံခြုံရေး flaws ရှိသော ဟောင်းနွမ်းသော JavaScript libraries များ",
+        "ဥပမာ: Unpatched server software",
+        "ဥပမာ: အားနည်းချက်များ သိရှိထားသော dependencies များ"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A07: Identification and Authentication Failures (မည်သူမည်ဝါဖြစ်ကြောင်း စစ်ဆေးမှု ပျက်ယွင်းခြင်း)",
+      "text": "အားနည်းသော authentication mechanisms များ၊ session management flaws များ၊ identity verification issues များ။ ယခင်က 'Broken Authentication' ဟု ခေါ်ဆိုပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: Predictable သို့မဟုတ် အားနည်းသော passwords",
+        "ဥပမာ: Session management flaws",
+        "ဥပမာ: အားနည်းသော session tokens",
+        "ဥပမာ: Multi-factor authentication မရှိခြင်း"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A08: Software and Data Integrity Failures (ဒေတာ မှန်ကန်မှု မရှိခြင်း)",
+      "text": "Unverified software updates များ၊ untrusted sources များ၊ CI/CD pipeline vulnerabilities များ။ ယခင်က 'Insecure Deserialization' ဟု ခေါ်ဆိုပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: Verification မပြုဘဲ untrusted sources များမှ code များ accept လုပ်ခြင်း",
+        "ဥပမာ: Unverified software updates",
+        "ဥပမာ: Compromised CI/CD pipelines",
+        "ဥပမာ: Untrusted data ၏ insecure deserialization"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A09: Security Logging and Monitoring Failures (မှတ်တမ်းတင်ရန် ပျက်ကွက်ခြင်း)",
+      "text": "Insufficient logging နှင့် monitoring၊ missing security event logs များ၊ security incidents များကို detect လုပ်နိုင်မှု မရှိခြင်း။ ယခင်က 'Insufficient Logging & Monitoring' ဟု ခေါ်ဆိုပါသည်။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: Intrusion attempts များကို detect မလုပ်နိုင်ခြင်း",
+        "ဥပမာ: Security event logs များ မရှိခြင်း",
+        "ဥပမာ: Inadequate alerting mechanisms",
+        "ဥပမာ: Logs များကို ပုံမှန် review မလုပ်ခြင်း"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A10: Server-Side Request Forgery (SSRF)",
+      "text": "Server ကို unintended locations များသို့ requests များ လုပ်ဆောင်စေရန် အတင်းအကျပ် လုပ်ဆောင်ခြင်း၊ မကြာခဏ internal systems များသို့ ဖြစ်ပြီး internet မှ access လုပ်နိုင်စရာ မလိုအပ်ပါ။"
+    },
+    {
+      "type": "list",
+      "items": [
+        "ဥပမာ: Internal systems များကို တိုက်ခိုက်ရန် Server ကို အသုံးပြုခြင်း",
+        "ဥပမာ: Cloud metadata services များကို access လုပ်ခြင်း",
+        "ဥပမာ: Firewall restrictions များကို bypass လုပ်ခြင်း",
+        "ဥပမာ: Internal files များကို ဖတ်ရှုခြင်း"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "VaultGuard Pro က ဘယ်လို Detect လုပ်တာလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "VaultGuard Pro သည် Website ၏ code, headers, DOM structure, behavior များတွင် ဤ vulnerabilities များကို ညွှန်ပြသော patterns များကို detect လုပ်ရန် AI-powered analysis ကို အသုံးပြုပါသည်။ ၎င်းသည် findings များကို live CVE databases များနှင့် cross-reference လုပ်ပြီး potential security risks များကို identify လုပ်ရန် neural reasoning ကို apply လုပ်ပါသည်။"
+    }
+  ],
+  "related": ["cve", "headers"]
+}

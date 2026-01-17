@@ -1,0 +1,74 @@
+{
+  "id": "ssl-tls",
+  "title": "SSL/TLS Security",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "SSL/TLS (Secure Sockets Layer/Transport Layer Security) encrypts all data transmitted between your website and users' browsers, ensuring that sensitive information like passwords, credit card numbers, and personal data cannot be intercepted by hackers."
+    },
+    {
+      "type": "heading",
+      "text": "Why We Check It:"
+    },
+    {
+      "type": "paragraph",
+      "text": "Without SSL/TLS encryption, hackers can intercept and steal sensitive information transmitted over the network. This is especially critical for websites handling user authentication, payment processing, or any personal data."
+    },
+    {
+      "type": "heading",
+      "text": "What We Check:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Certificate validity and expiration dates",
+        "TLS version (must be 1.2 or higher for security)",
+        "Certificate chain integrity",
+        "SSL grade (A+, A, B, C, D, F) via SSL Labs API",
+        "Cipher suite strength",
+        "Certificate issuer trustworthiness"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Best Practices:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Use TLS 1.2 or higher (TLS 1.3 recommended)",
+        "Keep certificates up to date and renew before expiration",
+        "Use strong cipher suites (avoid weak ciphers like RC4, MD5)",
+        "Enable HSTS (HTTP Strict Transport Security)",
+        "Use valid certificates from trusted Certificate Authorities (CAs)",
+        "Implement proper certificate pinning for mobile apps"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Common SSL/TLS Vulnerabilities:"
+    },
+    {
+      "type": "subsection",
+      "title": "Expired Certificates",
+      "text": "Certificates that have passed their expiration date will cause browser warnings and may prevent users from accessing your site."
+    },
+    {
+      "type": "subsection",
+      "title": "Weak TLS Versions",
+      "text": "Older TLS versions (1.0, 1.1) have known vulnerabilities and should be disabled. Always use TLS 1.2 or higher."
+    },
+    {
+      "type": "subsection",
+      "title": "Self-Signed Certificates",
+      "text": "Self-signed certificates are not trusted by browsers and will show security warnings to users, reducing trust in your website."
+    },
+    {
+      "type": "subsection",
+      "title": "Mixed Content",
+      "text": "HTTPS pages loading HTTP resources (mixed content) can compromise security and should be avoided."
+    }
+  ],
+  "related": ["headers", "dns"]
+}

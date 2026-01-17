@@ -1,0 +1,90 @@
+{
+  "id": "dns",
+  "title": "DNS လုံခြုံရေး",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "DNS (Domain Name System) သည် Internet ၏ ဖုန်းစာအုပ်ကဲ့သို့ ဖြစ်ပြီး လူသားများ ဖတ်နိုင်သော domain names (ဥပမာ- example.com) များကို Computer များ အသုံးပြုသော IP addresses များသို့ ပြောင်းလဲပေးပါသည်။ DNS လုံခြုံရေးသည် အရေးကြီးပါသည်။ အဘယ်ကြောင့်ဆိုသော် DNS misconfigurations များသည် လုံခြုံရေး ချိုးဖောက်မှုများကို ဖြစ်စေနိုင်သောကြောင့် ဖြစ်ပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာကြောင့် စစ်ဆေးရသလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "DNS configuration သည် မှားယွင်းနေပါက သို့မဟုတ် ထိခိုက်ခံရပါက Hacker များသည် သင့် Website traffic ကို မကောင်းသော sites များသို့ redirect လုပ်နိုင်ပြီး (DNS hijacking) user credentials များကို ခိုးယူနိုင်ပါသည်။ Phishing attacks များ လုပ်ဆောင်နိုင်ပြီး အရေးကြီး data များကို ကြားကနေ ခိုးယူနိုင်ပါသည်။ DNS သည် ရှုပ်ထွေးသော cyber attacks များတွင် ပထမဆုံး တိုက်ခိုက်မှု အမှတ်တစ်ခု ဖြစ်လေ့ရှိပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာတွေ စစ်ဆေးတာလဲ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "DNS record resolution (A records, AAAA records)",
+        "IP address mapping နှင့် consistency",
+        "DNS configuration integrity",
+        "Subdomain enumeration",
+        "DNS server security",
+        "Email security အတွက် SPF, DKIM, DMARC records"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "အဖြစ်များသော DNS တိုက်ခိုက်မှုများ:"
+    },
+    {
+      "type": "subsection",
+      "title": "DNS Hijacking",
+      "text": "တိုက်ခိုက်သူများသည် မှန်ကန်သော DNS queries များကို မကောင်းသော servers များသို့ redirect လုပ်ပြီး User များကို credentials ခိုးယူသော သို့မဟုတ် malware install လုပ်သော fake websites များသို့ ပို့ဆောင်ပါသည်။ ဤအရာသည် router level, ISP level သို့မဟုတ် malware မှတစ်ဆင့် ဖြစ်ပွားနိုင်ပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "DNS Spoofing (Cache Poisoning)",
+      "text": "တိုက်ခိုက်သူများသည် DNS resolver ၏ cache ထဲသို့ မှားယွင်းသော DNS records များကို inject လုပ်ပြီး မှန်ကန်သော domains များအတွက် မှားယွင်းသော IP addresses များ return လုပ်စေပါသည်။ User များသည် ထို့နောက် မကောင်းသော sites များသို့ redirect ဖြစ်သွားပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "DNS Tunneling",
+      "text": "တိုက်ခိုက်သူများသည် data များ exfiltrate လုပ်ရန် သို့မဟုတ် command and control channels များ establish လုပ်ရန် DNS queries များကို အသုံးပြုပြီး တစ်ခြား protocols များကို block လုပ်နိုင်သော network security controls များကို bypass လုပ်ပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "DNS ပေါ်တွင် DDoS Attacks",
+      "text": "တိုက်ခိုက်သူများသည် DNS servers များကို traffic ဖြင့် ဖိအားပေးပြီး servers များကိုယ်တိုင် မှန်ကန်စွာ အလုပ်လုပ်နေသော်လည်း websites များကို ရောက်ရှိ၍ မရအောင် လုပ်ဆောင်ပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "အကောင်းဆုံး လုပ်ဆောင်ချက်များ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "DNS responses များ authentic ဖြစ်ပြီး tamper လုပ်ထားခြင်း မရှိကြောင်း verify လုပ်နိုင်ရန် DNSSEC (DNS Security Extensions) သုံးပါ",
+        "DNS monitoring နှင့် logging implement လုပ်ပါ",
+        "DDoS protection ရှိသော ယုံကြည်စိတ်ချရသော DNS providers များ သုံးပါ",
+        "မခွင့်ပြုထားသော changes များအတွက် DNS records များကို ပုံမှန် audit လုပ်ပါ",
+        "Email security အတွက် SPF, DKIM, DMARC implement လုပ်ပါ",
+        "မကောင်းသော domains များကို block လုပ်ရန် DNS filtering သုံးပါ",
+        "DNS over HTTPS (DoH) သို့မဟုတ် DNS over TLS (DoT) ဖွင့်ထားပါ",
+        "DNS anomalies နှင့် suspicious queries များအတွက် monitor လုပ်ပါ"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "DNS လုံခြုံရေး Features များ:"
+    },
+    {
+      "type": "subsection",
+      "title": "DNSSEC",
+      "text": "DNSSEC သည် DNS records များသို့ cryptographic signatures များ ထည့်သွင်းပြီး resolvers များကို DNS responses များ authentic ဖြစ်ပြီး tamper လုပ်ထားခြင်း မရှိကြောင်း verify လုပ်ခွင့် ပေးပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "DNS over HTTPS (DoH) / DNS over TLS (DoT)",
+      "text": "Eavesdropping နှင့် manipulation များကို တားဆီးရန် DNS queries များကို encrypt လုပ်ပါသည်။ DoH သည် HTTPS protocol ကို အသုံးပြုပြီး DoT သည် DNS queries အတွက် TLS protocol ကို အသုံးပြုပါသည်။"
+    }
+  ],
+  "related": ["ssl-tls"]
+}

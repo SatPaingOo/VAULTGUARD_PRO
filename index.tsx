@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 import { setupGlobalErrorHandlers } from './utils/errorSuppression';
@@ -8,13 +9,14 @@ import { useScanner } from './hooks/useScanner';
 import { WebAudit } from './pages/WebAudit';
 import { ResultsPage } from './pages/Results';
 import { LandingPage } from './pages/LandingPage';
+import { VaultAcademy } from './pages/VaultAcademy';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SecurityProvider } from './contexts/SecurityContext';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { ErrorModal } from './components/ErrorModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-const AppContent = () => {
+const ScannerApp = () => {
   const { 
     missionPhase, scanStatus, progress, telemetry, usage, 
     targetUrl, currentLevel, missionReport,
@@ -66,6 +68,21 @@ const AppContent = () => {
   );
 };
 
+const AppContent = () => {
+  return (
+    <Routes>
+      {/* Vault Academy Route */}
+      <Route path="/academy" element={<VaultAcademy />} />
+      
+      {/* Main Scanner Routes */}
+      <Route path="/" element={<ScannerApp />} />
+      
+      {/* Redirect unknown routes */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
 const App = () => {
   useEffect(() => {
     const cleanup = setupGlobalErrorHandlers();
@@ -74,13 +91,15 @@ const App = () => {
   
   return (
     <ErrorBoundary>
-  <SecurityProvider>
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
-  </SecurityProvider>
+      <BrowserRouter>
+        <SecurityProvider>
+          <LanguageProvider>
+            <AppContent />
+          </LanguageProvider>
+        </SecurityProvider>
+      </BrowserRouter>
     </ErrorBoundary>
-);
+  );
 };
 
 const container = document.getElementById('root');

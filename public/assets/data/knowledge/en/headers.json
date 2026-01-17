@@ -1,0 +1,85 @@
+{
+  "id": "headers",
+  "title": "Security Headers",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "Security headers are instructions sent by your server to browsers, telling them how to handle your website's content and protect against various attacks. These headers act as a defense mechanism, preventing common web vulnerabilities."
+    },
+    {
+      "type": "heading",
+      "text": "Why We Check It:"
+    },
+    {
+      "type": "paragraph",
+      "text": "Missing or misconfigured security headers leave your website vulnerable to attacks like XSS (Cross-Site Scripting), clickjacking, MIME-sniffing, and data injection. Proper security headers are essential for protecting both your website and your users."
+    },
+    {
+      "type": "heading",
+      "text": "Key Security Headers:"
+    },
+    {
+      "type": "subsection",
+      "title": "HSTS (HTTP Strict Transport Security)",
+      "text": "Forces browsers to always use HTTPS (secure connection) when accessing your site, preventing downgrade attacks and man-in-the-middle attacks. Example: Strict-Transport-Security: max-age=31536000; includeSubDomains"
+    },
+    {
+      "type": "subsection",
+      "title": "Content Security Policy (CSP)",
+      "text": "Prevents untrusted scripts from other domains from executing on your site, protecting against XSS attacks. It defines which sources are allowed to load resources. Example: Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'"
+    },
+    {
+      "type": "subsection",
+      "title": "X-Frame-Options",
+      "text": "Prevents your website from being embedded in iframes on other sites, protecting against clickjacking attacks. Options: DENY (no embedding), SAMEORIGIN (same origin only), or ALLOW-FROM (specific origin)."
+    },
+    {
+      "type": "subsection",
+      "title": "X-Content-Type-Options",
+      "text": "Prevents browsers from MIME-sniffing, reducing the risk of XSS attacks. Should be set to 'nosniff' to prevent browsers from guessing content types."
+    },
+    {
+      "type": "subsection",
+      "title": "X-XSS-Protection",
+      "text": "Enables the browser's built-in XSS filter. While modern browsers have this enabled by default, explicitly setting it helps with older browsers. Should be set to '1; mode=block'."
+    },
+    {
+      "type": "subsection",
+      "title": "Referrer-Policy",
+      "text": "Controls how much referrer information is sent with requests. Options include 'no-referrer', 'same-origin', 'strict-origin-when-cross-origin', etc. Helps protect user privacy."
+    },
+    {
+      "type": "heading",
+      "text": "What We Check:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Presence of critical security headers",
+        "Header configuration correctness",
+        "Missing headers that should be present",
+        "Header values and directives",
+        "Proper implementation of CSP rules",
+        "HSTS configuration and max-age settings"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Best Practices:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Always include HSTS for HTTPS sites",
+        "Implement a strict CSP policy",
+        "Set X-Frame-Options to DENY or SAMEORIGIN",
+        "Use X-Content-Type-Options: nosniff",
+        "Configure Referrer-Policy appropriately",
+        "Regularly audit and update header configurations",
+        "Test headers using security header analysis tools"
+      ]
+    }
+  ],
+  "related": ["ssl-tls", "owasp"]
+}

@@ -1,0 +1,172 @@
+{
+  "id": "owasp",
+  "title": "OWASP Top 10",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "OWASP Top 10 is a standard awareness document representing the most critical security risks to web applications worldwide. It is compiled by the Open Web Application Security Project (OWASP) and updated regularly based on real-world vulnerability data."
+    },
+    {
+      "type": "heading",
+      "text": "Why OWASP Top 10 Matters:"
+    },
+    {
+      "type": "paragraph",
+      "text": "The OWASP Top 10 provides a focused list of the most common and dangerous security vulnerabilities found in web applications. Understanding and addressing these risks is essential for building secure applications. VaultGuard Pro specifically scans for these vulnerabilities to help protect your website."
+    },
+    {
+      "type": "heading",
+      "text": "The 10 Most Critical Security Risks:"
+    },
+    {
+      "type": "subsection",
+      "title": "A01: Broken Access Control",
+      "text": "Users can access resources or perform actions outside of their intended permissions. This is the most common vulnerability, allowing unauthorized access to sensitive data or administrative functions."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Regular users accessing admin panels",
+        "Example: Viewing other users' private data by changing URL parameters",
+        "Example: Bypassing authentication checks",
+        "Example: Privilege escalation attacks"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A02: Cryptographic Failures",
+      "text": "Sensitive data is not properly encrypted or uses weak encryption. Previously called 'Sensitive Data Exposure', this risk focuses on failures related to cryptography."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Storing passwords in plain text",
+        "Example: Using outdated encryption algorithms (MD5, SHA1)",
+        "Example: Transmitting sensitive data over unencrypted connections",
+        "Example: Weak encryption keys"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A03: Injection",
+      "text": "Untrusted data is sent to an interpreter as part of a command or query, allowing attackers to execute malicious code. This includes SQL, NoSQL, OS command, and LDAP injection."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: SQL Injection - manipulating database queries",
+        "Example: Command Injection - executing system commands",
+        "Example: NoSQL Injection - exploiting NoSQL databases",
+        "Example: LDAP Injection - manipulating LDAP queries"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A04: Insecure Design",
+      "text": "Security flaws in the design phase of applications. This is a new category focusing on risks related to design and architectural flaws, rather than implementation issues."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Missing rate limiting on authentication",
+        "Example: Weak authentication mechanisms designed from the start",
+        "Example: Lack of security controls in the design",
+        "Example: Insecure default configurations"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A05: Security Misconfiguration",
+      "text": "Incorrect security settings in default configurations, incomplete configurations, open cloud storage, misconfigured HTTP headers, and verbose error messages."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Default passwords not changed",
+        "Example: Unnecessary features enabled",
+        "Example: Verbose error messages exposing system details",
+        "Example: Missing security headers"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A06: Vulnerable and Outdated Components",
+      "text": "Using components (libraries, frameworks, plugins) with known vulnerabilities. This includes both client-side and server-side components."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Outdated WordPress plugins with known CVEs",
+        "Example: Old JavaScript libraries with security flaws",
+        "Example: Unpatched server software",
+        "Example: Dependencies with known vulnerabilities"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A07: Identification and Authentication Failures",
+      "text": "Weak authentication mechanisms, session management flaws, and identity verification issues. Previously called 'Broken Authentication'."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Predictable or weak passwords",
+        "Example: Session management flaws",
+        "Example: Weak session tokens",
+        "Example: Missing multi-factor authentication"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A08: Software and Data Integrity Failures",
+      "text": "Unverified software updates, untrusted sources, and CI/CD pipeline vulnerabilities. Previously called 'Insecure Deserialization'."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Accepting code from untrusted sources without verification",
+        "Example: Unverified software updates",
+        "Example: Compromised CI/CD pipelines",
+        "Example: Insecure deserialization of untrusted data"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A09: Security Logging and Monitoring Failures",
+      "text": "Insufficient logging and monitoring, missing security event logs, and inability to detect security incidents. Previously called 'Insufficient Logging & Monitoring'."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Not detecting intrusion attempts",
+        "Example: Missing security event logs",
+        "Example: Inadequate alerting mechanisms",
+        "Example: Logs not reviewed regularly"
+      ]
+    },
+    {
+      "type": "subsection",
+      "title": "A10: Server-Side Request Forgery (SSRF)",
+      "text": "Forcing the server to make requests to unintended locations, often internal systems that should not be accessible from the internet."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Example: Using your server to attack internal systems",
+        "Example: Accessing cloud metadata services",
+        "Example: Bypassing firewall restrictions",
+        "Example: Reading internal files"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "How VaultGuard Pro Detects These:"
+    },
+    {
+      "type": "paragraph",
+      "text": "VaultGuard Pro uses AI-powered analysis to detect patterns indicating these vulnerabilities in your website's code, headers, DOM structure, and behavior. It cross-references findings with live CVE databases and applies neural reasoning to identify potential security risks."
+    }
+  ],
+  "related": ["cve", "headers"]
+}

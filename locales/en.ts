@@ -403,5 +403,24 @@ export default {
     "alternative_note": "Note: If you don't use an extension, our AI Passive Analysis system will continue working with available metadata to provide security insights.",
     "available_on_stores": "Available on Chrome Web Store and Firefox Add-ons",
     "ai_workaround_demo": "This demonstrates AI-powered workaround for browser security restrictions"
+  },
+  "vault_academy": {
+    "title": "VAULT_ACADEMY",
+    "subtitle": "Security Knowledge Base",
+    "search_placeholder": "Search knowledge base...",
+    "no_results": "No results found",
+    "back_to_scanner": "← BACK_TO_SCANNER",
+    "powered_by": "Powered by Gemini 3",
+    "ai_assistance": "This knowledge base was compiled with assistance from Gemini 3, demonstrating AI's application in education.",
+    "loading": "Loading knowledge base...",
+    "error_loading": "Failed to load knowledge base",
+    "categories": {
+      "all": "ALL",
+      "Network Security": "Network Security",
+      "Web Security": "Web Security",
+      "Vulnerabilities": "Vulnerabilities",
+      "Analysis": "Analysis"
+    },
+    "related_topics": "RELATED_TOPICS"
   }
 };

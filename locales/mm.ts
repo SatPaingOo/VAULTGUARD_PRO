@@ -384,5 +384,24 @@ export default {
     "alternative_note": "မှတ်ချက်: Extension ကို မသုံးပါက၊ ကျွန်ုပ်တို့၏ AI Passive Analysis system သည် ရရှိနိုင်သော metadata ဖြင့် security insights များ ပေးရန် ဆက်လက် အလုပ်လုပ်နေမည်။",
     "available_on_stores": "Chrome Web Store နှင့် Firefox Add-ons တွင် ရရှိနိုင်သည်",
     "ai_workaround_demo": "ဤသည်မှာ browser security restrictions များအတွက် AI-powered workaround ကို ပြသထားခြင်း ဖြစ်သည်"
+  },
+  "vault_academy": {
+    "title": "VAULT_ACADEMY",
+    "subtitle": "လုံခြုံရေး အသိပညာ ဗဟိုဌာန",
+    "search_placeholder": "အသိပညာ ရှာဖွေရန်...",
+    "no_results": "ရလဒ် မတွေ့ရှိပါ",
+    "back_to_scanner": "← စကင်နာသို့ ပြန်သွားရန်",
+    "powered_by": "Gemini 3 ဖြင့် ပြုလုပ်ထားသည်",
+    "ai_assistance": "ဒီ ဗဟုသုတတွေကို Gemini 3 ရဲ့ အကူအညီနဲ့ စုစည်းထားတာဖြစ်ပါတယ်။ AI ကို ပညာရေး (Education) မှာပါ အသုံးချထားကြောင်း ပြရာရောက်ပါတယ်။",
+    "loading": "အသိပညာ ဗဟိုဌာန ဖွင့်နေသည်...",
+    "error_loading": "အသိပညာ ဗဟိုဌာန ဖွင့်၍ မရပါ",
+    "categories": {
+      "all": "အားလုံး",
+      "Network Security": "ကွန်ရက် လုံခြုံရေး",
+      "Web Security": "Web လုံခြုံရေး",
+      "Vulnerabilities": "အားနည်းချက်များ",
+      "Analysis": "ဆန်းစစ်မှု"
+    },
+    "related_topics": "ဆက်စပ်သော အကြောင်းအရာများ"
   }
 };

@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
+  <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -14,6 +14,21 @@
 **📖 User Documentation** - Features, benefits, capabilities, and what you can/cannot do
 
 VaultGuard Pro is an autonomous Security Operations Center (SOC) that transforms static vulnerability scanning into a dynamic "Neural Mission" using Google's Gemini 3 Pro/Flash models. It performs multi-stage security triage from surface reconnaissance to forensic logic reasoning.
+
+## 🚀 New in v1.1.0: Vault Academy
+
+### Educational Knowledge Base
+
+- **Multi-language security knowledge base** (EN/MM)
+- **Powered by Gemini 3 Neural Insights** - Demonstrates AI's application in education
+- **Interactive glossary** for OWASP, CVE, SSL/TLS, DNS, Headers, and Tech DNA
+- **Route-based navigation** - Access via `/academy` route
+- **Search & filter** capabilities for easy knowledge discovery
+- **Related topics** cross-linking for comprehensive learning
+
+Vault Academy showcases how AI can be leveraged in educational contexts, providing users with comprehensive security knowledge compiled with assistance from Gemini 3.
+
+---
 
 ## ⚡ Powered by Gemini 3
 
@@ -211,7 +226,7 @@ npm run preview  # Preview production build locally
 ## 📁 Project Structure
 
 ```
-vaultguard_pro.v21/
+vaultguard_pro/
 ├── components/          # Reusable UI components
 │   ├── ApiKeyModal.tsx     # API key authentication modal
 │   ├── AttackerCode.tsx    # Terminal command buffer

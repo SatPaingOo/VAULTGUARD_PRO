@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
+  <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
-# VaultGuard Pro: Neural Mission Blueprints (v1.0.0)
+# VaultGuard Pro: Neural Mission Blueprints (v1.1.0)
 
 **Developer Documentation** - Technical architecture, implementation details, and "how it works"
 
@@ -518,7 +518,7 @@ const getCached = (key: string): any | null => {
 ### Directory Layout
 
 ```
-vaultguard_pro.v21/
+vaultguard_pro/
 ├── components/          # Reusable UI components
 │   ├── AttackerCode.tsx    # Terminal-style command buffer visualization
 │   └── VirtualHUD.tsx      # Mission HUD with iframe/map/blueprint views
@@ -1044,7 +1044,112 @@ npm run preview      # Preview production build
 
 ---
 
-## 15. Future Enhancements
+## 15. Educational Architecture: Vault Academy
+
+### Overview
+
+Vault Academy is an integrated knowledge base system that provides comprehensive security education directly within the application. It demonstrates AI's application in education by leveraging Gemini 3 to compile and organize security knowledge.
+
+### Architecture
+
+**File Structure:**
+```
+public/assets/data/knowledge/
+├── index.json                    # Topic metadata & listing
+├── en/                           # English knowledge files
+│   ├── ssl-tls.json
+│   ├── headers.json
+│   ├── dns.json
+│   ├── owasp.json
+│   ├── cve.json
+│   └── tech-dna.json
+└── mm/                           # Myanmar knowledge files
+    ├── ssl-tls.json
+    ├── headers.json
+    ├── dns.json
+    ├── owasp.json
+    ├── cve.json
+    └── tech-dna.json
+```
+
+### Key Features
+
+1. **Dynamic Content Loading**: Knowledge files are loaded on-demand from static JSON files
+2. **Language Support**: Automatic language switching based on user preference
+3. **Scalable Structure**: Easy to add new topics by creating JSON files
+4. **Search & Filter**: Full-text search and category-based filtering
+5. **Related Topics**: Cross-linking between related security concepts
+6. **AI-Powered**: Content compiled with assistance from Gemini 3
+
+### Content Organization
+
+- **Categories**: Network Security, Web Security, Vulnerabilities, Analysis
+- **Content Types**: Paragraphs, headings, subsections, lists
+- **Metadata**: Icons, colors, categories, related topics
+- **Versioning**: Last updated dates for each topic
+
+### Technical Implementation
+
+- **Route**: `/academy` (React Router)
+- **Component**: `pages/VaultAcademy.tsx`
+- **Data Loading**: Fetch API for JSON files
+- **State Management**: React hooks for search, filter, expansion
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+
+### Benefits
+
+- **Separation of Concerns**: Knowledge content separate from application code
+- **Performance**: Static file fetching, no bundle bloat
+- **Maintainability**: Easy to update content without code changes
+- **Scalability**: Add unlimited topics without affecting app size
+- **Education**: Demonstrates AI's role in educational content delivery
+
+---
+
+## 16. Testing Strategy
+
+### Overview
+
+While comprehensive unit tests are not yet implemented, the project follows a manual testing approach with clear testing checklists. Future enhancements may include automated testing using Vitest or Jest for critical scan logic components.
+
+### Current Testing Approach
+
+**Manual Testing Checklist:**
+- URL validation works correctly
+- API key authentication flow
+- Scan levels (FAST/STANDARD/DEEP) execute properly
+- Error handling for API failures
+- PDF generation works
+- Language switching (EN/MM)
+- Responsive design on mobile/tablet/desktop
+- Vault Academy knowledge base loading and navigation
+- Search and filter functionality in knowledge base
+
+### Future Testing Enhancements (Optional)
+
+**Potential Unit Testing Framework:**
+- **Vitest**: Fast Vite-native testing framework, ideal for React + TypeScript projects
+- **Jest**: Industry-standard testing framework with React Testing Library
+
+**Test Coverage Areas:**
+- URL validation utilities (`utils/urlValidation.ts`)
+- Network analysis functions (`utils/networkAnalysis.ts`)
+- PII masking logic (`utils/masking.ts`)
+- Scan level logic and data tiering
+- Error handling and retry mechanisms
+- Knowledge base JSON loading and parsing
+
+**Integration Testing:**
+- API key authentication flow
+- Gemini API integration
+- Scan execution end-to-end
+- PDF generation workflow
+
+**Note**: Testing is currently manual but follows a structured checklist. Automated testing can be added incrementally as the project matures.
+
+---
+
+## 17. Future Enhancements
 
 ### Planned Features
 
@@ -1079,7 +1184,7 @@ npm run preview      # Preview production build
 
 ---
 
-## 16. Troubleshooting
+## 18. Troubleshooting
 
 ### Common Issues
 
@@ -1148,9 +1253,18 @@ npm run preview      # Preview production build
 
 ---
 
-## 17. Version History
+## 19. Version History
 
-**v1.0.0** (Current)
+**v1.1.0** (Current)
+
+- **Vault Academy**: Multi-language security knowledge base (EN/MM)
+- **Educational Architecture**: Interactive glossary powered by Gemini 3
+- **Knowledge Base**: Comprehensive guides for OWASP, CVE, SSL/TLS, DNS, Headers, Tech DNA
+- **Route-based Navigation**: React Router integration for better UX
+- **Responsive Header**: Optimized for all device sizes
+- Enhanced documentation and user education
+
+**v1.0.0**
 
 - Initial release with Gemini 3 Pro/Flash integration
 - Search Grounding support for live CVE lookups
@@ -1162,7 +1276,7 @@ npm run preview      # Preview production build
 
 ---
 
-## 18. License
+## 20. License
 
 **License:** GNU General Public License v3.0 (GPL-3.0)
 

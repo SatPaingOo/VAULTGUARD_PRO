@@ -1,0 +1,85 @@
+{
+  "id": "headers",
+  "title": "လုံခြုံရေး Headers",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "လုံခြုံရေး Headers များသည် Server မှ Browser သို့ ပေးပို့သော ညွှန်ကြားချက်များ ဖြစ်ပြီး Website ၏ content ကို မည်သို့ ကိုင်တွယ်ရမည်၊ မည်သို့ တိုက်ခိုက်မှုများမှ ကာကွယ်ရမည် ဆိုတာကို ပြောပြပါသည်။ ဤ Headers များသည် ကာကွယ်ရေး စနစ်အဖြစ် အလုပ်လုပ်ပြီး အဖြစ်များသော Web အားနည်းချက်များမှ ကာကွယ်ပေးပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာကြောင့် စစ်ဆေးရသလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "လုံခြုံရေး Headers များ မရှိခြင်း သို့မဟုတ် မှားယွင်းစွာ configure လုပ်ထားခြင်းသည် Website ကို XSS (Cross-Site Scripting), clickjacking, MIME-sniffing, data injection စသော တိုက်ခိုက်မှုများမှ ထိခိုက်စေနိုင်ပါသည်။ သင့်လျော်သော လုံခြုံရေး Headers များသည် Website နှင့် User များကို ကာကွယ်ရန် အရေးကြီးပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "အဓိက လုံခြုံရေး Headers များ:"
+    },
+    {
+      "type": "subsection",
+      "title": "HSTS (HTTP Strict Transport Security)",
+      "text": "Browser များကို Website သို့ ဝင်ရောက်ရာတွင် အမြဲ HTTPS (secure connection) သုံးစေရန် အတင်းအကျပ် လုပ်ဆောင်ပေးပြီး downgrade attacks နှင့် man-in-the-middle attacks များမှ ကာကွယ်ပေးပါသည်။ ဥပမာ: Strict-Transport-Security: max-age=31536000; includeSubDomains"
+    },
+    {
+      "type": "subsection",
+      "title": "Content Security Policy (CSP)",
+      "text": "မယုံကြည်ရသော တစ်ခြား domains များမှ scripts များကို Website ပေါ်တွင် execute လုပ်ခြင်းမှ တားဆီးပေးပြီး XSS attacks များမှ ကာကွယ်ပေးပါသည်။ မည်သည့် sources များက resources များကို load လုပ်ခွင့်ရှိသည်ကို သတ်မှတ်ပေးပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "X-Frame-Options",
+      "text": "Website ကို တစ်ခြား sites များ၏ iframes များထဲတွင် embed လုပ်ခြင်းမှ တားဆီးပေးပြီး clickjacking attacks များမှ ကာကွယ်ပေးပါသည်။ Options: DENY (embed လုပ်ခွင့် မရှိ), SAMEORIGIN (same origin သာ), ALLOW-FROM (သတ်မှတ်ထားသော origin)"
+    },
+    {
+      "type": "subsection",
+      "title": "X-Content-Type-Options",
+      "text": "Browser များကို MIME-sniffing လုပ်ခြင်းမှ တားဆီးပေးပြီး XSS attacks များ၏ အန္တရာယ်ကို လျော့ချပေးပါသည်။ 'nosniff' သို့ set လုပ်ထားသင့်ပြီး Browser များက content types များကို ခန့်မှန်းခြင်းမှ တားဆီးရမည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "X-XSS-Protection",
+      "text": "Browser ၏ built-in XSS filter ကို ဖွင့်ပေးပါသည်။ Modern browsers များတွင် default အားဖြင့် ဖွင့်ထားသော်လည်း ရှေးဟောင်း browsers များအတွက် ရှင်းရှင်းလင်းလင်း set လုပ်ထားခြင်းက အကူအညီ ဖြစ်စေပါသည်။ '1; mode=block' သို့ set လုပ်ထားသင့်ပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "Referrer-Policy",
+      "text": "Requests များနှင့်အတူ referrer information မည်မျှ ပေးပို့ရမည်ကို ထိန်းချုပ်ပေးပါသည်။ Options များတွင် 'no-referrer', 'same-origin', 'strict-origin-when-cross-origin' စသည်တို့ ပါဝင်ပြီး User privacy ကို ကာကွယ်ရန် အကူအညီ ဖြစ်စေပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာတွေ စစ်ဆေးတာလဲ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "အရေးကြီးသော လုံခြုံရေး Headers များ ရှိ/မရှိ",
+        "Header configuration မှန်ကန်မှု",
+        "ရှိသင့်သော Headers များ မရှိခြင်း",
+        "Header values နှင့် directives",
+        "CSP rules များ၏ သင့်လျော်သော implementation",
+        "HSTS configuration နှင့် max-age settings"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "အကောင်းဆုံး လုပ်ဆောင်ချက်များ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "HTTPS sites များအတွက် HSTS ကို အမြဲ ထည့်သွင်းပါ",
+        "Strict CSP policy တစ်ခု implement လုပ်ပါ",
+        "X-Frame-Options ကို DENY သို့မဟုတ် SAMEORIGIN သို့ set လုပ်ပါ",
+        "X-Content-Type-Options: nosniff သုံးပါ",
+        "Referrer-Policy ကို သင့်လျော်စွာ configure လုပ်ပါ",
+        "Header configurations များကို ပုံမှန် audit လုပ်ပြီး update လုပ်ပါ",
+        "လုံခြုံရေး header analysis tools များကို အသုံးပြု၍ headers များကို test လုပ်ပါ"
+      ]
+    }
+  ],
+  "related": ["ssl-tls", "owasp"]
+}

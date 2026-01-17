@@ -1,0 +1,108 @@
+{
+  "id": "tech-dna",
+  "title": "နည်းပညာ DNA ဆန်းစစ်မှု",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "နည်းပညာ DNA ဆန်းစစ်မှုသည် Website သုံးထားသော technology stack ကို identify လုပ်ပြီး web frameworks, CMS platforms, server technologies, libraries နှင့် ၎င်းတို့၏ specific versions များ အပါအဝင် ဖြစ်ပါသည်။ ဤ အချက်အလက်သည် security assessment နှင့် vulnerability detection အတွက် အရေးကြီးပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာကြောင့် Technology Stack ကို Analyze လုပ်ရသလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "သင့် technology stack ကို သိရှိခြင်းသည် specific versions များတွင် known vulnerabilities များကို ရှာဖွေရန် CVE databases များနှင့် cross-reference လုပ်ခွင့် ပေးပါသည်။ တူညီသော technology ၏ different versions များသည် အလွန်ကွဲပြားသော security postures များ ရှိနိုင်ပါသည်။ ဥပမာ- WordPress 4.0 တွင် WordPress 6.0 နှင့် ကွဲပြားသော vulnerabilities များ ရှိပါသည်။"
+    },
+    {
+      "type": "heading",
+      "text": "ဘာတွေ Detect လုပ်တာလဲ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Web frameworks (React, Vue, Angular, Next.js, စသည်)",
+        "CMS platforms (WordPress, Drupal, Joomla, စသည်)",
+        "Server technologies (PHP, Node.js, Python, ASP.NET, စသည်)",
+        "JavaScript libraries နှင့် ၎င်းတို့၏ versions",
+        "CSS frameworks (Bootstrap, Tailwind, စသည်)",
+        "Database technologies (MySQL, PostgreSQL, MongoDB, စသည်)",
+        "Web servers (Apache, Nginx, IIS, စသည်)",
+        "CDN providers နှင့် services"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "ဘယ်လို Detect လုပ်တာလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "VaultGuard Pro သည် technologies များကို identify လုပ်ရန် multiple sources များကို analyze လုပ်ပါသည်:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "HTTP Headers: Server, X-Powered-By, X-AspNet-Version headers များသည် server technologies များကို reveal လုပ်ပါသည်",
+        "HTML Meta Tags: Generator tags, HTML တွင် framework identifiers",
+        "JavaScript Files: JavaScript code တွင် library names, version numbers",
+        "DOM Structure: Framework-specific patterns နှင့် class names",
+        "File Paths: Frameworks များကို indicate လုပ်သော URLs နှင့် file structures",
+        "Cookie Names: Framework-specific cookie naming patterns"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "လုံခြုံရေးအတွက် ဘာကြောင့် အရေးကြီးတာလဲ:"
+    },
+    {
+      "type": "paragraph",
+      "text": "Technology stack information သည် enable လုပ်ပေးပါသည်:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "CVE Cross-Reference: Specific versions များအတွက် known vulnerabilities များကို ရှာဖွေခြင်း",
+        "Version-Specific Attacks: Specific versions များကို target လုပ်သော exploits များကို identify လုပ်ခြင်း",
+        "Update Prioritization: Urgent updates လိုအပ်သော components များကို သိရှိခြင်း",
+        "Security Posture Assessment: Overall security maturity ကို နားလည်ခြင်း",
+        "Compliance Checking: Technologies များသည် security standards များနှင့် ကိုက်ညီမှု ရှိ/မရှိ verify လုပ်ခြင်း"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "အကောင်းဆုံး လုပ်ဆောင်ချက်များ:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Components နှင့် dependencies အားလုံးကို up to date ထားပါ",
+        "ဖြစ်နိုင်ပါက headers များမှ version information များကို remove သို့မဟုတ် hide လုပ်ပါ",
+        "သင့် technology stack ကို ပုံမှန် audit လုပ်ပါ",
+        "သင်အသုံးပြုသော technologies များအတွက် security advisories များကို monitor လုပ်ပါ",
+        "Outdated components များကို detect လုပ်ရန် automated tools များ သုံးပါ",
+        "Versions များနှင့်အတူ software inventory တစ်ခု maintain လုပ်ပါ"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "အဖြစ်များသော Detection Methods များ:"
+    },
+    {
+      "type": "subsection",
+      "title": "Header Analysis",
+      "text": "'X-Powered-By: PHP/7.4.3' သို့မဟုတ် 'Server: nginx/1.18.0' ကဲ့သို့ Server headers များသည် technologies နှင့် versions များကို တိုက်ရိုက် reveal လုပ်ပါသည်။"
+    },
+    {
+      "type": "subsection",
+      "title": "JavaScript Fingerprinting",
+      "text": "JavaScript libraries များသည် မကြာခဏ ၎င်းတို့၏ code တွင် version information များကို include လုပ်ပြီး global variables များမှတစ်ဆင့် expose လုပ်ပါသည် (ဥပမာ- jQuery သည် version နှင့်အတူ $.fn.jquery ကို expose လုပ်ပါသည်)။"
+    },
+    {
+      "type": "subsection",
+      "title": "HTML Patterns",
+      "text": "Frameworks များသည် HTML တွင် React ၏ data-reactroot attributes သို့မဟုတ် Angular ၏ ng-* attributes ကဲ့သို့ distinctive patterns များကို ချန်ထားပါသည်။"
+    }
+  ],
+  "related": ["cve"]
+}

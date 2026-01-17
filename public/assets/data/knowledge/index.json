@@ -1,0 +1,64 @@
+{
+  "sections": [
+    {
+      "id": "ssl-tls",
+      "icon": "Lock",
+      "color": "#00d4ff",
+      "category": "Network Security",
+      "order": 1
+    },
+    {
+      "id": "headers",
+      "icon": "Shield",
+      "color": "#4ade80",
+      "category": "Web Security",
+      "order": 2
+    },
+    {
+      "id": "dns",
+      "icon": "Globe",
+      "color": "#f59e0b",
+      "category": "Network Security",
+      "order": 3
+    },
+    {
+      "id": "owasp",
+      "icon": "AlertTriangle",
+      "color": "#ef4444",
+      "category": "Vulnerabilities",
+      "order": 4
+    },
+    {
+      "id": "cve",
+      "icon": "BookOpen",
+      "color": "#a855f7",
+      "category": "Vulnerabilities",
+      "order": 5
+    },
+    {
+      "id": "tech-dna",
+      "icon": "Fingerprint",
+      "color": "#00ff9d",
+      "category": "Analysis",
+      "order": 6
+    }
+  ],
+  "categories": {
+    "Network Security": {
+      "en": "Network Security",
+      "mm": "ကွန်ရက် လုံခြုံရေး"
+    },
+    "Web Security": {
+      "en": "Web Security",
+      "mm": "Web လုံခြုံရေး"
+    },
+    "Vulnerabilities": {
+      "en": "Vulnerabilities",
+      "mm": "အားနည်းချက်များ"
+    },
+    "Analysis": {
+      "en": "Analysis",
+      "mm": "ဆန်းစစ်မှု"
+    }
+  }
+}

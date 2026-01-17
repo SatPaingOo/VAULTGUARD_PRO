@@ -1,0 +1,108 @@
+{
+  "id": "tech-dna",
+  "title": "Technology DNA Analysis",
+  "lastUpdated": "2024-12",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "Technology DNA analysis identifies the technology stack used by your website, including web frameworks, CMS platforms, server technologies, libraries, and their specific versions. This information is crucial for security assessment and vulnerability detection."
+    },
+    {
+      "type": "heading",
+      "text": "Why We Analyze Technology Stack:"
+    },
+    {
+      "type": "paragraph",
+      "text": "Knowing your technology stack allows us to cross-reference with CVE databases to find known vulnerabilities in specific versions. Different versions of the same technology can have vastly different security postures. For example, WordPress 4.0 has different vulnerabilities than WordPress 6.0."
+    },
+    {
+      "type": "heading",
+      "text": "What We Detect:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Web frameworks (React, Vue, Angular, Next.js, etc.)",
+        "CMS platforms (WordPress, Drupal, Joomla, etc.)",
+        "Server technologies (PHP, Node.js, Python, ASP.NET, etc.)",
+        "JavaScript libraries and their versions",
+        "CSS frameworks (Bootstrap, Tailwind, etc.)",
+        "Database technologies (MySQL, PostgreSQL, MongoDB, etc.)",
+        "Web servers (Apache, Nginx, IIS, etc.)",
+        "CDN providers and services"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "How We Detect It:"
+    },
+    {
+      "type": "paragraph",
+      "text": "VaultGuard Pro analyzes multiple sources to identify technologies:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "HTTP Headers: Server, X-Powered-By, X-AspNet-Version headers reveal server technologies",
+        "HTML Meta Tags: Generator tags, framework identifiers in HTML",
+        "JavaScript Files: Library names, version numbers in JavaScript code",
+        "DOM Structure: Framework-specific patterns and class names",
+        "File Paths: URLs and file structures that indicate frameworks",
+        "Cookie Names: Framework-specific cookie naming patterns"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Why It Matters for Security:"
+    },
+    {
+      "type": "paragraph",
+      "text": "Technology stack information enables:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "CVE Cross-Reference: Finding known vulnerabilities for specific versions",
+        "Version-Specific Attacks: Identifying exploits that target specific versions",
+        "Update Prioritization: Knowing which components need urgent updates",
+        "Security Posture Assessment: Understanding overall security maturity",
+        "Compliance Checking: Verifying if technologies meet security standards"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Best Practices:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Keep all components and dependencies up to date",
+        "Remove or hide version information from headers when possible",
+        "Regularly audit your technology stack",
+        "Monitor security advisories for technologies you use",
+        "Use automated tools to detect outdated components",
+        "Maintain a software inventory with versions"
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "Common Detection Methods:"
+    },
+    {
+      "type": "subsection",
+      "title": "Header Analysis",
+      "text": "Server headers like 'X-Powered-By: PHP/7.4.3' or 'Server: nginx/1.18.0' directly reveal technologies and versions."
+    },
+    {
+      "type": "subsection",
+      "title": "JavaScript Fingerprinting",
+      "text": "JavaScript libraries often include version information in their code or expose it through global variables (e.g., jQuery exposes $.fn.jquery with the version)."
+    },
+    {
+      "type": "subsection",
+      "title": "HTML Patterns",
+      "text": "Frameworks leave distinctive patterns in HTML, such as React's data-reactroot attributes or Angular's ng-* attributes."
+    }
+  ],
+  "related": ["cve"]
+}
