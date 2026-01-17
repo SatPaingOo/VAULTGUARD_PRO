@@ -10,8 +10,9 @@ import {
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { ScanLevel, MissionReport } from '../services/geminiService';
+import { ScanLevel, MissionReport, TechItem, VulnerabilityFinding } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
+import { TelemetryEntry, DispatchedProbe } from '../hooks/useScanner';
 import en from '../locales/en.ts';
 
 const LEVEL_COLORS: Record<ScanLevel, string> = {
@@ -20,7 +21,15 @@ const LEVEL_COLORS: Record<ScanLevel, string> = {
   DEEP: '#ef4444'
 };
 
-const SectionCard = ({ title, subtitle, icon: Icon, children, themeColor }: any) => {
+interface SectionCardProps {
+  title: string;
+  subtitle: string;
+  icon: React.ComponentType<{ className?: string; size?: number; style?: React.CSSProperties }>;
+  children: React.ReactNode;
+  themeColor: string;
+}
+
+const SectionCard = ({ title, subtitle, icon: Icon, children, themeColor }: SectionCardProps) => {
   return (
     <section className="glass-panel rounded-[2rem] md:rounded-[3.5rem] border border-white/10 bg-black/40 overflow-hidden shadow-3xl mb-8 md:mb-12">
       <div className="px-6 py-5 md:px-12 md:py-8 border-b border-white/5 bg-white/[0.02] flex items-center gap-4 md:gap-6">
@@ -35,7 +44,17 @@ const SectionCard = ({ title, subtitle, icon: Icon, children, themeColor }: any)
   );
 };
 
-export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, telemetry = [], dispatchedProbes = [] }: any) => {
+interface ResultsPageProps {
+  missionReport: MissionReport;
+  usage: { tokens: number; cost: number };
+  targetUrl: string;
+  level: ScanLevel;
+  onReset: () => void;
+  telemetry?: TelemetryEntry[];
+  dispatchedProbes?: DispatchedProbe[];
+}
+
+export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, telemetry = [], dispatchedProbes = [] }: ResultsPageProps) => {
   const { t } = useLanguage();
   const { targetIntelligence, technologyDNA = [], findings = [], activeProbes = [], securityScore = 0, dataQuality } = missionReport;
 
@@ -51,8 +70,18 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
   };
 
   // English-only translation function for PDF (always uses English regardless of UI language)
-  const tEn = (path: string) => {
-    return path.split('.').reduce((obj: any, key: string) => obj?.[key], en) || path;
+  const tEn = (path: string): string => {
+    const keys = path.split('.');
+    let value: unknown = en;
+    for (const key of keys) {
+      if (value && typeof value === 'object' && key in value) {
+        value = (value as Record<string, unknown>)[key];
+      } else {
+        value = undefined;
+        break;
+      }
+    }
+    return typeof value === 'string' ? value : path;
   };
 
   const generatePDF = () => {
@@ -163,7 +192,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         yPos += 8;
         
         doc.setFontSize(8);
-        technologyDNA.forEach((tech: any) => {
+        technologyDNA.forEach((tech: TechItem) => {
           if (yPos > 280) {
             doc.addPage();
             yPos = 20;
@@ -199,7 +228,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         yPos += 8;
         
         doc.setFontSize(8);
-        dispatchedProbes.forEach((probe: any) => {
+        dispatchedProbes.forEach((probe: DispatchedProbe) => {
           if (yPos > 280) {
             doc.addPage();
             yPos = 20;
@@ -247,7 +276,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         doc.text(tEn('pdf.vulnerability_ledger'), 15, yPos);
         yPos += 8;
 
-        findings.forEach((f: any, index: number) => {
+        findings.forEach((f: VulnerabilityFinding, index: number) => {
           if (yPos > 280) {
             doc.addPage();
             yPos = 20;
@@ -348,16 +377,16 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       }
 
       doc.save(`VaultGuard_Debrief_${hostname}.pdf`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("PDF Generation Error:", error);
-      const errorMessage = error?.message || 'Unknown error occurred during PDF generation';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred during PDF generation';
       alert(`${t('pdf.error_generating')}\n\nError: ${errorMessage}`);
     }
   };
 
   const topology = useMemo(() => {
     const counts = { logic: 0, config: 0, injection: 0, network: 0 };
-    findings.forEach((f: any) => {
+    findings.forEach((f: VulnerabilityFinding) => {
       const title = (f.title || "").toLowerCase();
       if (title.includes('logic') || title.includes('auth')) counts.logic++;
       else if (title.includes('injection') || title.includes('xss') || title.includes('sql')) counts.injection++;
@@ -771,7 +800,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                  </div>
                  <div className="space-y-3 font-mono text-[10px] md:text-[12px] uppercase max-h-[400px] overflow-y-auto terminal-scroll">
                     {telemetry.length > 0 ? (
-                      telemetry.map((log: any, i: number) => {
+                      telemetry.map((log: TelemetryEntry, i: number) => {
                         const logColor = 
                           log.type === 'error' ? '#ef4444' :
                           log.type === 'success' ? '#00ff9d' :
@@ -864,7 +893,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
 
         <SectionCard title={t('results.technology_dna')} subtitle={t('results.detected_tech_stack')} icon={Fingerprint} themeColor={LEVEL_COLORS.STANDARD}>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-              {technologyDNA.map((tech: any, i: number) => (
+              {technologyDNA.map((tech: TechItem, i: number) => (
                 <div key={i} className="p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border border-white/5 bg-black/40 flex flex-col group hover:bg-white/[0.02] transition-all">
                    <div className="flex justify-between items-start mb-6">
                       <div className="space-y-1">

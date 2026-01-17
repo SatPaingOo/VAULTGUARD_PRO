@@ -5,8 +5,8 @@ import {
   Shield, Activity, Server, Terminal, Cpu, Zap, ChevronUp, ChevronDown, 
   Send, Globe, HardDrive, Network
 } from 'lucide-react';
-import { ScanStatus, TelemetryEntry } from '../hooks/useScanner';
-import { MissionReport, ScanLevel } from '../services/geminiService';
+import { ScanStatus, TelemetryEntry, DispatchedProbe } from '../hooks/useScanner';
+import { MissionReport, ScanLevel, VulnerabilityFinding } from '../services/geminiService';
 import { VirtualHUD } from '../components/VirtualHUD';
 import { AttackerCode } from '../components/AttackerCode';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -17,7 +17,18 @@ const LEVEL_COLORS: Record<ScanLevel, string> = {
   DEEP: '#ef4444'
 };
 
-export const WebAudit = ({ phase, progress, telemetry, targetUrl, report, level, recentFindings = [], dispatchedProbes = [] }: any) => {
+interface WebAuditProps {
+  phase: ScanStatus;
+  progress: number;
+  telemetry: TelemetryEntry[];
+  targetUrl: string;
+  report: MissionReport;
+  level: ScanLevel;
+  recentFindings?: VulnerabilityFinding[];
+  dispatchedProbes?: DispatchedProbe[];
+}
+
+export const WebAudit = ({ phase, progress, telemetry, targetUrl, report, level, recentFindings = [], dispatchedProbes = [] }: WebAuditProps) => {
   const { t } = useLanguage();
   const [isConsoleExpanded, setIsConsoleExpanded] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);

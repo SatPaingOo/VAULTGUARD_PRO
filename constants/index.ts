@@ -19,6 +19,9 @@ export const AI_CONSTANTS = {
   
   /** Jitter range for rate limit backoff (0-2000ms) */
   RATE_LIMIT_JITTER_MS: 2000,
+  
+  /** Maximum length for recon intelligence substring (2000 chars) */
+  MAX_RECON_INTEL_LENGTH: 2000,
 } as const;
 
 // Network Analysis Configuration
@@ -34,6 +37,9 @@ export const NETWORK_CONSTANTS = {
   
   /** Iframe timeout for DOM extraction (10 seconds) */
   IFRAME_TIMEOUT_MS: 10000,
+  
+  /** Maximum DOM characters for DEEP scan analysis */
+  MAX_DOM_CHARS: 50000,
 } as const;
 
 // Probe Execution Configuration

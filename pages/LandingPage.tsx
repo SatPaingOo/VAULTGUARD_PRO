@@ -10,6 +10,7 @@ import {
 import { ScanLevel, LEVEL_COLORS } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
+import { API_KEY_CONSTANTS } from '../constants';
 import { GlobalHeader } from '../components/GlobalHeader';
 import { ApiKeyModal } from '../components/ApiKeyModal';
 import { SandboxVisualizer } from '../components/SandboxVisualizer';
@@ -153,7 +154,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         setIsValidating(false);
         return;
       }
-      if (!activeKey || activeKey.length < 20) {
+      if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
         setIsAuthModalOpen(true);
         setIsValidating(false);
         return;
@@ -410,7 +411,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.validating_connectivity')}</p>
              </div>
            )}
-           {isEngineLinked && (!activeKey || activeKey.length < 20) && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
+           {isEngineLinked && (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
              <div className="flex flex-col items-center gap-2">
                 <p className="text-[10px] md:text-[12px] font-black text-yellow-500 uppercase tracking-widest animate-pulse flex items-center gap-2 bg-yellow-500/5 px-6 py-2.5 rounded-full border border-yellow-500/20">
                    <AlertTriangle size={14}/> API_KEY_INVALID
@@ -425,13 +426,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 </button>
              </div>
            )}
-           {isEngineLinked && activeKey && activeKey.length >= 20 && apiKeyStatus === 'valid' && (
+           {isEngineLinked && activeKey && activeKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyStatus === 'valid' && (
              <div className="px-6 py-3.5 rounded-2xl bg-[#00ff9d]/5 border border-[#00ff9d]/10 flex items-center gap-3 md:gap-5">
                 <ShieldCheck size={18} className="text-[#00ff9d]" />
                 <span className="text-[10px] md:text-[12px] font-black text-[#00ff9d] uppercase tracking-[0.3em] md:tracking-[0.4em]">SYSTEM_CORE_ENGAGED</span>
              </div>
            )}
-           {isEngineLinked && activeKey && activeKey.length >= 20 && apiKeyStatus !== 'valid' && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
+           {isEngineLinked && activeKey && activeKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyStatus !== 'valid' && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
              <div className="px-6 py-3.5 rounded-2xl bg-yellow-500/5 border border-yellow-500/10 flex items-center gap-3 md:gap-5">
                 <AlertTriangle size={18} className="text-yellow-500" />
                 <span className="text-[10px] md:text-[12px] font-black text-yellow-500 uppercase tracking-[0.3em] md:tracking-[0.4em]">KEY_STATUS_UNKNOWN</span>

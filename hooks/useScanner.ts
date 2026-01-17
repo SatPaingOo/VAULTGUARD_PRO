@@ -1,11 +1,12 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { GeminiService, MissionReport, ScanLevel, VerificationPayload } from '../services/geminiService';
+import { GeminiService, MissionReport, ScanLevel, VerificationPayload, VulnerabilityFinding } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
 import { extractSecuritySignals, extractTargetDOM } from '../utils/masking';
 import { FrontendNetworkAnalysis } from '../utils/networkAnalysis';
 import { validateAndCheckUrl } from '../utils/urlValidation';
+import { AI_CONSTANTS, NETWORK_CONSTANTS, PROBE_CONSTANTS, API_KEY_CONSTANTS } from '../constants';
 
 export type MissionPhase = 'Briefing' | 'Simulation' | 'Debriefing';
 export type ScanStatus = 'Idle' | 'Recon' | 'Discovery' | 'Probing' | 'Fuzzing' | 'Triage' | 'Finalizing';
@@ -17,6 +18,17 @@ export interface TelemetryEntry {
   progressAtLog: number;
 }
 
+export interface DispatchedProbe extends VerificationPayload {
+  status?: number;
+  responseTime?: number;
+  responseLength?: number;
+  timestamp?: string;
+  vulnerable?: boolean;
+  corsBlocked?: boolean;
+  error?: string;
+  errorMessage?: string;
+}
+
 const INITIAL_REPORT: MissionReport = {
   targetIntelligence: { purpose: "---", businessLogic: "---", attackSurfaceSummary: "---", forensicAnalysis: "---", apis: [], associatedLinks: [], hosting: { provider: "---", location: "---", ip: "0.0.0.0", latitude: 0, longitude: 0 } },
   activeProbes: [],
@@ -25,7 +37,7 @@ const INITIAL_REPORT: MissionReport = {
   findings: [], 
   confidenceScore: 0, 
   securityScore: 0, 
-  usage: { tokens: 0, cost: 0 }
+  usage: { totalTokenCount: 0 }
 };
 
 export const useScanner = () => {
@@ -40,8 +52,8 @@ export const useScanner = () => {
   const [usage, setUsage] = useState({ tokens: 0, cost: 0 });
   const [targetUrl, setTargetUrl] = useState('');
   const [currentLevel, setCurrentLevel] = useState<ScanLevel>('STANDARD');
-  const [recentFindings, setRecentFindings] = useState<any[]>([]);
-  const [dispatchedProbes, setDispatchedProbes] = useState<any[]>([]);
+  const [recentFindings, setRecentFindings] = useState<VulnerabilityFinding[]>([]);
+  const [dispatchedProbes, setDispatchedProbes] = useState<DispatchedProbe[]>([]);
   const [error, setError] = useState<{ message: string; type: 'api_key' | 'network' | 'unknown' } | null>(null);
 
   const gemini = useRef<GeminiService | null>(null);
@@ -66,7 +78,7 @@ export const useScanner = () => {
 
   const runMission = async (url: string, level: ScanLevel, languageName: string = "English") => {
     // Validate API key before starting scan
-    if (!activeKey || activeKey.length < 20) {
+    if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       addLog(`[FATAL] API_KEY_MISSING: Neural Engine Core not linked. Please configure API key to proceed.`, 'error', 0);
       setProgress(0);
       setScanStatus('Idle');
@@ -135,7 +147,7 @@ export const useScanner = () => {
       const g = getGemini();
       
       // Verify API key is still valid (from React Context)
-      if (!activeKey || activeKey.length < 20) {
+      if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
         throw new Error('API_KEY_INVALID: API key is missing or invalid. Please reconfigure.');
       }
       const networkAnalysis = new FrontendNetworkAnalysis();
@@ -271,7 +283,7 @@ export const useScanner = () => {
 
       // MANDATORY COOLDOWN: Give the API breathing room to prevent burst 429s
       addLog(`[SYSTEM] Cooldown period active: mitigating API rate limits...`, 'info', 32);
-      await new Promise(r => setTimeout(r, 2500));
+      await new Promise(r => setTimeout(r, AI_CONSTANTS.API_COOLDOWN_MS));
 
       // Phase 2: Neural Processing & Sandbox (OPTIMIZED: Tier-based data transmission)
       setScanStatus('Probing');
@@ -338,7 +350,7 @@ export const useScanner = () => {
       if (audit.activeProbes && audit.activeProbes.length > 0) {
         addLog(`[PROBE] Executing ${audit.activeProbes.length} real HTTP probes in batches...`, 'info', 50);
         
-        const batchSize = 3;
+        const batchSize = PROBE_CONSTANTS.PROBE_BATCH_SIZE;
         const executeProbe = async (probe: VerificationPayload, index: number) => {
           probesExecuted++;
           try {
@@ -442,7 +454,7 @@ export const useScanner = () => {
           
           // Rate limiting between batches (not between individual probes)
           if (i + batchSize < audit.activeProbes.length) {
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, PROBE_CONSTANTS.PROBE_BATCH_DELAY_MS));
           }
         }
       }

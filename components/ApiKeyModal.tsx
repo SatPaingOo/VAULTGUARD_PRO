@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
+import { API_KEY_CONSTANTS } from '../constants';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
   }, [isOpen]);
 
   const handleTestKey = async () => {
-    if (!inputKey.trim() || inputKey.length < 20) {
+    if (!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setTestResult('error');
       return;
     }
@@ -60,7 +61,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
   };
 
   const handleManualSave = async () => {
-    if (!inputKey.trim() || inputKey.length < 20) {
+    if (!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setTestResult('error');
       return;
     }
@@ -192,7 +193,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 </div>
                 
                 <div className="min-h-[20px] flex items-start">
-                  {inputKey.length > 0 && inputKey.length < 20 && (
+                  {inputKey.length > 0 && inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH && (
                     <p className="text-[10px] md:text-[11px] font-mono text-red-400/80 uppercase tracking-wider px-2 flex items-center gap-2">
                       <AlertCircle size={12} className="shrink-0" />
                       {t('apikey.invalid_format')}
@@ -204,7 +205,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       {t('apikey.validated_success')}
                     </p>
                   )}
-                  {testResult === 'error' && inputKey.length >= 20 && apiKeyError && (
+                  {testResult === 'error' && inputKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyError && (
                     <div className="space-y-2 w-full bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                       <p className="text-[9px] md:text-[10px] font-mono text-red-400/80 uppercase tracking-wider flex items-center gap-2">
                         <AlertCircle size={12} className="shrink-0" />
@@ -281,7 +282,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   )}
                   
                   {/* Fallback generic error if no specific error details */}
-                  {testResult === 'error' && inputKey.length >= 20 && !apiKeyError && (
+                  {testResult === 'error' && inputKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && !apiKeyError && (
                     <div className="space-y-2 w-full bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                         <p className="text-[9px] md:text-[10px] font-mono text-red-400/80 uppercase tracking-wider flex items-center gap-2">
                         <AlertCircle size={12} className="shrink-0" />
@@ -312,7 +313,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                 <button 
                   onClick={handleTestKey}
-                  disabled={!inputKey.trim() || inputKey.length < 20 || isTesting}
+                  disabled={!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH || isTesting}
                   className="py-4 md:py-5 rounded-xl md:rounded-2xl bg-[#00d4ff]/10 text-[#00d4ff] border-2 border-[#00d4ff]/30 font-black uppercase tracking-[0.2em] text-[10px] md:text-xs hover:bg-[#00d4ff]/20 hover:border-[#00d4ff]/50 hover:shadow-[0_0_25px_rgba(0,212,255,0.3)] transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#00d4ff]/10 disabled:hover:border-[#00d4ff]/30 disabled:hover:shadow-none flex items-center justify-center gap-2"
                 >
                   {isTesting ? (

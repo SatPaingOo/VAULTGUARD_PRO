@@ -33,7 +33,7 @@ const AppContent = () => {
         )}
         {missionPhase === 'Simulation' && (
           <WebAudit 
-            key="audit" phase={scanStatus} progress={progress} telemetry={telemetry} 
+            phase={scanStatus} progress={progress} telemetry={telemetry} 
             targetUrl={targetUrl} report={missionReport} level={currentLevel} 
             recentFindings={recentFindings}
             dispatchedProbes={dispatchedProbes}
@@ -41,7 +41,7 @@ const AppContent = () => {
         )}
         {missionPhase === 'Debriefing' && (
           <ResultsPage 
-            key="results" missionReport={missionReport} usage={usage} 
+            missionReport={missionReport} usage={usage} 
             targetUrl={targetUrl} level={currentLevel} onReset={resetMission}
             telemetry={telemetry} dispatchedProbes={dispatchedProbes}
           />

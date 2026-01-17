@@ -12,6 +12,10 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
+  declare state: State;
+  declare props: Props;
+  
+  setState = Component.prototype.setState.bind(this);
   constructor(props: Props) {
     super(props);
     this.state = {

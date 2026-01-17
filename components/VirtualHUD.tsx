@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Zap, Globe, Map as MapIcon, Layers, AlertCircle, Info } from 'lucide-react';
-import { ScanLevel } from '../services/geminiService';
+import { ScanLevel, MissionReport } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const LEVEL_COLORS: Record<ScanLevel, string> = {
@@ -11,44 +11,54 @@ const LEVEL_COLORS: Record<ScanLevel, string> = {
   DEEP: '#ef4444'
 };
 
-const ThreatAlert: React.FC<{ finding: any }> = ({ finding }) => (
-  <motion.div 
-    initial={{ x: -100, opacity: 0 }}
-    animate={{ x: 0, opacity: 1 }}
-    exit={{ x: -100, opacity: 0 }}
-    className="bg-red-500/10 border border-red-500/30 backdrop-blur-xl p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col gap-1.5 sm:gap-2 w-[220px] sm:w-[280px] shadow-2xl"
-  >
-    <div className="flex items-center gap-2 sm:gap-3">
-      <AlertCircle className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" />
-      <span className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t('virtualhud.neural_threat')}</span>
-    </div>
+interface ThreatAlertProps {
+  finding: { title: string; description: string };
+}
+
+const ThreatAlert: React.FC<ThreatAlertProps> = ({ finding }) => {
+  const { t } = useLanguage();
+  return (
+    <motion.div 
+      initial={{ x: -100, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -100, opacity: 0 }}
+      className="bg-red-500/10 border border-red-500/30 backdrop-blur-xl p-3 sm:p-4 rounded-xl sm:rounded-2xl flex flex-col gap-1.5 sm:gap-2 w-[220px] sm:w-[280px] shadow-2xl"
+    >
+      <div className="flex items-center gap-2 sm:gap-3">
+        <AlertCircle className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" />
+        <span className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t('virtualhud.neural_threat')}</span>
+      </div>
     <div className="w-full h-[1px] bg-red-500/20" />
     <h5 className="text-[10px] sm:text-[12px] font-black text-white uppercase truncate">{finding.title}</h5>
-    <p className="text-[10px] font-mono text-white/50 leading-tight uppercase truncate">{finding.description}</p>
-  </motion.div>
-);
+      <p className="text-[10px] font-mono text-white/50 leading-tight uppercase truncate">{finding.description}</p>
+    </motion.div>
+  );
+};
 
-const NeuralBlueprint = ({ color }: { color: string }) => (
-  <div className="w-full h-full bg-[#020408] flex items-center justify-center relative overflow-hidden">
-    <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] sm:bg-[size:30px_30px]" />
-    <div className="relative z-10 flex flex-col items-center gap-4 md:gap-8 px-4">
-      <motion.div 
-        animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 4, repeat: Infinity }}
-        className="w-24 h-24 sm:w-48 sm:h-48 md:w-96 md:h-96 border rounded-full flex items-center justify-center"
-        style={{ borderColor: `${color}33` }}
-      >
-        <div className="w-16 h-16 sm:w-32 sm:h-32 md:w-64 md:h-64 border rounded-full flex items-center justify-center animate-radar" style={{ borderColor: `${color}1a` }}>
-           <div className="w-full h-0.5 sm:h-1 origin-left" style={{ background: `linear-gradient(to right, ${color}, transparent)` }} />
+const NeuralBlueprint = ({ color }: { color: string }) => {
+  const { t } = useLanguage();
+  return (
+    <div className="w-full h-full bg-[#020408] flex items-center justify-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] sm:bg-[size:30px_30px]" />
+      <div className="relative z-10 flex flex-col items-center gap-4 md:gap-8 px-4">
+        <motion.div 
+          animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 4, repeat: Infinity }}
+          className="w-24 h-24 sm:w-48 sm:h-48 md:w-96 md:h-96 border rounded-full flex items-center justify-center"
+          style={{ borderColor: `${color}33` }}
+        >
+          <div className="w-16 h-16 sm:w-32 sm:h-32 md:w-64 md:h-64 border rounded-full flex items-center justify-center animate-radar" style={{ borderColor: `${color}1a` }}>
+             <div className="w-full h-0.5 sm:h-1 origin-left" style={{ background: `linear-gradient(to right, ${color}, transparent)` }} />
+          </div>
+        </motion.div>
+        <div className="text-center">
+          <h4 className="text-[10px] sm:text-[12px] font-black uppercase tracking-[0.2em] sm:tracking-[0.6em] mb-1 sm:mb-2" style={{ color }}>{t('virtualhud.neural_blueprint')}</h4>
+          <p className="text-[9px] sm:text-[10px] font-mono text-white/30 uppercase tracking-[0.1em] max-w-[140px] mx-auto sm:max-w-none">{t('virtualhud.target_reconstruction')}</p>
         </div>
-      </motion.div>
-      <div className="text-center">
-        <h4 className="text-[10px] sm:text-[12px] font-black uppercase tracking-[0.2em] sm:tracking-[0.6em] mb-1 sm:mb-2" style={{ color }}>{t('virtualhud.neural_blueprint')}</h4>
-        <p className="text-[9px] sm:text-[10px] font-mono text-white/30 uppercase tracking-[0.1em] max-w-[140px] mx-auto sm:max-w-none">{t('virtualhud.target_reconstruction')}</p>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const TacticalMap = ({ lat, lng, color }: { lat: number; lng: number, color: string }) => {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -91,7 +101,16 @@ const TacticalMap = ({ lat, lng, color }: { lat: number; lng: number, color: str
   return <div ref={mapRef} className="w-full h-full rounded-xl sm:rounded-2xl md:rounded-[4rem] overflow-hidden border border-white/10 shadow-2xl bg-black" />;
 };
 
-export const VirtualHUD = ({ phase, report, onSelectNode, targetUrl, recentFindings = [], level }: any) => {
+interface VirtualHUDProps {
+  phase?: string;
+  report?: MissionReport;
+  onSelectNode?: (node: unknown) => void;
+  targetUrl: string;
+  recentFindings?: Array<{ title: string; description: string }>;
+  level: ScanLevel;
+}
+
+export const VirtualHUD = ({ phase, report, onSelectNode, targetUrl, recentFindings = [], level }: VirtualHUDProps) => {
   const { t } = useLanguage();
   const [view, setView] = useState<'VISUAL' | 'MAP' | 'BLUEPRINT'>('VISUAL');
   const [iframeError, setIframeError] = useState(false);

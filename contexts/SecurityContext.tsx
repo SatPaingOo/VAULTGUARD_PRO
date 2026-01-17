@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useMemo, useEffect, ReactNode, useCallback } from 'react';
+import { API_KEY_CONSTANTS } from '../constants';
 
 export interface ApiKeyErrorDetails {
   type: 'invalid_key' | 'missing_models' | 'missing_billing' | 'missing_grounding' | 'format_error' | 'unknown';
@@ -37,28 +38,28 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
         setIsSystemLinked(hasKey);
       } else {
         // Fallback check
-        setIsSystemLinked(!!process.env.API_KEY && process.env.API_KEY.length > 10);
+        setIsSystemLinked(!!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.length > API_KEY_CONSTANTS.MIN_KEY_LENGTH_BASIC);
       }
     };
     checkStatus();
   }, [keySelectionTimestamp]);
 
   const activeKey = useMemo(() => {
-    if (manualKey.length > 10) return manualKey;
+    if (manualKey.length > API_KEY_CONSTANTS.MIN_KEY_LENGTH_BASIC) return manualKey;
     try {
-      return process.env.API_KEY || "";
+      return process.env.GEMINI_API_KEY || "";
     } catch {
       return "";
     }
   }, [keySelectionTimestamp, manualKey]);
 
   const isEngineLinked = useMemo(() => {
-    return isSystemLinked || activeKey.length > 10;
+    return isSystemLinked || activeKey.length > API_KEY_CONSTANTS.MIN_KEY_LENGTH_BASIC;
   }, [isSystemLinked, activeKey]);
 
   // Test API key by making a simple API call and checking required models
   const testApiKey = useCallback(async (): Promise<boolean> => {
-    if (!activeKey || activeKey.length < 20) {
+    if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setApiKeyStatus('invalid');
       setApiKeyError({
         type: 'format_error',
@@ -259,7 +260,7 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
     const trimmed = key.trim();
     setManualKey(trimmed);
     // Reset status when key changes
-    setApiKeyStatus(trimmed.length >= 20 ? 'none' : 'invalid');
+    setApiKeyStatus(trimmed.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH ? 'none' : 'invalid');
     setApiKeyError(undefined);
     // No longer saving to localStorage - only React Context (in-memory)
     setKeySelectionTimestamp(Date.now());
@@ -271,9 +272,9 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
 
   // Auto-test API key when it changes (if it's long enough)
   useEffect(() => {
-    if (activeKey && activeKey.length >= 20 && apiKeyStatus === 'none') {
+    if (activeKey && activeKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyStatus === 'none') {
       testApiKey();
-    } else if (!activeKey || activeKey.length < 20) {
+    } else if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setApiKeyStatus('none');
     }
   }, [activeKey, apiKeyStatus, testApiKey]);

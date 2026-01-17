@@ -1,6 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 import { maskData } from "../utils/masking";
+import { AI_CONSTANTS, NETWORK_CONSTANTS, API_KEY_CONSTANTS } from "../constants";
 
 export interface TechItem {
   name: string;
@@ -20,9 +21,30 @@ export interface VerificationPayload {
   expectedBehavior: string;
 }
 
+export interface VulnerabilityFinding {
+  title: string;
+  description: string;
+  severity: 'Low' | 'Medium' | 'High' | 'Critical';
+  remediation: string;
+  businessImpact: string;
+  cwe: string;
+  origin: string;
+  poc: string;
+  confidence?: 'High' | 'Medium' | 'Low';
+  evidence?: string[];
+}
+
+export interface DigitalFootprint {
+  type: string;
+  value: string;
+  source: string;
+  timestamp?: string;
+}
+
 export interface DataQuality {
   trustScore: number; // 0-100
   limitations: string[]; // e.g., ["CORS blocked DOM extraction"]
+  corsCompensation?: boolean; // AI compensation mode flag
   sources: {
     dom: boolean;
     headers: boolean;
@@ -34,6 +56,12 @@ export interface DataQuality {
       successful: number;
     };
   };
+}
+
+export interface UsageMetadata {
+  totalTokenCount?: number;
+  inputTokenCount?: number;
+  outputTokenCount?: number;
 }
 
 export interface MissionReport {
@@ -53,13 +81,13 @@ export interface MissionReport {
     };
   };
   activeProbes: VerificationPayload[];
-  digitalFootprint: any[];
+  digitalFootprint: DigitalFootprint[];
   technologyDNA: TechItem[];
-  findings: any[];
+  findings: VulnerabilityFinding[];
   securityScore: number;
   confidenceScore: number;
-  usage?: any;
-  sources?: any[];
+  usage?: UsageMetadata;
+  sources?: string[];
   dataQuality?: DataQuality;
 }
 
@@ -76,22 +104,24 @@ export class GeminiService {
 
   constructor(apiKey?: string) {
     // API key passed from React Context, NOT from localStorage
-    this.apiKey = apiKey || process.env.API_KEY || "";
+    // Standardize on GEMINI_API_KEY environment variable
+    this.apiKey = apiKey || process.env.GEMINI_API_KEY || "";
   }
 
   /**
    * Resolves the current active API key from constructor parameter or env.
    * No longer reads from localStorage - key must be passed from React Context.
+   * Standardized to use GEMINI_API_KEY environment variable.
    */
   private getActiveKey(): string {
-    return this.apiKey || process.env.API_KEY || "";
+    return this.apiKey || process.env.GEMINI_API_KEY || "";
   }
 
   /**
    * Enhanced retry logic with exponential backoff and jitter to mitigate 429 errors.
    * Improved with longer base delays and better backoff strategy.
    */
-  private async executeWithRetry<T>(fn: () => Promise<T>, retries = 5, baseDelay = 5000): Promise<T> {
+  private async executeWithRetry<T>(fn: () => Promise<T>, retries = AI_CONSTANTS.MAX_RETRY_ATTEMPTS, baseDelay = AI_CONSTANTS.RATE_LIMIT_BASE_DELAY_MS): Promise<T> {
     try {
       return await fn();
     } catch (error: any) {
@@ -101,8 +131,8 @@ export class GeminiService {
       
       if (isRateLimit && retries > 0) {
         // More aggressive exponential backoff: 5s, 10s, 20s, 40s, 80s
-        const backoff = baseDelay * Math.pow(2, 5 - retries);
-        const jitter = Math.random() * 2000; // Increased jitter (0-2s)
+        const backoff = baseDelay * Math.pow(2, AI_CONSTANTS.MAX_RETRY_ATTEMPTS - retries);
+        const jitter = Math.random() * AI_CONSTANTS.RATE_LIMIT_JITTER_MS; // Increased jitter (0-2s)
         const totalDelay = backoff + jitter;
         
         // Only log rate limit warnings in development mode or when retries are low
@@ -112,7 +142,7 @@ export class GeminiService {
           console.warn(`[GeminiService] Rate limit hit. Retrying in ${Math.round(totalDelay/1000)}s... (${retries} attempts left)`);
         }
         await new Promise(resolve => setTimeout(resolve, totalDelay));
-        return this.executeWithRetry(fn, retries - 1, baseDelay);
+        return this.executeWithRetry(fn, (retries - 1) as typeof retries, baseDelay);
       }
       
       // Handle API key errors (401, 403, unauthorized)
@@ -136,7 +166,7 @@ export class GeminiService {
     }
   }
 
-  private extractJson(text: string): any {
+  private extractJson(text: string): unknown {
     if (!text || typeof text !== 'string') {
       console.warn('[GeminiService] Empty or invalid text for JSON extraction');
       return {};
@@ -175,7 +205,20 @@ export class GeminiService {
   /**
    * ENHANCED: Validate AI response structure to prevent silent failures and ensure accuracy
    */
-  private validateMissionReport(result: any): MissionReport {
+  private validateMissionReport(result: Record<string, unknown>): MissionReport {
+    // Type guard to safely access nested properties
+    const getNested = (obj: unknown, path: string[]): unknown => {
+      let current: unknown = obj;
+      for (const key of path) {
+        if (current && typeof current === 'object' && key in current) {
+          current = (current as Record<string, unknown>)[key];
+        } else {
+          return undefined;
+        }
+      }
+      return current;
+    };
+
     // Validate required fields
     const requiredFields = [
       'targetIntelligence',
@@ -193,136 +236,138 @@ export class GeminiService {
     }
 
     // Ensure arrays are arrays
-    if (!Array.isArray(result.findings)) {
-      console.warn('[GeminiService] Findings is not an array, defaulting to []');
-      result.findings = [];
-    }
-
-    if (!Array.isArray(result.activeProbes)) {
-      console.warn('[GeminiService] ActiveProbes is not an array, defaulting to []');
-      result.activeProbes = [];
-    }
-
-    if (!Array.isArray(result.technologyDNA)) {
-      console.warn('[GeminiService] TechnologyDNA is not an array, defaulting to []');
-      result.technologyDNA = [];
-    }
+    const findings = Array.isArray(result.findings) ? result.findings : [];
+    const activeProbes = Array.isArray(result.activeProbes) ? result.activeProbes : [];
+    const technologyDNA = Array.isArray(result.technologyDNA) ? result.technologyDNA : [];
 
     // Validate and clean findings array - ensure all required fields exist
-    if (Array.isArray(result.findings)) {
-      result.findings = result.findings.map((finding: any, index: number) => {
+    const validatedFindings = findings.map((finding: unknown, index: number) => {
+      if (!finding || typeof finding !== 'object') return null;
+      const f = finding as Record<string, unknown>;
         // Ensure all required fields exist
-        if (!finding.title) {
+        if (!f.title || typeof f.title !== 'string') {
           console.warn(`[GeminiService] Finding ${index} missing title, skipping`);
           return null;
         }
         return {
-          title: finding.title || `Finding ${index + 1}`,
-          description: finding.description || 'No description provided.',
-          severity: ['Low', 'Medium', 'High', 'Critical'].includes(finding.severity) 
-            ? finding.severity 
-            : 'Medium',
-          remediation: finding.remediation || 'No remediation provided.',
-          businessImpact: finding.businessImpact || 'Impact assessment not available.',
-          cwe: finding.cwe || 'N/A',
-          origin: finding.origin || 'Unknown',
-          poc: finding.poc || 'No proof-of-concept provided.',
-          confidence: finding.confidence || 'Medium', // Add confidence if missing
-          evidence: finding.evidence || [], // Add evidence array if missing
+          title: typeof f.title === 'string' ? f.title : `Finding ${index + 1}`,
+          description: typeof f.description === 'string' ? f.description : 'No description provided.',
+          severity: (typeof f.severity === 'string' && ['Low', 'Medium', 'High', 'Critical'].includes(f.severity))
+            ? f.severity as 'Low' | 'Medium' | 'High' | 'Critical'
+            : 'Medium' as const,
+          remediation: typeof f.remediation === 'string' ? f.remediation : 'No remediation provided.',
+          businessImpact: typeof f.businessImpact === 'string' ? f.businessImpact : 'Impact assessment not available.',
+          cwe: typeof f.cwe === 'string' ? f.cwe : 'N/A',
+          origin: typeof f.origin === 'string' ? f.origin : 'Unknown',
+          poc: typeof f.poc === 'string' ? f.poc : 'No proof-of-concept provided.',
+          confidence: (typeof f.confidence === 'string' && ['High', 'Medium', 'Low'].includes(f.confidence))
+            ? f.confidence as 'High' | 'Medium' | 'Low'
+            : 'Medium' as const,
+          evidence: Array.isArray(f.evidence) ? f.evidence.filter((e): e is string => typeof e === 'string') : [],
         };
-      }).filter((f: any) => f !== null); // Remove null entries
-    }
+      }).filter((f): f is NonNullable<typeof f> => f !== null) as VulnerabilityFinding[]; // Remove null entries
 
     // Validate and clean technologyDNA array
-    if (Array.isArray(result.technologyDNA)) {
-      result.technologyDNA = result.technologyDNA.map((tech: any, index: number) => {
+    const validatedTechDNA = technologyDNA.map((tech: unknown) => {
+      if (!tech || typeof tech !== 'object') {
         return {
-          name: tech.name || `Technology ${index + 1}`,
-          version: tech.version || 'Unknown',
-          category: ['Frontend', 'Backend', 'Library', 'Server', 'Database'].includes(tech.category)
-            ? tech.category
-            : 'Library',
-          status: ['Stable', 'Outdated', 'Legacy', 'End of Life'].includes(tech.status)
-            ? tech.status
-            : 'Unknown',
-          actionPlan: tech.actionPlan || 'No action plan provided.',
-          cves: Array.isArray(tech.cves) ? tech.cves : [],
-          advisory: tech.advisory || undefined,
+          name: 'Unknown',
+          version: 'Unknown',
+          category: 'Library' as const,
+          status: 'Stable' as const,
+          actionPlan: 'No action plan provided.',
+          cves: [],
         };
-      });
-    }
+      }
+      const t = tech as Record<string, unknown>;
+      return {
+        name: typeof t.name === 'string' ? t.name : 'Unknown',
+        version: typeof t.version === 'string' ? t.version : 'Unknown',
+        category: (typeof t.category === 'string' && ['Frontend', 'Backend', 'Library', 'Server', 'Database'].includes(t.category))
+          ? t.category as TechItem['category']
+          : 'Library' as const,
+        status: (typeof t.status === 'string' && ['Stable', 'Outdated', 'Legacy', 'End of Life'].includes(t.status))
+          ? t.status as TechItem['status']
+          : 'Stable' as const,
+        actionPlan: typeof t.actionPlan === 'string' ? t.actionPlan : 'No action plan provided.',
+        cves: Array.isArray(t.cves) ? t.cves.filter((cve): cve is string => typeof cve === 'string') : [],
+        advisory: typeof t.advisory === 'string' ? t.advisory : undefined,
+      };
+    });
 
     // Validate nested structures
-    if (!result.targetIntelligence) {
-      result.targetIntelligence = {
-        purpose: 'Analysis incomplete',
-        businessLogic: 'Analysis incomplete',
-        attackSurfaceSummary: 'Analysis incomplete',
-        forensicAnalysis: 'Analysis incomplete',
-        apis: [],
-        associatedLinks: [],
-        hosting: {
-          provider: 'Unknown',
-          location: 'Unknown',
-          ip: '0.0.0.0',
-          latitude: 0,
-          longitude: 0
+    const targetIntelligence = result.targetIntelligence && typeof result.targetIntelligence === 'object'
+      ? result.targetIntelligence as Record<string, unknown>
+      : null;
+    
+    const validatedTargetIntelligence = targetIntelligence ? {
+      purpose: typeof targetIntelligence.purpose === 'string' ? targetIntelligence.purpose : 'Analysis incomplete',
+      businessLogic: typeof targetIntelligence.businessLogic === 'string' ? targetIntelligence.businessLogic : 'Analysis incomplete',
+      attackSurfaceSummary: typeof targetIntelligence.attackSurfaceSummary === 'string' ? targetIntelligence.attackSurfaceSummary : 'Analysis incomplete',
+      forensicAnalysis: typeof targetIntelligence.forensicAnalysis === 'string' ? targetIntelligence.forensicAnalysis : 'Analysis incomplete',
+      apis: Array.isArray(targetIntelligence.apis) ? targetIntelligence.apis.filter((api): api is string => typeof api === 'string') : [],
+      associatedLinks: Array.isArray(targetIntelligence.associatedLinks) ? targetIntelligence.associatedLinks.filter((link): link is string => typeof link === 'string') : [],
+      hosting: (() => {
+        const hosting = targetIntelligence.hosting;
+        if (hosting && typeof hosting === 'object') {
+          const h = hosting as Record<string, unknown>;
+          return {
+            provider: typeof h.provider === 'string' ? h.provider : 'Unknown',
+            location: typeof h.location === 'string' ? h.location : 'Unknown',
+            ip: typeof h.ip === 'string' ? h.ip : '0.0.0.0',
+            latitude: typeof h.latitude === 'number' ? h.latitude : 0,
+            longitude: typeof h.longitude === 'number' ? h.longitude : 0,
+          };
         }
-      };
-    } else {
-      // Ensure arrays exist
-      if (!Array.isArray(result.targetIntelligence.apis)) {
-        result.targetIntelligence.apis = [];
-      }
-      if (!Array.isArray(result.targetIntelligence.associatedLinks)) {
-        result.targetIntelligence.associatedLinks = [];
-      }
-      
-      // Validate hosting structure
-      if (!result.targetIntelligence.hosting) {
-        result.targetIntelligence.hosting = {
+        return {
           provider: 'Unknown',
           location: 'Unknown',
           ip: '0.0.0.0',
           latitude: 0,
           longitude: 0
         };
-      } else {
-        // Ensure all hosting fields are valid
-        result.targetIntelligence.hosting = {
-          provider: result.targetIntelligence.hosting.provider || 'Unknown',
-          location: result.targetIntelligence.hosting.location || 'Unknown',
-          ip: result.targetIntelligence.hosting.ip || '0.0.0.0',
-          latitude: typeof result.targetIntelligence.hosting.latitude === 'number' 
-            ? result.targetIntelligence.hosting.latitude 
-            : 0,
-          longitude: typeof result.targetIntelligence.hosting.longitude === 'number'
-            ? result.targetIntelligence.hosting.longitude
-            : 0,
-        };
+      })(),
+    } : {
+      purpose: 'Analysis incomplete',
+      businessLogic: 'Analysis incomplete',
+      attackSurfaceSummary: 'Analysis incomplete',
+      forensicAnalysis: 'Analysis incomplete',
+      apis: [],
+      associatedLinks: [],
+      hosting: {
+        provider: 'Unknown',
+        location: 'Unknown',
+        ip: '0.0.0.0',
+        latitude: 0,
+        longitude: 0
       }
-      
-      // Ensure all string fields exist
-      result.targetIntelligence.purpose = result.targetIntelligence.purpose || 'Analysis incomplete';
-      result.targetIntelligence.businessLogic = result.targetIntelligence.businessLogic || 'Analysis incomplete';
-      result.targetIntelligence.attackSurfaceSummary = result.targetIntelligence.attackSurfaceSummary || 'Analysis incomplete';
-      result.targetIntelligence.forensicAnalysis = result.targetIntelligence.forensicAnalysis || 'Analysis incomplete';
-    }
+    };
 
     // Ensure scores are numbers and within valid range
-    if (typeof result.securityScore !== 'number' || isNaN(result.securityScore)) {
-      result.securityScore = 0;
-    } else {
-      result.securityScore = Math.max(0, Math.min(100, Math.round(result.securityScore)));
-    }
+    const securityScore = typeof result.securityScore === 'number' && !isNaN(result.securityScore)
+      ? Math.max(0, Math.min(100, Math.round(result.securityScore)))
+      : 0;
     
-    if (typeof result.confidenceScore !== 'number' || isNaN(result.confidenceScore)) {
-      result.confidenceScore = 0;
-    } else {
-      result.confidenceScore = Math.max(0, Math.min(100, Math.round(result.confidenceScore)));
-    }
+    const confidenceScore = typeof result.confidenceScore === 'number' && !isNaN(result.confidenceScore)
+      ? Math.max(0, Math.min(100, Math.round(result.confidenceScore)))
+      : 0;
 
-    return result as MissionReport;
+    return {
+      targetIntelligence: validatedTargetIntelligence,
+      activeProbes: activeProbes.filter((probe): probe is VerificationPayload => {
+        return probe && typeof probe === 'object' &&
+          typeof (probe as Record<string, unknown>).method === 'string' &&
+          typeof (probe as Record<string, unknown>).endpoint === 'string';
+      }).map(probe => probe as VerificationPayload),
+      digitalFootprint: Array.isArray(result.digitalFootprint) ? result.digitalFootprint : [],
+      technologyDNA: validatedTechDNA,
+      findings: validatedFindings,
+      securityScore,
+      confidenceScore,
+      usage: result.usage && typeof result.usage === 'object' ? result.usage as UsageMetadata : undefined,
+      sources: Array.isArray(result.sources) ? result.sources.filter((s): s is string => typeof s === 'string') : undefined,
+      dataQuality: result.dataQuality && typeof result.dataQuality === 'object' ? result.dataQuality as DataQuality : undefined,
+    };
   }
 
   async performDeepAudit(
@@ -405,7 +450,7 @@ export class GeminiService {
                   confidence: { type: Type.STRING, enum: ['High', 'Medium', 'Low'], description: "Confidence level based on evidence quality" },
                   evidence: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Data sources that led to this finding (e.g., headers, DOM, SSL, DNS, probes)" }
                 },
-                required: ['title', 'description', 'severity', 'remediation', 'cwe', 'origin', 'poc']
+                required: ['title', 'description', 'severity', 'remediation', 'businessImpact', 'cwe', 'origin', 'poc']
               },
             },
             securityScore: { type: Type.NUMBER },
@@ -416,7 +461,7 @@ export class GeminiService {
       };
 
       if (isDeep) {
-        config.thinkingConfig = { thinkingBudget: 32768 };
+        config.thinkingConfig = { thinkingBudget: AI_CONSTANTS.DEEP_THINKING_BUDGET };
       }
 
       // OPTIMIZED: Tier-based prompt (send only relevant data per level)
@@ -444,7 +489,7 @@ DOM_SIGNALS: ${maskData(tierBasedData.signals || signals)}`;
             dns: tierBasedData.dnsInfo,
           })}
 DOM_SIGNALS: ${maskData(tierBasedData.signals || signals)}
-FULL_DOM: ${tierBasedData.dom ? maskData(tierBasedData.dom.substring(0, 50000)) : 'N/A'}`;
+FULL_DOM: ${tierBasedData.dom ? maskData(tierBasedData.dom.substring(0, NETWORK_CONSTANTS.MAX_DOM_CHARS)) : 'N/A'}`;
         }
       } else {
         // Fallback: Use original method
@@ -511,7 +556,7 @@ CRITICAL: Do not fabricate findings. Only report vulnerabilities with clear evid
 
       const prompt = `[MISSION_COMMAND: ACTIVE_SOC_FORENSIC_V9.0]
 TARGET: ${targetUrl} | LEVEL: ${level}
-RECON_INTEL: ${reconIntel.substring(0, 2000)}
+RECON_INTEL: ${reconIntel.substring(0, AI_CONSTANTS.MAX_RECON_INTEL_LENGTH)}
 ${promptData}
 ${corsContext}
 
@@ -554,12 +599,12 @@ OUTPUT REQUIREMENTS:
         throw new Error('AI response structure is invalid. Please try again.');
       }
       
-      const validatedResult = this.validateMissionReport(result);
+      const validatedResult = this.validateMissionReport(result as Record<string, unknown>);
       
       // Ensure usage metadata exists
       const usage = response.usageMetadata || { totalTokenCount: 0 };
       
-      return { ...validatedResult, usage };
+      return Object.assign({}, validatedResult, { usage: usage as UsageMetadata });
     });
   }
 
@@ -579,7 +624,13 @@ Provide precise Infrastructure, IP, Provider, and Geo-coordinates using Groundin
       });
 
       const result = this.extractJson(response.text);
-      return { ...result, usage: response.usageMetadata, sources: response.candidates?.[0]?.groundingMetadata?.groundingChunks || [] };
+      if (result && typeof result === 'object') {
+        return Object.assign({}, result, { 
+          usage: response.usageMetadata, 
+          sources: response.candidates?.[0]?.groundingMetadata?.groundingChunks || [] 
+        });
+      }
+      return { usage: response.usageMetadata, sources: response.candidates?.[0]?.groundingMetadata?.groundingChunks || [] };
     });
   }
 }
