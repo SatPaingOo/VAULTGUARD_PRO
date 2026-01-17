@@ -171,7 +171,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-7xl mx-auto pt-28 sm:pt-32 md:pt-36 lg:pt-40 pb-0 px-4 sm:px-6 md:px-8 flex flex-col items-center gap-12 sm:gap-16 md:gap-20 lg:gap-32 min-h-screen relative overflow-x-hidden">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-7xl mx-auto pt-28 sm:pt-32 md:pt-36 lg:pt-40 pb-20 sm:pb-0 px-4 sm:px-6 md:px-8 flex flex-col items-center gap-12 sm:gap-16 md:gap-20 lg:gap-32 min-h-screen relative overflow-x-hidden">
       <GlobalHeader onOpenAuth={() => setIsAuthModalOpen(true)} />
       
       <ApiKeyModal 
@@ -233,12 +233,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         
         <div className="relative glass-panel p-1.5 md:p-3 rounded-[2rem] md:rounded-[4.5rem] border bg-black/95 shadow-[0_40px_100px_rgba(0,0,0,0.8)] transition-all duration-500" style={{ borderColor: isFocused ? `${themeColor}4d` : (url.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)') }}>
           <div className="flex flex-col lg:flex-row gap-2">
-            <div className="flex-1 flex items-center px-4 sm:px-6 md:px-12 py-4 sm:py-5 md:py-8 bg-white/[0.02] rounded-[1.5rem] md:rounded-[4rem]">
+            <div className="flex-1 flex items-center px-3 sm:px-6 md:px-12 py-3 sm:py-5 md:py-8 bg-white/[0.02] rounded-[1.5rem] md:rounded-[4rem]">
               <Terminal className={`w-4 h-4 sm:w-5 sm:h-5 md:w-8 md:h-8 mr-3 sm:mr-4 md:mr-8 transition-colors shrink-0`} style={{ color: isFocused ? themeColor : (url.trim() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.25)') }} />
               <input 
                 type="text"
                 value={url}
-                onFocus={() => setIsFocused(true)}
+                onFocus={(e) => {
+                  setIsFocused(true);
+                  // Scroll input into view on mobile when keyboard appears
+                  setTimeout(() => {
+                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                  }, 300);
+                }}
                 onBlur={() => setIsFocused(false)}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleInitiate(); }}
