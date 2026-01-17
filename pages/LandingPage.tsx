@@ -171,7 +171,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-7xl mx-auto pt-20 sm:pt-24 md:pt-32 lg:pt-40 pb-0 px-4 sm:px-6 md:px-8 flex flex-col items-center gap-12 sm:gap-16 md:gap-20 lg:gap-32 min-h-screen relative overflow-x-hidden">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-7xl mx-auto pt-28 sm:pt-32 md:pt-36 lg:pt-40 pb-0 px-4 sm:px-6 md:px-8 flex flex-col items-center gap-12 sm:gap-16 md:gap-20 lg:gap-32 min-h-screen relative overflow-x-hidden">
       <GlobalHeader onOpenAuth={() => setIsAuthModalOpen(true)} />
       
       <ApiKeyModal 

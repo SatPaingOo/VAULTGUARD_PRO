@@ -51,6 +51,7 @@ export const VaultAcademy = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [sections, setSections] = useState<KnowledgeSection[]>([]);
   const [metadata, setMetadata] = useState<SectionMetadata[]>([]);
   const [categories, setCategories] = useState<Record<string, { en: string; mm: string }>>({});
@@ -235,45 +236,67 @@ export const VaultAcademy = () => {
     >
       <GlobalHeader onOpenAuth={() => {}} />
       
-      <div className="max-w-6xl mx-auto pt-24 px-4 pb-16">
-        {/* Header with Powered by Badge */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-          <div className="flex-1">
-            <div className="flex items-center gap-4 mb-4 flex-wrap">
-              <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">
-                {academyData?.title || 'VAULT_ACADEMY'}
-              </h1>
-              {/* Powered by Gemini 3 Badge */}
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30">
-                <Sparkles className="w-4 h-4 text-purple-400" />
-                <span className="text-xs font-black uppercase text-purple-400 tracking-wider">
-                  {academyData?.powered_by || 'Powered by Gemini 3'}
-                </span>
-              </div>
-            </div>
-            <p className="text-sm md:text-base text-white/60 font-mono uppercase mb-3">
-              {academyData?.subtitle || ''}
-            </p>
-            {/* AI Assistance Message */}
-            <div className="glass-panel p-4 rounded-xl border border-purple-500/20 bg-purple-500/5 max-w-2xl">
-              <p className="text-xs md:text-sm text-white/70 leading-relaxed font-mono">
-                {academyData?.ai_assistance || ''}
-              </p>
+      <div className="max-w-6xl mx-auto pt-32 sm:pt-36 md:pt-40 lg:pt-44 px-4 pb-16">
+        {/* Header Section */}
+        <div className="mb-8">
+          {/* Title and Badge */}
+          <div className="flex items-center gap-4 mb-4 flex-wrap">
+            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">
+              {academyData?.title || 'VAULT_ACADEMY'}
+            </h1>
+            {/* Powered by Gemini 3 Badge */}
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className="text-xs font-black uppercase text-purple-400 tracking-wider">
+                {academyData?.powered_by || 'Powered by Gemini 3'}
+              </span>
             </div>
           </div>
           
-          {/* Search Bar */}
-          <div className="glass-panel p-4 rounded-2xl border border-white/10 bg-black/40 w-full md:w-96">
-            <div className="flex items-center gap-3">
-              <Search className="w-5 h-5 text-white/40" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={academyData?.search_placeholder || 'Search...'}
-                className="flex-1 bg-transparent outline-none text-white placeholder:text-white/30 font-mono"
-              />
+          {/* Subtitle */}
+          <p className="text-sm md:text-base text-white/60 font-mono uppercase mb-4">
+            {academyData?.subtitle || ''}
+          </p>
+          
+          {/* Search Bar - Full Width on Mobile */}
+          <div className="relative group w-full mb-4">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#00d4ff]/10 via-purple-500/5 to-[#00d4ff]/10 opacity-0 group-focus-within:opacity-100 blur-xl transition-opacity duration-500" />
+            <div className={`relative glass-panel p-4 md:p-5 rounded-2xl border-2 transition-all duration-300 ${
+              isSearchFocused 
+                ? 'border-[#00d4ff]/50 bg-black/70 shadow-[0_0_30px_rgba(0,212,255,0.3)]' 
+                : 'border-white/10 bg-black/40 hover:border-white/20'
+            }`}>
+              <div className="flex items-center gap-3 md:gap-4">
+                <Search className={`w-5 h-5 md:w-6 md:h-6 transition-colors duration-300 shrink-0 ${
+                  isSearchFocused ? 'text-[#00d4ff]' : 'text-white/40'
+                }`} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  placeholder={academyData?.search_placeholder || 'Search...'}
+                  className="flex-1 bg-transparent outline-none text-white placeholder:text-white/30 font-mono text-sm md:text-base"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-white/40 hover:text-white/70 transition-colors shrink-0 p-1"
+                    aria-label="Clear search"
+                  >
+                    <span className="text-xl font-bold">×</span>
+                  </button>
+                )}
+              </div>
             </div>
+          </div>
+          
+          {/* AI Assistance Message */}
+          <div className="glass-panel p-4 rounded-xl border border-purple-500/20 bg-purple-500/5">
+            <p className="text-xs md:text-sm text-white/70 leading-relaxed font-mono">
+              {academyData?.ai_assistance || ''}
+            </p>
           </div>
         </div>
 
