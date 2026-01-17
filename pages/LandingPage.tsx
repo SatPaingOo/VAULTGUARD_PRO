@@ -404,13 +404,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 py-6 px-6 md:px-10">
            {!isEngineLinked && (
              <div className="flex flex-col items-center gap-3 max-w-2xl">
-                <p className="text-[10px] md:text-[12px] font-black text-red-500 uppercase tracking-widest animate-pulse flex items-center gap-2 bg-red-500/5 px-6 py-2.5 rounded-full border border-red-500/20">
-                   <AlertCircle size={14}/> API_KEY_MISSING
-                </p>
-                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">
-                  Neural Engine Core not configured. Please link API key to initiate security scans.
-                </p>
-                
                 {/* Required Services Info */}
                 <div className="mt-2 bg-[#00d4ff]/5 border border-[#00d4ff]/10 rounded-lg p-4 max-w-md w-full">
                   <div className="flex items-center gap-2 mb-3">
