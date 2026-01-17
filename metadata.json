@@ -1,0 +1,7 @@
+{
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "description": "VaultGuard Pro - Advanced AI-powered Security Operations Center and Vulnerability Scanner.",
+  "name": "VaultGuard_Pro"
+}
