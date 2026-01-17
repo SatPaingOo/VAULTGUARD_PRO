@@ -199,7 +199,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
 
       <div className="w-full max-w-5xl z-20 px-2 sm:px-4 md:px-6 flex flex-col gap-6 sm:gap-8 md:gap-10 lg:gap-14">
         {/* API Key Error Message - Above Input Box */}
-        {isEngineLinked && apiKeyStatus === 'invalid' && (
+        {(!isEngineLinked || (isEngineLinked && apiKeyStatus === 'invalid')) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -210,10 +210,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
               <AlertTriangle size={16} className="text-red-500 shrink-0" />
               <div className="flex-1">
                 <p className="text-[10px] md:text-[11px] font-black text-red-500 uppercase tracking-wider">
-                  {t('apikey.not_working')}
+                  {!isEngineLinked ? 'API_KEY_MISSING' : t('apikey.not_working')}
                 </p>
                 <p className="text-[10px] md:text-[11px] text-white/60 font-mono mt-1">
-                  {t('apikey.invalid_message')}
+                  {!isEngineLinked 
+                    ? 'Neural Engine Core not configured. Please link API key to initiate security scans.'
+                    : t('apikey.invalid_message')
+                  }
                 </p>
               </div>
               <button 
@@ -221,7 +224,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 className="px-4 py-2 rounded-lg bg-red-500 text-black font-black text-[10px] md:text-[11px] uppercase tracking-wider hover:bg-red-400 transition-colors shadow-[0_2px_8px_rgba(239,68,68,0.3)] flex items-center gap-1.5 shrink-0"
               >
                 <KeyRound size={12} />
-                {t('apikey.fix_button')}
+                {!isEngineLinked ? 'LINK_KEY' : t('apikey.fix_button')}
               </button>
             </div>
           </motion.div>
