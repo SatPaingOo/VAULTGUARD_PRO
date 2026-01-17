@@ -192,7 +192,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
             </h1>
           </div>
         </div>
-        <p className="text-[8px] sm:text-[9px] md:text-[10px] lg:text-sm font-mono tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.6em] uppercase max-w-4xl text-center px-4 sm:px-6 break-words transition-colors duration-500" style={{ color: `${themeColor}99` }}>
+        <p className="text-[10px] sm:text-[11px] md:text-[12px] lg:text-sm font-mono tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.6em] uppercase max-w-4xl text-center px-4 sm:px-6 break-words transition-colors duration-500" style={{ color: `${themeColor}99` }}>
           {t('app_subtitle')}
         </p>
       </div>
@@ -210,18 +210,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
               <AlertTriangle size={16} className="text-red-500 shrink-0" />
               <div className="flex-1">
                 <p className="text-[10px] md:text-[11px] font-black text-red-500 uppercase tracking-wider">
-                  API_KEY_NOT_WORKING
+                  {t('apikey.not_working')}
                 </p>
-                <p className="text-[9px] md:text-[10px] text-white/60 font-mono mt-1">
-                  API key is invalid, expired, or lacks permissions. Cannot proceed with scan.
+                <p className="text-[10px] md:text-[11px] text-white/60 font-mono mt-1">
+                  {t('apikey.invalid_message')}
                 </p>
               </div>
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
-                className="px-4 py-1.5 rounded-lg bg-red-500 text-black font-black text-[9px] uppercase tracking-wider hover:bg-red-400 transition-colors shadow-[0_2px_8px_rgba(239,68,68,0.3)] flex items-center gap-1.5 shrink-0"
+                className="px-4 py-2 rounded-lg bg-red-500 text-black font-black text-[10px] md:text-[11px] uppercase tracking-wider hover:bg-red-400 transition-colors shadow-[0_2px_8px_rgba(239,68,68,0.3)] flex items-center gap-1.5 shrink-0"
               >
                 <KeyRound size={12} />
-                FIX
+                {t('apikey.fix_button')}
               </button>
             </div>
           </motion.div>
@@ -330,25 +330,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                     {t(l.titleKey)}
                   </h4>
                   
-                  <p className="text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] text-white/50 leading-relaxed font-mono uppercase mb-4 sm:mb-5 md:mb-6 line-clamp-3 break-words">
+                  <p className="text-[10px] sm:text-[11px] md:text-[12px] lg:text-[13px] text-white/50 leading-relaxed font-mono uppercase mb-4 sm:mb-5 md:mb-6 line-clamp-3 break-words">
                     {t(`level_descriptions.${l.id.toLowerCase()}`)}
                   </p>
 
                   <div className="mt-auto space-y-3 sm:space-y-3.5 mb-4 sm:mb-5 md:mb-6 pt-4 sm:pt-5 md:pt-6 border-t border-white/5">
-                    <div className="flex items-center justify-between gap-2 text-[9px] sm:text-[10px] md:text-[11px] lg:text-xs font-black uppercase tracking-wider">
+                    <div className="flex items-center justify-between gap-2 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-black uppercase tracking-wider">
                       <span className="text-white/30 shrink-0 flex items-center gap-2">
                         <Timer size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                         EST_TIME:
                       </span>
                       <span 
-                        className="text-right font-mono text-[9px] sm:text-[10px] md:text-[11px] font-black"
+                        className="text-right font-mono text-[10px] sm:text-[11px] md:text-[12px] font-black"
                         style={{ color: isSelected ? l.hex : 'rgba(255,255,255,0.7)' }}
                       >
                         {l.time}
                       </span>
                     </div>
                     
-                    <div className="flex items-center justify-between gap-2 text-[9px] sm:text-[10px] md:text-[11px] lg:text-xs font-black uppercase tracking-wider">
+                    <div className="flex items-center justify-between gap-2 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-black uppercase tracking-wider">
                       <span className="text-white/30 shrink-0 flex items-center gap-2">
                         <CpuChip size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                         TOKENS:
@@ -367,7 +367,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                         FOCUS:
                       </span>
                       <span 
-                        className="text-right font-mono text-[8px] sm:text-[9px] md:text-[10px] max-w-[65%] sm:max-w-[60%] text-end leading-tight break-words"
+                        className="text-right font-mono text-[10px] sm:text-[11px] md:text-[12px] max-w-[65%] sm:max-w-[60%] text-end leading-tight break-words"
                         style={{ color: isSelected ? l.hex : 'rgba(255,255,255,0.6)' }}
                       >
                         {l.focus}
@@ -377,7 +377,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
 
                   <div className="pt-3 sm:pt-3.5 md:pt-4 border-t border-white/5 flex justify-between items-center gap-2">
                     <span 
-                      className="flex items-center gap-1.5 sm:gap-2 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors"
+                      className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors"
                       style={{ color: isSelected ? l.hex : 'rgba(255,255,255,0.2)' }}
                     >
                       <Binary size={10} className="sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 shrink-0" />
@@ -404,7 +404,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 <p className="text-[10px] md:text-[12px] font-black text-red-500 uppercase tracking-widest animate-pulse flex items-center gap-2 bg-red-500/5 px-6 py-2.5 rounded-full border border-red-500/20">
                    <AlertCircle size={14}/> API_KEY_MISSING
                 </p>
-                <p className="text-[9px] md:text-[10px] text-white/30 uppercase text-center max-w-xs leading-relaxed">
+                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">
                   Neural Engine Core not configured. Please link API key to initiate security scans.
                 </p>
                 
@@ -416,7 +416,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                       Required Configuration
                     </p>
                   </div>
-                  <ul className="space-y-1.5 text-[8px] md:text-[9px] font-mono text-white/50">
+                  <ul className="space-y-1.5 text-[10px] md:text-[11px] font-mono text-white/50">
                     <li className="flex items-start gap-2">
                       <span className="text-[#00ff9d] mt-0.5">•</span>
                       <span>Google AI Studio API Key</span>
@@ -438,7 +438,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                     href="https://aistudio.google.com/apikey" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 text-[8px] md:text-[9px] text-[#00d4ff] hover:text-[#00ff9d] underline"
+                    className="mt-3 inline-flex items-center gap-1.5 text-[10px] md:text-[11px] text-[#00d4ff] hover:text-[#00ff9d] underline"
                   >
                     Get API Key
                     <ExternalLink size={10} />
@@ -459,7 +459,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 <p className="text-[10px] md:text-[12px] font-black text-[#00d4ff] uppercase tracking-widest animate-pulse flex items-center gap-2 bg-[#00d4ff]/5 px-6 py-2.5 rounded-full border border-[#00d4ff]/20">
                    <ActivityIcon size={14} className="animate-spin"/> TESTING_API_KEY
                 </p>
-                <p className="text-[9px] md:text-[10px] text-white/30 uppercase text-center max-w-xs leading-relaxed">Validating API key connectivity...</p>
+                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.validating_connectivity')}</p>
              </div>
            )}
            {isEngineLinked && (!activeKey || activeKey.length < 20) && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
@@ -467,7 +467,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 <p className="text-[10px] md:text-[12px] font-black text-yellow-500 uppercase tracking-widest animate-pulse flex items-center gap-2 bg-yellow-500/5 px-6 py-2.5 rounded-full border border-yellow-500/20">
                    <AlertTriangle size={14}/> API_KEY_INVALID
                 </p>
-                <p className="text-[9px] md:text-[10px] text-white/30 uppercase text-center max-w-xs leading-relaxed">API key appears to be invalid or too short. Please reconfigure.</p>
+                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.invalid_too_short')}</p>
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
                   className="mt-2 px-6 py-2.5 rounded-full bg-yellow-500 text-black font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 transition-colors shadow-[0_5px_15px_rgba(234,179,8,0.2)] flex items-center gap-2"
@@ -495,7 +495,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                <p className="text-[10px] md:text-[12px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2 bg-red-500/5 px-6 py-2.5 rounded-full border border-red-500/20">
                  <AlertCircle size={14}/> {urlValidation.error.includes('DNS') || urlValidation.error.includes('not exist') ? 'WEBSITE_NOT_FOUND' : urlValidation.error.includes('timeout') ? 'CONNECTION_TIMEOUT' : 'INVALID_URL'}
                </p>
-               <p className="text-[9px] md:text-[10px] text-white/40 uppercase text-center max-w-md leading-relaxed px-4">
+               <p className="text-[10px] md:text-[11px] text-white/40 uppercase text-center max-w-md leading-relaxed px-4">
                  {urlValidation.error}
                </p>
              </div>
@@ -534,16 +534,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <div className="text-[8px] font-black uppercase mb-1" style={{ color: LEVEL_COLORS.FAST }}>FAST</div>
-                      <div className="text-[9px] font-mono uppercase" style={{ color: LEVEL_COLORS.FAST }}>{item.fast}</div>
+                      <div className="text-[10px] font-black uppercase mb-1" style={{ color: LEVEL_COLORS.FAST }}>FAST</div>
+                      <div className="text-[11px] font-mono uppercase" style={{ color: LEVEL_COLORS.FAST }}>{item.fast}</div>
                     </div>
                     <div>
-                      <div className="text-[8px] font-black uppercase mb-1" style={{ color: LEVEL_COLORS.STANDARD }}>STANDARD</div>
-                      <div className="text-[9px] font-mono uppercase" style={{ color: LEVEL_COLORS.STANDARD }}>{item.standard}</div>
+                      <div className="text-[10px] font-black uppercase mb-1" style={{ color: LEVEL_COLORS.STANDARD }}>STANDARD</div>
+                      <div className="text-[11px] font-mono uppercase" style={{ color: LEVEL_COLORS.STANDARD }}>{item.standard}</div>
                     </div>
                     <div>
-                      <div className="text-[8px] font-black uppercase mb-1" style={{ color: LEVEL_COLORS.DEEP }}>DEEP</div>
-                      <div className="text-[9px] font-mono uppercase" style={{ color: LEVEL_COLORS.DEEP }}>{item.deep}</div>
+                      <div className="text-[10px] font-black uppercase mb-1" style={{ color: LEVEL_COLORS.DEEP }}>DEEP</div>
+                      <div className="text-[11px] font-mono uppercase" style={{ color: LEVEL_COLORS.DEEP }}>{item.deep}</div>
                     </div>
                   </div>
                 </div>
@@ -615,11 +615,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                     <div className="text-[10px] font-black text-white/30 uppercase tracking-widest">{item.label}</div>
                   </div>
                   <div className="space-y-2 mb-3">
-                    <div className="text-[9px] text-white/40 font-mono uppercase">{item.val1}</div>
+                    <div className="text-[10px] text-white/40 font-mono uppercase">{item.val1}</div>
                     <div className="text-[10px] font-black uppercase transition-colors duration-500" style={{ color: themeColor }}>{item.val2}</div>
                   </div>
                   <div className="text-right">
-                    <span className="px-2 py-1 rounded-full border border-white/10 bg-white/5 text-[7px] font-black uppercase tracking-widest text-white/40">{item.benefit}</span>
+                    <span className="px-2 py-1 rounded-full border border-white/10 bg-white/5 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40">{item.benefit}</span>
                   </div>
                 </div>
               ))}
@@ -749,7 +749,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                   <span>
                     <strong className="text-red-400">{t('limitations.cors_blocked')}</strong>
                     <span className="text-white/50 text-[10px] ml-2">
-                      (Workaround: CORS browser extension available)
+                      {t('limitations.cors_workaround')}
                     </span>
                   </span>
                 </li>
@@ -762,19 +762,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                   <div className="flex-1">
                     <p className="text-xs font-black text-blue-400 uppercase mb-2 flex items-center gap-2">
                       <Zap className="w-3 h-3" />
-                      Pro Tip: Get Complete Scan Results
+                      {t('cors_extension.pro_tip_title')}
                     </p>
                     <p className="text-[10px] md:text-xs text-white/80 leading-relaxed mb-3">
-                      For <strong className="text-blue-400">maximum accuracy</strong>, install a CORS extension before scanning. 
-                      This allows full DOM access and complete security header analysis (<strong>~95-100% accuracy</strong> vs ~60-70% without extension).
+                      {t('cors_extension.pro_tip_desc')}
                     </p>
                     
                     <div className="bg-black/30 p-2 rounded mb-2">
                       <p className="text-[10px] text-white/90 font-mono mb-1">
-                        <strong className="text-blue-400">Recommended:</strong> "Allow CORS: Access-Control-Allow-Origin"
+                        <strong className="text-blue-400">{t('cors_extension.recommended')}</strong> "{t('cors_extension.extension_name')}"
                       </p>
-                      <p className="text-[9px] text-white/60">
-                        800,000+ users • 3.4/5 rating • Chrome & Firefox
+                      <p className="text-[10px] text-white/60">
+                        {t('cors_extension.extension_stats')}
                       </p>
                     </div>
                     
@@ -783,21 +782,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                         href="https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-[9px] px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/30 transition-colors flex items-center gap-1"
+                        className="text-[10px] px-2 py-1.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/30 transition-colors flex items-center gap-1"
                       >
                         <ExternalLink className="w-3 h-3" />
-                        Install Extension
+                        {t('cors_extension.install_button')}
                       </a>
                     </div>
                     
                     <div className="mt-2 pt-2 border-t border-blue-500/20">
-                      <p className="text-[9px] text-yellow-400/80 font-mono">
-                        ⚠️ Remember to disable extension after scanning for security
+                      <p className="text-[10px] text-yellow-400/80 font-mono">
+                        {t('cors_extension.security_warning')}
                       </p>
                     </div>
                     
-                    <p className="text-[9px] text-white/60 italic mt-2">
-                      <strong>Note:</strong> Extension is optional. VaultGuard Pro works without it using AI compensation mode.
+                    <p className="text-[10px] text-white/60 italic mt-2">
+                      {t('cors_extension.optional_note')}
                     </p>
                   </div>
                 </div>
@@ -887,7 +886,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
       <footer className="w-full mt-auto pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8 md:pb-10 border-t border-white/5 text-center bg-black/60 relative z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
            <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
-             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs font-mono text-white/30 uppercase tracking-wider">
+             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-mono text-white/30 uppercase tracking-wider">
                <span className="px-2 sm:px-3 py-1 rounded border border-white/10 bg-white/5 whitespace-nowrap">VAULT_SOC_1.0</span>
                <span className="text-white/20 hidden sm:inline">|</span>
                <span className="px-2 sm:px-3 py-1 rounded border border-white/10 bg-white/5 whitespace-nowrap">NEURAL_ENGINE</span>
@@ -896,12 +895,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                <span className="text-white/20 hidden sm:inline">|</span>
                <span className="px-2 sm:px-3 py-1 rounded border border-white/10 bg-white/5 whitespace-nowrap">REAL_TIME_AI</span>
              </div>
-             <p className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-mono text-white/15 uppercase tracking-wider px-2 break-words">
+             <p className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-mono text-white/15 uppercase tracking-wider px-2 break-words">
                Security Operations Center | AI-Powered Vulnerability Detection | Real-Time Analysis
              </p>
              {/* Developer Credit */}
              <div className="pt-2 sm:pt-3 border-t border-white/5">
-               <p className="text-[7px] sm:text-[8px] md:text-[9px] font-mono text-white/20 uppercase tracking-wider">
+               <p className="text-[9px] sm:text-[10px] md:text-[11px] font-mono text-white/20 uppercase tracking-wider">
                  Developed by{' '}
                  <a 
                    href="https://satpaingoo.github.io/portfolio"
@@ -913,7 +912,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                    Sat Paing Oo
                  </a>
                </p>
-               <p className="text-[6px] sm:text-[7px] md:text-[8px] font-mono text-white/15 mt-1">
+               <p className="text-[8px] sm:text-[9px] md:text-[10px] font-mono text-white/15 mt-1">
                  Built with ❤️ using React, TypeScript, and Google Gemini 3
                </p>
              </div>

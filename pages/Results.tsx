@@ -27,7 +27,7 @@ const SectionCard = ({ title, subtitle, icon: Icon, children, themeColor }: any)
         <Icon className="w-5 h-5 md:w-7 md:h-7" style={{ color: themeColor }} />
         <div>
           <h3 className="text-xs md:text-[15px] font-black uppercase tracking-[0.2em] md:tracking-[0.5em] text-white/90 leading-tight">{title}</h3>
-          <p className="text-[7px] md:text-[9px] font-mono text-white/30 uppercase tracking-widest mt-1 md:mt-1.5">{subtitle}</p>
+          <p className="text-[9px] md:text-[11px] font-mono text-white/30 uppercase tracking-widest mt-1 md:mt-1.5">{subtitle}</p>
         </div>
       </div>
       <div className="p-6 md:p-12">{children}</div>
@@ -422,23 +422,23 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                     <div className="flex-1">
                       <div className="text-xs md:text-sm font-black text-purple-400 uppercase mb-2 flex items-center gap-2">
                         <Zap className="w-4 h-4" />
-                        AI Intelligence Compensation Mode
+                        {t('cors_extension.ai_compensation_title')}
                       </div>
                       <p className="text-xs md:text-sm text-white/70 leading-relaxed mb-3">
-                        Direct scan was blocked by CORS policy. AI-powered analysis compensated by using:
+                        {t('cors_extension.ai_compensation_desc')}
                       </p>
                       <ul className="mt-2 space-y-1 text-xs md:text-sm text-white/60 mb-4">
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-3 h-3 text-purple-400" />
-                          <span>Advanced reasoning on available network data (SSL, DNS, OSINT)</span>
+                          <span>{t('cors_extension.ai_compensation_item1')}</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-3 h-3 text-purple-400" />
-                          <span>Search Grounding for live CVE cross-referencing</span>
+                          <span>{t('cors_extension.ai_compensation_item2')}</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <CheckCircle2 className="w-3 h-3 text-purple-400" />
-                          <span>Intelligent inference of security posture from metadata</span>
+                          <span>{t('cors_extension.ai_compensation_item3')}</span>
                         </li>
                       </ul>
                       
@@ -449,13 +449,11 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                           <div className="flex-1">
                             <div className="text-xs font-black text-blue-400 uppercase mb-2 flex items-center gap-2">
                               <Settings className="w-4 h-4" />
-                              Advanced Scanning Option for Expert Users
+                              {t('cors_extension.advanced_scanning_title')}
                             </div>
                             
                             <p className="text-[10px] md:text-xs text-white/80 leading-relaxed mb-4">
-                              VaultGuard Pro prioritizes privacy and operates entirely client-side without backend servers. 
-                              Browser CORS policies are a security feature that protects users. For <strong className="text-blue-400">advanced scanning scenarios</strong>, 
-                              expert users may choose to use a CORS extension to bypass these restrictions.
+                              {t('cors_extension.advanced_scanning_desc')}
                             </p>
                             
                             {/* Why Use Extension Section */}
@@ -464,60 +462,58 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                                 <Target className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                   <p className="text-[10px] md:text-xs font-black text-blue-400 uppercase mb-2">
-                                    Why Use CORS Extension?
+                                    {t('cors_extension.why_use_title')}
                                   </p>
                                   <p className="text-[10px] md:text-xs text-white/80 leading-relaxed mb-3">
-                                    CORS (Cross-Origin Resource Sharing) is a browser security feature that blocks cross-origin requests. 
-                                    While this protects users from malicious websites, it also limits security scanning capabilities. 
-                                    Using a CORS extension allows VaultGuard Pro to access complete website data for comprehensive analysis.
+                                    {t('cors_extension.why_use_desc')}
                                   </p>
                                   
                                   {/* Comparison Table */}
                                   <div className="grid grid-cols-2 gap-2 mb-3">
                                     <div className="bg-red-500/10 p-2 rounded border border-red-500/20">
-                                      <p className="text-[9px] font-black text-red-400 uppercase mb-1">Without Extension</p>
-                                      <ul className="text-[9px] text-white/60 space-y-0.5">
-                                        <li>• Limited DOM access</li>
-                                        <li>• Partial headers</li>
-                                        <li>• AI compensation needed</li>
-                                        <li>• ~60-70% accuracy</li>
+                                      <p className="text-[10px] font-black text-red-400 uppercase mb-1">{t('cors_extension.without_extension')}</p>
+                                      <ul className="text-[10px] text-white/60 space-y-0.5">
+                                        <li>• {t('cors_extension.limited_dom')}</li>
+                                        <li>• {t('cors_extension.partial_headers')}</li>
+                                        <li>• {t('cors_extension.ai_compensation_needed')}</li>
+                                        <li>• {t('cors_extension.accuracy_low')}</li>
                                       </ul>
                                     </div>
                                     <div className="bg-green-500/10 p-2 rounded border border-green-500/20">
-                                      <p className="text-[9px] font-black text-green-400 uppercase mb-1">With Extension</p>
-                                      <ul className="text-[9px] text-white/60 space-y-0.5">
-                                        <li>• Complete DOM access</li>
-                                        <li>• All headers visible</li>
-                                        <li>• Direct analysis</li>
-                                        <li>• ~95-100% accuracy</li>
+                                      <p className="text-[10px] font-black text-green-400 uppercase mb-1">{t('cors_extension.with_extension')}</p>
+                                      <ul className="text-[10px] text-white/60 space-y-0.5">
+                                        <li>• {t('cors_extension.complete_dom')}</li>
+                                        <li>• {t('cors_extension.all_headers')}</li>
+                                        <li>• {t('cors_extension.direct_analysis')}</li>
+                                        <li>• {t('cors_extension.accuracy_high')}</li>
                                       </ul>
                                     </div>
                                   </div>
                                   
                                   <div className="space-y-2">
                                     <p className="text-[10px] md:text-xs text-white/70 font-semibold">
-                                      Key Benefits:
+                                      {t('cors_extension.key_benefits')}
                                     </p>
                                     <ul className="text-[10px] md:text-xs text-white/60 space-y-1 ml-4">
                                       <li className="flex items-start gap-2">
                                         <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 flex-shrink-0" />
-                                        <span><strong>Complete DOM Analysis</strong> - Full website structure, all JavaScript code, forms, and client-side logic</span>
+                                        <span><strong>{t('cors_extension.benefit_dom')}</strong></span>
                                       </li>
                                       <li className="flex items-start gap-2">
                                         <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 flex-shrink-0" />
-                                        <span><strong>All Security Headers</strong> - CSP, HSTS, X-Frame-Options, and all other headers visible</span>
+                                        <span><strong>{t('cors_extension.benefit_headers')}</strong></span>
                                       </li>
                                       <li className="flex items-start gap-2">
                                         <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 flex-shrink-0" />
-                                        <span><strong>Maximum Accuracy</strong> - No AI inference needed, direct data analysis</span>
+                                        <span><strong>{t('cors_extension.benefit_accuracy')}</strong></span>
                                       </li>
                                       <li className="flex items-start gap-2">
                                         <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 flex-shrink-0" />
-                                        <span><strong>Better Vulnerability Detection</strong> - Can detect client-side XSS, CSRF, and DOM-based vulnerabilities</span>
+                                        <span><strong>{t('cors_extension.benefit_detection')}</strong></span>
                                       </li>
                                       <li className="flex items-start gap-2">
                                         <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 flex-shrink-0" />
-                                        <span><strong>Complete Probe Results</strong> - All HTTP probes return full response data</span>
+                                        <span><strong>{t('cors_extension.benefit_probes')}</strong></span>
                                       </li>
                                     </ul>
                                   </div>
@@ -528,22 +524,22 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                             {/* Recommended Extension */}
                             <div className="bg-black/30 p-3 rounded-lg mb-4 border border-blue-500/30">
                               <p className="text-[10px] md:text-xs text-white/90 font-mono mb-2">
-                                <strong className="text-blue-400">Recommended Extension:</strong>
+                                <strong className="text-blue-400">{t('cors_extension.recommended')} Extension:</strong>
                               </p>
                               <div className="flex items-center gap-2 mb-2">
                                 <Lock className="w-4 h-4 text-blue-400" />
                                 <span className="text-[10px] md:text-xs text-white/80 font-mono">
-                                  "Allow CORS: Access-Control-Allow-Origin"
+                                  "{t('cors_extension.extension_name')}"
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 mb-2">
                                 <Activity className="w-3 h-3 text-white/40" />
-                                <span className="text-[9px] text-white/60">
-                                  800,000+ users • 3.4/5 rating • Updated Sep 2025
+                                <span className="text-[10px] text-white/60">
+                                  {t('cors_extension.extension_stats')}
                                 </span>
                               </div>
                               <p className="text-[10px] text-white/60 italic">
-                                Available on Chrome Web Store and Firefox Add-ons
+                                {t('cors_extension.available_on_stores')}
                               </p>
                             </div>
                             
@@ -553,45 +549,30 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                                 <Terminal className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                   <p className="text-[10px] md:text-xs font-black text-blue-400 uppercase mb-2">
-                                    How to Use the Extension
+                                    {t('cors_extension.how_to_use_title')}
                                   </p>
                                   <ol className="text-[10px] md:text-xs text-white/70 space-y-2 ml-4 list-decimal">
                                     <li className="flex items-start gap-2">
                                       <span className="flex-shrink-0">1.</span>
-                                      <span>
-                                        <strong>Install Extension:</strong> Click the "Chrome Extension" or "Firefox Add-on" button below to install
-                                      </span>
+                                      <span>{t('cors_extension.how_to_step1')}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
                                       <span className="flex-shrink-0">2.</span>
-                                      <span>
-                                        <strong>Activate Extension:</strong> After installation, click the extension icon in your browser toolbar (grey "C" icon)
-                                      </span>
+                                      <span>{t('cors_extension.how_to_step2')}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
                                       <span className="flex-shrink-0">3.</span>
-                                      <span>
-                                        <strong>Toggle On:</strong> In the popup, click the toggle button on the left. The icon will turn <strong className="text-orange-400">orange</strong> when active
-                                      </span>
+                                      <span>{t('cors_extension.how_to_step3')}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
                                       <span className="flex-shrink-0">4.</span>
-                                      <span>
-                                        <strong>Run Scan:</strong> Refresh this page and run your security scan. You'll now get complete data access
-                                      </span>
+                                      <span>{t('cors_extension.how_to_step4')}</span>
                                     </li>
                                     <li className="flex items-start gap-2">
                                       <span className="flex-shrink-0">5.</span>
-                                      <span>
-                                        <strong className="text-red-400">IMPORTANT:</strong> After scanning, toggle the extension OFF (grey icon) to restore browser security
-                                      </span>
+                                      <span>{t('cors_extension.how_to_step5')}</span>
                                     </li>
                                   </ol>
-                                  <div className="mt-3 p-2 bg-yellow-500/10 rounded border border-yellow-500/30">
-                                    <p className="text-[9px] text-yellow-400 font-mono">
-                                      💡 Tip: The extension is inactive by default (grey icon). You must manually activate it for each testing session.
-                                    </p>
-                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -605,7 +586,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                                 className="text-[10px] px-3 py-1.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/30 transition-colors flex items-center gap-1.5"
                               >
                                 <ExternalLink className="w-3 h-3" />
-                                Chrome Extension
+                                {t('cors_extension.chrome_extension')}
                               </a>
                               <a 
                                 href="https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/" 
@@ -614,7 +595,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                                 className="text-[10px] px-3 py-1.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/30 transition-colors flex items-center gap-1.5"
                               >
                                 <ExternalLink className="w-3 h-3" />
-                                Firefox Add-on
+                                {t('cors_extension.firefox_addon')}
                               </a>
                             </div>
                             
@@ -624,22 +605,19 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                                 <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                   <p className="text-[10px] md:text-xs font-black text-red-400 uppercase mb-1">
-                                    ⚠️ Security Warning
+                                    {t('cors_extension.security_warning_title')}
                                   </p>
                                   <p className="text-[10px] text-white/80 leading-relaxed">
-                                    <strong>Disable the extension immediately after scanning.</strong> Keeping it enabled 
-                                    disables your browser's security guard, making you vulnerable to malicious websites. 
-                                    Only enable during security testing sessions.
+                                    {t('cors_extension.security_warning_desc')}
                                   </p>
                                 </div>
                               </div>
                             </div>
                             
                             <div className="mt-3 pt-3 border-t border-blue-500/20">
-                              <p className="text-[10px] text-white/60 italic leading-relaxed">
-                                <strong className="text-blue-400">Note:</strong> If you don't use an extension, our AI Passive Analysis 
-                                system will continue working with available metadata to provide security insights.
-                              </p>
+                            <p className="text-[10px] text-white/60 italic leading-relaxed">
+                              {t('cors_extension.alternative_note')}
+                            </p>
                             </div>
                           </div>
                         </div>
@@ -647,7 +625,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                       
                       <div className="mt-3 pt-3 border-t border-purple-500/20">
                         <p className="text-[10px] md:text-xs text-purple-300/80 font-mono">
-                          This demonstrates AI-powered workaround for browser security restrictions
+                          {t('cors_extension.ai_workaround_demo')}
                         </p>
                       </div>
                     </div>
@@ -749,7 +727,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                 <stat.icon className={`${stat.color} w-4 h-4 md:w-6 md:h-6`} />
                 <div>
                    <div className="text-xl md:text-3xl font-black text-white">{stat.val}</div>
-                   <div className="text-[7px] md:text-[8px] font-black uppercase text-white/20 tracking-[0.2em]">{stat.label}</div>
+                   <div className="text-[9px] md:text-[10px] font-black uppercase text-white/20 tracking-[0.2em]">{stat.label}</div>
                 </div>
              </div>
            ))}
@@ -759,7 +737,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-6 md:mb-10">
               <div className="p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-black/60 border border-white/5 flex items-center justify-between">
                  <div>
-                    <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest mb-1 block" style={{ color: themeColor }}>{t('results.security_score')}</span>
+                    <span className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-1 block" style={{ color: themeColor }}>{t('results.security_score')}</span>
                     <div className="text-4xl md:text-6xl font-black text-white">{securityScore}<span className="text-sm md:text-xl text-white/20">/100</span></div>
                  </div>
                  <div className="p-4 md:p-6 rounded-2xl bg-white/[0.02] border border-white/5" style={{ color: themeColor }}>
@@ -768,7 +746,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
               </div>
               <div className="p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-black/60 border border-white/5 flex items-center justify-between">
                  <div>
-                    <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest mb-1 block" style={{ color: LEVEL_COLORS.FAST }}>{t('results.audit_intensity')}</span>
+                    <span className="text-[10px] md:text-[12px] font-black uppercase tracking-widest mb-1 block" style={{ color: LEVEL_COLORS.FAST }}>{t('results.audit_intensity')}</span>
                     <div className="text-2xl md:text-4xl font-black text-white uppercase">{level}</div>
                  </div>
                  <div className="p-4 md:p-6 rounded-2xl bg-white/[0.02] border border-white/5" style={{ color: LEVEL_COLORS.FAST }}>
@@ -781,7 +759,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
               <div className="p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] bg-white/[0.02] border border-white/5">
                  <div className="flex items-center gap-3 mb-4 md:mb-6">
                     <FileSearch size={16} style={{ color: themeColor }} />
-                    <div className="text-[8px] md:text-[10px] font-black text-white/20 uppercase tracking-widest">{t('results.neural_forensic_deduction')}</div>
+                    <div className="text-[10px] md:text-[12px] font-black text-white/20 uppercase tracking-widest">{t('results.neural_forensic_deduction')}</div>
                  </div>
                  <p className="text-sm md:text-lg font-mono text-white/70 leading-relaxed uppercase whitespace-pre-wrap">{targetIntelligence?.forensicAnalysis}</p>
               </div>
@@ -789,9 +767,9 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
               <div className="glass-panel p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border bg-black/40 shadow-inner" style={{ borderColor: `${themeColor}33` }}>
                  <div className="flex items-center gap-3 mb-6 md:mb-8">
                     <Terminal size={16} style={{ color: themeColor }} />
-                    <div className="text-[8px] md:text-[10px] font-black uppercase tracking-widest" style={{ color: themeColor }}>{t('labels.forensic_logs')}</div>
+                    <div className="text-[10px] md:text-[12px] font-black uppercase tracking-widest" style={{ color: themeColor }}>{t('labels.forensic_logs')}</div>
                  </div>
-                 <div className="space-y-3 font-mono text-[9px] md:text-[11px] uppercase max-h-[400px] overflow-y-auto terminal-scroll">
+                 <div className="space-y-3 font-mono text-[10px] md:text-[12px] uppercase max-h-[400px] overflow-y-auto terminal-scroll">
                     {telemetry.length > 0 ? (
                       telemetry.map((log: any, i: number) => {
                         const logColor = 
@@ -833,8 +811,8 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                      <div className="flex-1">
                         <h4 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter mb-4 leading-tight">{f.title}</h4>
                         <div className="flex flex-wrap gap-2 md:gap-4 items-center">
-                           <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-red-500/10 text-red-500 text-[9px] md:text-[11px] font-black uppercase border border-red-500/20">{f.severity}{t('results.severity_severity')}</span>
-                           <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-white/5 text-white/40 text-[9px] md:text-[11px] font-mono uppercase border border-white/10">{f.cwe}</span>
+                           <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-red-500/10 text-red-500 text-[10px] md:text-[12px] font-black uppercase border border-red-500/20">{f.severity}{t('results.severity_severity')}</span>
+                           <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-white/5 text-white/40 text-[10px] md:text-[12px] font-mono uppercase border border-white/10">{f.cwe}</span>
                            <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-orange-500/10 text-orange-500 text-[9px] md:text-[11px] font-black uppercase border border-orange-500/20">{t('results.chain_high')}</span>
                         </div>
                      </div>

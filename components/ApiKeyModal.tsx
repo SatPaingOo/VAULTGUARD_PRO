@@ -94,12 +94,12 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
         onClose();
       } else {
         // Extension not available - show helpful message to user
-        alert('Google AI Studio browser extension is not installed.\n\nTo use Auto Link:\n1. Install Google AI Studio extension from Chrome Web Store\n2. Or use "Manual Token Input" to enter your API key directly\n\nGet API key: https://aistudio.google.com/apikey');
+        alert(t('apikey.extension_alert'));
         setIsLinking(false);
       }
     } catch (e) {
       console.error("Neural core linking failed", e);
-      alert('Auto Link failed. Please use "Manual Token Input" to enter your API key.\n\nGet API key: https://aistudio.google.com/apikey');
+      alert(t('apikey.auto_link_failed'));
       setIsLinking(false);
     }
   };
@@ -193,7 +193,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 
                 <div className="min-h-[20px] flex items-start">
                   {inputKey.length > 0 && inputKey.length < 20 && (
-                    <p className="text-[9px] md:text-[10px] font-mono text-red-400/80 uppercase tracking-wider px-2 flex items-center gap-2">
+                    <p className="text-[10px] md:text-[11px] font-mono text-red-400/80 uppercase tracking-wider px-2 flex items-center gap-2">
                       <AlertCircle size={12} className="shrink-0" />
                       {t('apikey.invalid_format')}
                     </p>
@@ -201,7 +201,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   {testResult === 'success' && (
                     <p className="text-[9px] md:text-[10px] font-mono text-[#00ff9d] uppercase tracking-wider px-2 flex items-center gap-2">
                       <ShieldCheck size={12} className="shrink-0" />
-                      API key validated successfully
+                      {t('apikey.validated_success')}
                     </p>
                   )}
                   {testResult === 'error' && inputKey.length >= 20 && apiKeyError && (
@@ -214,15 +214,15 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                         {/* Specific Error Details */}
                         {apiKeyError.type === 'missing_models' && apiKeyError.missingModels && (
                           <div className="bg-red-500/10 border border-red-500/20 rounded p-2 space-y-1">
-                            <p className="text-[8px] md:text-[9px] font-mono text-white/70 font-semibold">
-                              Missing Models:
+                            <p className="text-[10px] md:text-[11px] font-mono text-white/70 font-semibold">
+                              {t('apikey.missing_models')}
                             </p>
-                            <ul className="text-[8px] md:text-[9px] font-mono text-white/50 ml-3 space-y-0.5 list-disc">
+                            <ul className="text-[10px] md:text-[11px] font-mono text-white/50 ml-3 space-y-0.5 list-disc">
                               {apiKeyError.missingModels.map((model, idx) => (
                                 <li key={idx}>
                                   <code className="text-[#00d4ff]">{model}</code>
-                                  {model.includes('flash') && ' (required for FAST/STANDARD scans)'}
-                                  {model.includes('pro') && ' (required for DEEP scans)'}
+                                  {model.includes('flash') && t('apikey.model_required_fast')}
+                                  {model.includes('pro') && t('apikey.model_required_deep')}
                                 </li>
                               ))}
                             </ul>
@@ -231,43 +231,43 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                         
                         {apiKeyError.type === 'missing_billing' && (
                           <div className="bg-red-500/10 border border-red-500/20 rounded p-2">
-                            <p className="text-[8px] md:text-[9px] font-mono text-white/70 font-semibold mb-1">
-                              Billing Issue Detected:
+                            <p className="text-[10px] md:text-[11px] font-mono text-white/70 font-semibold mb-1">
+                              {t('apikey.billing_issue')}
                             </p>
-                            <p className="text-[8px] md:text-[9px] font-mono text-white/50">
-                              Your Google Cloud Project needs active billing to use Gemini 3 models.
+                            <p className="text-[10px] md:text-[11px] font-mono text-white/50">
+                              {t('apikey.billing_message')}
                             </p>
                           </div>
                         )}
                         
                         {apiKeyError.type === 'format_error' && (
                           <div className="bg-red-500/10 border border-red-500/20 rounded p-2">
-                            <p className="text-[8px] md:text-[9px] font-mono text-white/70 font-semibold mb-1">
-                              Format Issue:
+                            <p className="text-[10px] md:text-[11px] font-mono text-white/70 font-semibold mb-1">
+                              {t('apikey.format_issue')}
                             </p>
-                            <p className="text-[8px] md:text-[9px] font-mono text-white/50">
-                              API key should start with <code className="text-[#00d4ff]">AIzaSy...</code> and be at least 39 characters.
+                            <p className="text-[10px] md:text-[11px] font-mono text-white/50">
+                              {t('apikey.format_message')}
                             </p>
                           </div>
                         )}
                         
                         {apiKeyError.type === 'invalid_key' && (
                           <div className="bg-red-500/10 border border-red-500/20 rounded p-2">
-                            <p className="text-[8px] md:text-[9px] font-mono text-white/70 font-semibold mb-1">
-                              Authentication Failed:
+                            <p className="text-[10px] md:text-[11px] font-mono text-white/70 font-semibold mb-1">
+                              {t('apikey.auth_failed')}
                             </p>
-                            <p className="text-[8px] md:text-[9px] font-mono text-white/50">
-                              The API key is invalid, expired, or has been revoked.
+                            <p className="text-[10px] md:text-[11px] font-mono text-white/50">
+                              {t('apikey.auth_failed_message')}
                             </p>
                           </div>
                         )}
 
                         {/* Actionable Suggestions */}
                         <div className="pt-2 mt-2 border-t border-red-500/10">
-                          <p className="text-[8px] md:text-[9px] font-mono text-white/60 mb-1.5">
-                            <strong className="text-white/70">What to do:</strong>
+                          <p className="text-[10px] md:text-[11px] font-mono text-white/60 mb-1.5">
+                            <strong className="text-white/70">{t('apikey.what_to_do')}</strong>
                           </p>
-                          <ul className="space-y-1 text-[8px] md:text-[9px] font-mono text-white/50">
+                          <ul className="space-y-1 text-[10px] md:text-[11px] font-mono text-white/50">
                             {apiKeyError.suggestions.map((suggestion, idx) => (
                               <li key={idx} className="flex items-start gap-2">
                                 <span className="text-[#00d4ff] mt-0.5">→</span>
@@ -283,19 +283,19 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   {/* Fallback generic error if no specific error details */}
                   {testResult === 'error' && inputKey.length >= 20 && !apiKeyError && (
                     <div className="space-y-2 w-full bg-red-500/5 border border-red-500/20 rounded-lg p-3">
-                      <p className="text-[9px] md:text-[10px] font-mono text-red-400/80 uppercase tracking-wider flex items-center gap-2">
+                        <p className="text-[9px] md:text-[10px] font-mono text-red-400/80 uppercase tracking-wider flex items-center gap-2">
                         <AlertCircle size={12} className="shrink-0" />
-                        Invalid or non-functional key
+                        {t('apikey.invalid_key_generic')}
                       </p>
                       <div className="space-y-2 mt-2">
-                        <p className="text-[8px] md:text-[9px] font-mono text-white/50 leading-relaxed">
-                          <strong className="text-white/70">Check Required Services:</strong>
+                        <p className="text-[10px] md:text-[11px] font-mono text-white/50 leading-relaxed">
+                          <strong className="text-white/70">{t('apikey.check_required_services')}</strong>
                         </p>
-                        <ul className="space-y-1 text-[8px] md:text-[9px] font-mono text-white/50 ml-3 list-disc">
-                          <li>Google AI Studio API Key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-[#00d4ff] hover:text-[#00ff9d] underline">aistudio.google.com/apikey</a></li>
-                          <li>Models: <code className="text-[#00d4ff]">gemini-3-flash-preview</code> & <code className="text-[#00d4ff]">gemini-3-pro-preview</code> enabled</li>
-                          <li>Search Grounding feature enabled</li>
-                          <li>Active billing on Google Cloud Project</li>
+                        <ul className="space-y-1 text-[10px] md:text-[11px] font-mono text-white/50 ml-3 list-disc">
+                          <li>{t('apikey.service_1')} <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-[#00d4ff] hover:text-[#00ff9d] underline">aistudio.google.com/apikey</a></li>
+                          <li>{t('apikey.service_2')}</li>
+                          <li>{t('apikey.service_3')}</li>
+                          <li>{t('apikey.service_4')}</li>
                         </ul>
                       </div>
                     </div>
@@ -303,7 +303,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   {isTesting && (
                     <p className="text-[9px] md:text-[10px] font-mono text-[#00d4ff] uppercase tracking-wider px-2 flex items-center gap-2">
                       <ActivityIcon size={12} className="animate-spin shrink-0" />
-                      Testing connectivity...
+                      {t('apikey.testing_connectivity')}
                     </p>
                   )}
                 </div>
@@ -318,7 +318,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   {isTesting ? (
                     <>
                       <ActivityIcon size={14} className="md:w-4 md:h-4 animate-spin" />
-                      <span>Testing</span>
+                      <span>{t('apikey.testing')}</span>
                     </>
                   ) : (
                     <>
@@ -339,7 +339,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   onClick={handleSystemLink}
                   disabled={isLinking}
                   className="py-4 md:py-5 rounded-xl md:rounded-2xl bg-[#00ff9d]/10 text-[#00ff9d] border-2 border-[#00ff9d]/30 font-black uppercase tracking-[0.2em] text-[10px] md:text-xs hover:bg-[#00ff9d]/20 hover:border-[#00ff9d]/50 hover:shadow-[0_0_25px_rgba(0,255,157,0.3)] transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 relative group"
-                  title={!window.aistudio?.openSelectKey ? "Requires Google AI Studio browser extension. Use Manual Token Input instead." : "Link API key from Google AI Studio extension"}
+                  title={!window.aistudio?.openSelectKey ? t('apikey.extension_required_tooltip') : t('apikey.extension_detected_tooltip')}
                 >
                   {isLinking ? (
                     <>
@@ -351,14 +351,14 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       <CpuChip size={14} className="md:w-4 md:h-4" />
                       <span>Auto_Link</span>
                       {!window.aistudio?.openSelectKey && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse border border-black" title="Extension not detected" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse border border-black" title={t('apikey.extension_not_detected')} />
                       )}
                     </>
                   )}
                   {/* Tooltip for extension requirement */}
                   {!window.aistudio?.openSelectKey && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 pointer-events-none">
-                      <div className="bg-yellow-500/90 text-black text-[8px] px-2 py-1 rounded whitespace-nowrap font-mono shadow-lg">
+                      <div className="bg-yellow-500/90 text-black text-[10px] px-2 py-1 rounded whitespace-nowrap font-mono shadow-lg">
                         Requires AI Studio Extension
                       </div>
                       <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-yellow-500/90 mx-auto"></div>
@@ -377,7 +377,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                     </h4>
                   </div>
                   
-                  <div className="space-y-3 text-[9px] md:text-[10px] font-mono">
+                  <div className="space-y-3 text-[10px] md:text-[11px] font-mono">
                     <div className="bg-[#00d4ff]/5 border border-[#00d4ff]/10 rounded-lg p-3 space-y-2.5">
                       {/* Google AI Studio API Key */}
                       <div className="flex items-start gap-2">
@@ -410,20 +410,20 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                           <ul className="list-none text-white/40 ml-2 mt-1 space-y-1">
                             <li className="flex items-center gap-2">
                               <span className="text-[#00d4ff]">•</span>
-                              <code className="text-[#00d4ff] text-[8px] md:text-[9px]">gemini-3-flash-preview</code>
-                              <span className="text-white/30 text-[8px]">(FAST/STANDARD scans)</span>
+                              <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-flash-preview</code>
+                              <span className="text-white/30 text-[10px]">(FAST/STANDARD scans)</span>
                             </li>
                             <li className="flex items-center gap-2">
                               <span className="text-[#00d4ff]">•</span>
-                              <code className="text-[#00d4ff] text-[8px] md:text-[9px]">gemini-3-pro-preview</code>
-                              <span className="text-white/30 text-[8px]">(DEEP scans)</span>
+                              <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-pro-preview</code>
+                              <span className="text-white/30 text-[10px]">(DEEP scans)</span>
                             </li>
                           </ul>
                           <a 
                             href="https://console.cloud.google.com/apis/library" 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-[#00d4ff] hover:text-[#00ff9d] text-[8px] underline inline-flex items-center gap-1 mt-1"
+                            className="text-[#00d4ff] hover:text-[#00ff9d] text-[10px] underline inline-flex items-center gap-1 mt-1"
                           >
                             Enable in Google Cloud Console
                             <ExternalLink size={9} />
@@ -483,19 +483,18 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       <div className="flex-1">
                         <p className="text-[10px] md:text-[11px] font-black text-blue-400 uppercase mb-2 flex items-center gap-2">
                           <Zap className="w-3 h-3" />
-                          Pro Tip: CORS Extension for Better Results
+                          {t('cors_extension.pro_tip_title')}
                         </p>
-                        <p className="text-[9px] md:text-[10px] text-white/70 leading-relaxed mb-2">
-                          For <strong className="text-blue-400">maximum scan accuracy</strong> (~95-100% vs ~60-70%), 
-                          install a CORS extension before scanning. This enables full DOM access and complete security analysis.
+                        <p className="text-[10px] md:text-[11px] text-white/70 leading-relaxed mb-2">
+                          {t('cors_extension.pro_tip_desc')}
                         </p>
                         
                         <div className="bg-black/30 p-2 rounded mb-2">
-                          <p className="text-[9px] text-white/90 font-mono">
-                            <strong className="text-blue-400">Recommended:</strong> "Allow CORS: Access-Control-Allow-Origin"
+                          <p className="text-[10px] text-white/90 font-mono">
+                            <strong className="text-blue-400">{t('cors_extension.recommended')}</strong> "{t('cors_extension.extension_name')}"
                           </p>
-                          <p className="text-[8px] text-white/60 mt-0.5">
-                            800,000+ users • 3.4/5 rating • Chrome & Firefox
+                          <p className="text-[10px] text-white/60 mt-0.5">
+                            {t('cors_extension.extension_stats')}
                           </p>
                         </div>
                         
@@ -504,21 +503,21 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                             href="https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-[8px] px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/30 transition-colors flex items-center gap-1"
+                            className="text-[10px] px-2 py-1.5 bg-blue-500/20 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/30 transition-colors flex items-center gap-1"
                           >
                             <ExternalLink className="w-3 h-3" />
-                            Install Extension
+                            {t('cors_extension.install_button')}
                           </a>
                         </div>
                         
                         <div className="mt-2 pt-2 border-t border-blue-500/20">
-                          <p className="text-[8px] text-yellow-400/80 font-mono">
-                            ⚠️ Disable after scanning for security
+                          <p className="text-[10px] text-yellow-400/80 font-mono">
+                            {t('cors_extension.security_warning')}
                           </p>
                         </div>
                         
-                        <p className="text-[8px] text-white/60 italic mt-2">
-                          <strong>Note:</strong> Optional. VaultGuard Pro works without it using AI compensation.
+                        <p className="text-[10px] text-white/60 italic mt-2">
+                          {t('cors_extension.optional_note')}
                         </p>
                       </div>
                     </div>
@@ -532,7 +531,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       <InfoIcon size={14} className="text-[#00d4ff]/70" />
                     </div>
                     <div>
-                      <p className="text-[9px] md:text-[10px] font-mono text-white/50 leading-relaxed">
+                      <p className="text-[10px] md:text-[11px] font-mono text-white/50 leading-relaxed">
                         <span className="text-white/70 font-semibold">Gemini 3 Series</span> requires active billing. API key stored in React Context (in-memory only, cleared on page reload).
                       </p>
                     </div>
@@ -541,7 +540,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                     href="https://ai.google.dev/gemini-api/docs/billing" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-[9px] md:text-[10px] font-black text-[#00d4ff] hover:text-[#00ff9d] transition-colors uppercase tracking-widest whitespace-nowrap bg-[#00d4ff]/5 px-4 py-2.5 rounded-full border border-[#00d4ff]/20 hover:border-[#00ff9d]/40 hover:bg-[#00d4ff]/10 hover:shadow-[0_0_15px_rgba(0,212,255,0.2)]"
+                    className="flex items-center gap-2 text-[10px] md:text-[11px] font-black text-[#00d4ff] hover:text-[#00ff9d] transition-colors uppercase tracking-widest whitespace-nowrap bg-[#00d4ff]/5 px-4 py-2.5 rounded-full border border-[#00d4ff]/20 hover:border-[#00ff9d]/40 hover:bg-[#00d4ff]/10 hover:shadow-[0_0_15px_rgba(0,212,255,0.2)]"
                   >
                     Setup_Portal <ExternalLink size={11} className="md:w-3.5 md:h-3.5" />
                   </a>

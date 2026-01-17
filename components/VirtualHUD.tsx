@@ -20,11 +20,11 @@ const ThreatAlert: React.FC<{ finding: any }> = ({ finding }) => (
   >
     <div className="flex items-center gap-2 sm:gap-3">
       <AlertCircle className="text-red-500 w-4 h-4 sm:w-5 sm:h-5" />
-      <span className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest">{t('virtualhud.neural_threat')}</span>
+      <span className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-widest">{t('virtualhud.neural_threat')}</span>
     </div>
     <div className="w-full h-[1px] bg-red-500/20" />
-    <h5 className="text-[9px] sm:text-[11px] font-black text-white uppercase truncate">{finding.title}</h5>
-    <p className="text-[8px] font-mono text-white/50 leading-tight uppercase truncate">{finding.description}</p>
+    <h5 className="text-[10px] sm:text-[12px] font-black text-white uppercase truncate">{finding.title}</h5>
+    <p className="text-[10px] font-mono text-white/50 leading-tight uppercase truncate">{finding.description}</p>
   </motion.div>
 );
 
@@ -43,8 +43,8 @@ const NeuralBlueprint = ({ color }: { color: string }) => (
         </div>
       </motion.div>
       <div className="text-center">
-        <h4 className="text-[8px] sm:text-[12px] font-black uppercase tracking-[0.2em] sm:tracking-[0.6em] mb-1 sm:mb-2" style={{ color }}>{t('virtualhud.neural_blueprint')}</h4>
-        <p className="text-[6px] sm:text-[8px] font-mono text-white/30 uppercase tracking-[0.1em] max-w-[140px] mx-auto sm:max-w-none">{t('virtualhud.target_reconstruction')}</p>
+        <h4 className="text-[10px] sm:text-[12px] font-black uppercase tracking-[0.2em] sm:tracking-[0.6em] mb-1 sm:mb-2" style={{ color }}>{t('virtualhud.neural_blueprint')}</h4>
+        <p className="text-[9px] sm:text-[10px] font-mono text-white/30 uppercase tracking-[0.1em] max-w-[140px] mx-auto sm:max-w-none">{t('virtualhud.target_reconstruction')}</p>
       </div>
     </div>
   </div>

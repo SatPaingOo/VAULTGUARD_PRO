@@ -69,7 +69,7 @@ export const WebAudit = ({ phase, progress, telemetry, targetUrl, report, level,
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
-            className="absolute top-32 right-8 w-80 z-50 glass-panel rounded-3xl bg-black/80 overflow-hidden shadow-4xl flex flex-col max-h-[400px] border transition-colors duration-500"
+            className="absolute top-32 right-2 sm:right-4 md:right-8 w-[calc(100%-1rem)] sm:w-80 max-w-sm md:max-w-none z-50 glass-panel rounded-3xl bg-black/80 overflow-hidden shadow-4xl flex flex-col max-h-[400px] border transition-colors duration-500"
             style={{ borderColor: `${themeColor}4d` }}
           >
             <div className="p-4 border-b border-white/10 flex items-center gap-3" style={{ backgroundColor: `${themeColor}1a` }}>
@@ -78,13 +78,13 @@ export const WebAudit = ({ phase, progress, telemetry, targetUrl, report, level,
             </div>
             <div ref={probeScrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 terminal-scroll">
               {dispatchedProbes.map((p: any, i: number) => (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 text-[9px]">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 text-[10px] sm:text-[11px]">
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-black" style={{ color: themeColor }}>{p.method}</span>
                     <span className={`font-mono ${p.status === 200 ? 'text-green-500' : p.status === 403 ? 'text-orange-500' : 'text-white/20'}`}>[{p.status}]</span>
                   </div>
                   <div className="truncate text-white/60 mb-2">{p.endpoint}</div>
-                  <div className="text-[8px] text-white/20 italic">{p.description}</div>
+                  <div className="text-[9px] sm:text-[10px] text-white/20 italic">{p.description}</div>
                 </motion.div>
               ))}
             </div>

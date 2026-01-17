@@ -32,8 +32,8 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({ onOpenAuth }) => {
         <div className="glass-panel px-3 py-1.5 md:px-6 md:py-3 flex items-center gap-2 md:gap-4 border-l-2 border-[#00d4ff] bg-black/90 shadow-2xl rounded-lg md:rounded-xl">
            <Activity className="w-3.5 h-3.5 md:w-5 md:h-5 text-[#00d4ff] animate-pulse shrink-0" />
            <div className="flex flex-col min-w-0">
-              <span className="text-[7px] md:text-[11px] font-black uppercase tracking-[0.15em] md:tracking-[0.2em] text-white/90">VAULT_READY</span>
-              <span className="text-[6px] md:text-[9px] font-mono text-white/30 tracking-widest hidden sm:block">{currentTime}</span>
+              <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.15em] md:tracking-[0.2em] text-white/90">VAULT_READY</span>
+              <span className="text-[8px] md:text-[9px] font-mono text-white/30 tracking-widest hidden sm:block">{currentTime}</span>
            </div>
         </div>
         
@@ -43,10 +43,10 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({ onOpenAuth }) => {
         >
           <CpuIcon size={14} className={`${isEngineLinked ? 'text-[#00ff9d]' : 'text-red-500 animate-pulse'} shrink-0 md:w-[18px] md:h-[18px]`} />
           <div className="flex flex-col items-start leading-tight">
-             <span className={`text-[7px] md:text-[10px] font-black uppercase tracking-widest ${isEngineLinked ? 'text-[#00ff9d]' : 'text-red-500 group-hover:text-red-400'}`}>
+             <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest ${isEngineLinked ? 'text-[#00ff9d]' : 'text-red-500 group-hover:text-red-400'}`}>
                 {isEngineLinked ? 'ENGINE_ACTIVE' : 'LINK_ENGINE'}
              </span>
-             <span className="text-[6px] md:text-[7px] font-mono text-white/20 uppercase">SYS_CORE</span>
+             <span className="text-[8px] md:text-[9px] font-mono text-white/20 uppercase">SYS_CORE</span>
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({ onOpenAuth }) => {
           <select 
             value={language}
             onChange={(e) => setLanguage(e.target.value as 'en' | 'mm')}
-            className="bg-transparent text-[8px] md:text-[11px] font-black uppercase text-white outline-none cursor-pointer"
+            className="bg-transparent text-[10px] md:text-[11px] font-black uppercase text-white outline-none cursor-pointer"
           >
             <option value="en" className="bg-black text-white">EN</option>
             <option value="mm" className="bg-black text-white">MM</option>

@@ -10,7 +10,7 @@ export const SandboxVisualizer: React.FC = () => {
   return (
     <div className="w-full max-w-6xl px-4 flex flex-col gap-8 md:gap-12">
       <div className="flex flex-col items-center text-center gap-3 md:gap-4 mb-4 md:mb-8">
-        <div className="px-4 py-1.5 md:px-6 md:py-2 rounded-full bg-[#00d4ff]/10 border border-[#00d4ff]/20 text-[8px] md:text-[10px] font-black text-[#00d4ff] uppercase tracking-[0.4em]">
+        <div className="px-4 py-1.5 md:px-6 md:py-2 rounded-full bg-[#00d4ff]/10 border border-[#00d4ff]/20 text-[10px] md:text-[12px] font-black text-[#00d4ff] uppercase tracking-[0.4em]">
            {t('labels.sandbox_title')}
         </div>
         <h2 className="text-2xl md:text-5xl font-black text-white uppercase tracking-tighter">{t('labels.sandbox_desc')}</h2>
@@ -26,7 +26,7 @@ export const SandboxVisualizer: React.FC = () => {
                  <Icon className="w-6 h-6 md:w-7 md:h-7" />
               </div>
               <div className="space-y-1 md:space-y-2">
-                 <div className="text-[9px] md:text-[10px] font-black text-[#00d4ff] uppercase tracking-widest">{t(`sandbox_steps.${s}`)?.[0]}</div>
+                 <div className="text-[10px] md:text-[11px] font-black text-[#00d4ff] uppercase tracking-widest">{t(`sandbox_steps.${s}`)?.[0]}</div>
                  <p className="text-[11px] md:text-[12px] font-mono text-white/40 leading-relaxed uppercase">{t(`sandbox_steps.${s}`)?.[1]}</p>
               </div>
             </div>

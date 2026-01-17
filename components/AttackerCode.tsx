@@ -94,7 +94,7 @@ export const AttackerCode = ({ commands, level = 'STANDARD', targetUrl = '', min
           <div className="flex items-center gap-2 sm:gap-3">
             <Terminal size={10} className="text-red-500 sm:w-3 sm:h-3" />
             <div className="flex flex-col">
-               <span className="text-[7px] sm:text-[9px] font-black text-white/50 uppercase tracking-widest">{t('labels.command_buffer')}</span>
+               <span className="text-[9px] sm:text-[11px] font-black text-white/50 uppercase tracking-widest">{t('labels.command_buffer')}</span>
             </div>
           </div>
           <motion.div 
@@ -115,7 +115,7 @@ export const AttackerCode = ({ commands, level = 'STANDARD', targetUrl = '', min
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 0.2, x: 0 }}
                 key={`cmd-${idx}`}
-                className="flex gap-1.5 sm:gap-2 text-white/50 text-[7px] sm:text-[10px] leading-tight"
+                className="flex gap-1.5 sm:gap-2 text-white/50 text-[9px] sm:text-[11px] leading-tight"
               >
                 <span className="text-red-500 opacity-40 font-black">$</span>
                 <span className="truncate">{cmd}</span>
@@ -125,7 +125,7 @@ export const AttackerCode = ({ commands, level = 'STANDARD', targetUrl = '', min
           
           <div className="flex gap-2 sm:gap-3 text-red-500/80 font-bold bg-red-500/5 p-2 sm:p-4 rounded-lg sm:rounded-xl border border-red-500/10 mt-1 sm:mt-2">
             <ChevronRight size={10} className="flex-shrink-0 mt-0.5 sm:w-3 sm:h-3" />
-            <div className="flex-1 break-all text-[7px] sm:text-[10px] uppercase font-black tracking-tight leading-snug">
+            <div className="flex-1 break-all text-[9px] sm:text-[11px] uppercase font-black tracking-tight leading-snug">
               <TypewriterText text={currentCommand} speed={25} />
               <motion.span 
                 animate={{ opacity: [1, 0, 1] }} 
