@@ -111,19 +111,25 @@ export const WebAudit = ({ phase, progress, telemetry, targetUrl, report, level,
            <div className="flex-1 flex flex-col glass-panel rounded-2xl bg-black/40 border border-white/5 overflow-hidden">
               <div className="px-4 py-2 border-b border-white/5 text-[9px] font-black text-white/20 uppercase tracking-widest bg-white/[0.01]">{t('webaudit.telemetry_log')}</div>
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-1 terminal-scroll">
-                {telemetry.map((log: any, i: number) => (
-                  <div key={i} className="flex gap-4 text-[10px] font-mono leading-tight">
-                    <span className="text-white/10">[{log.timestamp.split(':').slice(1).join(':')}]</span>
-                    <span className={
-                      log.type === 'error' ? 'text-red-500' : 
-                      log.type === 'success' ? 'text-[#00ff9d]' : 
-                      log.type === 'warn' ? 'text-orange-400' : 
-                      log.type === 'probe' ? themeColor : 'text-white/50'
-                    }>
-                      {log.msg}
-                    </span>
-                  </div>
-                ))}
+                {telemetry.map((log: any, i: number) => {
+                  const isAiCompensation = log.msg?.includes('AI_COMPENSATION') || log.msg?.includes('AI Compensation') || log.msg?.includes('AI intelligence compensation');
+                  
+                  return (
+                    <div key={i} className="flex gap-4 text-[10px] font-mono leading-tight">
+                      <span className="text-white/10">[{log.timestamp.split(':').slice(1).join(':')}]</span>
+                      <span className={
+                        isAiCompensation ? 'text-purple-400 font-bold' :
+                        log.type === 'error' ? 'text-red-500' : 
+                        log.type === 'success' ? 'text-[#00ff9d]' : 
+                        log.type === 'warn' ? 'text-orange-400' : 
+                        log.type === 'probe' ? themeColor : 'text-white/50'
+                      }>
+                        {isAiCompensation && <Cpu className="inline w-3 h-3 mr-1" />}
+                        {log.msg}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
            </div>
            <div className="w-full lg:w-[450px] h-full flex-shrink-0">

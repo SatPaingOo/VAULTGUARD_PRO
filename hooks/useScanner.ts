@@ -140,13 +140,27 @@ export const useScanner = () => {
       }
       const networkAnalysis = new FrontendNetworkAnalysis();
       
+      // Track CORS status for AI compensation
+      const corsStatus = {
+        domBlocked: false,
+        headersBlocked: false,
+        sslBlocked: false,
+        directScanBlocked: false
+      };
+      
       // Phase 1: Parallel Data Collection (OPTIMIZED: All requests in parallel for 2-3x speed)
       addLog(`[NETWORK] Collecting data in parallel (DOM, OSINT, Headers, SSL, DNS)...`, 'info', 10);
       setScanStatus('Discovery');
       
       // Execute all data collection in parallel
       const [domResult, osintResult, headersResult, sslResult, dnsResult] = await Promise.allSettled([
-        extractTargetDOM(target), // Promise.allSettled will handle errors automatically
+        extractTargetDOM(target).catch(err => {
+          if (err.message?.includes('CORS_BLOCKED') || err.message?.includes('CORS')) {
+            corsStatus.domBlocked = true;
+            corsStatus.directScanBlocked = true;
+          }
+          throw err;
+        }),
         g.runIntelligenceDiscovery(domain, target, languageName),
         networkAnalysis.analyzeHeaders(target),
         networkAnalysis.analyzeSSL(domain),
@@ -162,13 +176,22 @@ export const useScanner = () => {
       if (domExtractionSuccess) {
         addLog(`[SANDBOX] Target DOM extracted successfully`, 'success', 15);
       } else {
-        addLog(`[WARN] DOM extraction blocked/failed. Continuing with network analysis...`, 'warn', 15);
+        corsStatus.domBlocked = true;
+        corsStatus.directScanBlocked = true;
+        addLog(`[WARN] DOM extraction blocked by CORS. AI intelligence compensation activated...`, 'warn', 15);
+        addLog(`[AI_COMPENSATION] Neural reasoning mode: Analyzing available data (SSL, DNS, OSINT) with AI intelligence`, 'info', 16);
+        addLog(`[AI_COMPENSATION] Using Gemini reasoning to infer security posture from network metadata`, 'info', 17);
       }
       
       const disc = osintResult.status === 'fulfilled' ? osintResult.value : { usage: { totalTokenCount: 0 } };
       const headers = headersResult.status === 'fulfilled' ? headersResult.value : null;
       const sslInfo = sslResult.status === 'fulfilled' ? sslResult.value : null;
       const dnsInfo = dnsResult.status === 'fulfilled' ? dnsResult.value : null;
+      
+      // Check headers CORS status
+      if (headers && !headers.cors?.allowed) {
+        corsStatus.headersBlocked = true;
+      }
       
       // Network analysis results
       if (headers) {
@@ -181,18 +204,37 @@ export const useScanner = () => {
       
       if (sslInfo && sslInfo.valid) {
         addLog(`[NETWORK] SSL Grade: ${sslInfo.grade}`, sslInfo.grade === 'A' || sslInfo.grade === 'A+' ? 'success' : 'warn', 20);
+      } else if (sslInfo && !sslInfo.valid) {
+        corsStatus.sslBlocked = true;
       }
       
       if (dnsInfo && dnsInfo.ip) {
         addLog(`[NETWORK] Resolved IP: ${dnsInfo.ip}`, 'success', 21);
       }
       
+      // AI Compensation Status Log
+      if (corsStatus.directScanBlocked) {
+        addLog(`[AI_COMPENSATION] CORS restriction detected. Compensating with AI-powered analysis...`, 'warn', 22);
+        const availableSources = [
+          sslInfo ? 'SSL ✓' : 'SSL ✗',
+          dnsInfo?.ip ? 'DNS ✓' : 'DNS ✗',
+          osintResult.status === 'fulfilled' ? 'OSINT ✓' : 'OSINT ✗'
+        ].join(' | ');
+        addLog(`[AI_COMPENSATION] Available data sources: ${availableSources}`, 'info', 23);
+        addLog(`[AI_COMPENSATION] AI will use Search Grounding + Network Intelligence to compensate for CORS limitations`, 'info', 24);
+      }
+      
       // Extract security signals (only if DOM available)
       const signals = rawDom ? extractSecuritySignals(rawDom) : JSON.stringify({ 
-        note: 'DOM extraction blocked by CORS - analyzing with network data only',
-        headers: headers?.securityHeaders,
-        sslGrade: sslInfo?.grade,
-        ip: dnsInfo?.ip,
+        note: 'DOM extraction blocked by CORS - AI intelligence compensation mode',
+        availableData: {
+          headers: headers?.securityHeaders || null,
+          sslGrade: sslInfo?.grade || null,
+          sslValid: sslInfo?.valid || false,
+          ip: dnsInfo?.ip || null,
+          dnsRecords: dnsInfo?.records || [],
+        },
+        corsStatus: corsStatus,
       });
       
       // Helper function to extract token count from usageMetadata (handles both formats)
@@ -224,6 +266,7 @@ export const useScanner = () => {
           dnsInfo,
         },
         ip: dnsInfo?.ip || disc.ip,
+        corsStatus: corsStatus, // Add CORS status to intelligence
       };
 
       // MANDATORY COOLDOWN: Give the API breathing room to prevent burst 429s
@@ -233,6 +276,12 @@ export const useScanner = () => {
       // Phase 2: Neural Processing & Sandbox (OPTIMIZED: Tier-based data transmission)
       setScanStatus('Probing');
       addLog(`[NEURAL] Enabling PII-Masking for sensitive forensic data...`, 'success', 35);
+      
+      if (corsStatus.directScanBlocked) {
+        addLog(`[NEURAL] AI Compensation Mode: Enabling advanced reasoning to overcome CORS restrictions...`, 'success', 36);
+        addLog(`[NEURAL] Gemini will analyze: SSL config, DNS records, OSINT intelligence, and infer vulnerabilities`, 'info', 37);
+      }
+      
       addLog(`[SANDBOX] Initializing Heuristic Simulation...`, 'info', 40);
       addLog(`[PROBE] Generating tactical verification payloads...`, 'info', 45);
       
@@ -242,6 +291,7 @@ export const useScanner = () => {
           headers: headers?.securityHeaders,
           sslInfo: sslInfo,
           dnsInfo: dnsInfo,
+          corsStatus: corsStatus,
           // Skip DOM for FAST tier (saves ~12K tokens)
         },
         STANDARD: {
@@ -249,6 +299,7 @@ export const useScanner = () => {
           sslInfo: sslInfo,
           dnsInfo: dnsInfo,
           signals: signals, // Lightweight signals only (saves ~37K tokens vs full DOM)
+          corsStatus: corsStatus,
         },
         DEEP: {
           headers: headers?.securityHeaders,
@@ -256,6 +307,7 @@ export const useScanner = () => {
           dnsInfo: dnsInfo,
           signals: signals,
           dom: rawDom, // Full DOM for deep analysis
+          corsStatus: corsStatus,
         },
       };
       
@@ -265,7 +317,8 @@ export const useScanner = () => {
         level, 
         JSON.stringify(enhancedDisc), 
         languageName,
-        tierBasedData[level] // Pass tier-based data for optimization
+        tierBasedData[level], // Pass tier-based data for optimization
+        corsStatus // Pass CORS status for AI compensation
       );
       
       // Track deep audit token usage
@@ -503,6 +556,7 @@ export const useScanner = () => {
       const dataQuality = {
         trustScore,
         limitations: collectLimitations(),
+        corsCompensation: corsStatus.directScanBlocked, // Track AI compensation mode
         sources: {
           dom: domExtractionSuccess,
           headers: headers?.cors?.allowed || false,

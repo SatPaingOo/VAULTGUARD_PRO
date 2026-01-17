@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* Custom Styles */
+:root {
+    --bg-dark: #020408;
+    --accent-blue: #00d4ff;
+    --accent-green: #00ff9d;
+    --accent-red: #ff4d4d;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: #e0e6ed;
+    font-family: 'Fira Code', monospace;
+    overflow-x: hidden;
+    margin: 0;
+}
+
+.glass-panel {
+    background: rgba(5, 7, 10, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.crt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 3px, 3px 100%;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+}
+
+.terminal-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.terminal-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.terminal-scroll::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.2);
+    border-radius: 10px;
+}
+
+.hud-grid-bg {
+    background-image:
+        linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+/* Tactical Map Customization */
+.leaflet-container {
+    background: #020408 !important;
+    border-radius: 2rem;
+    filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.2) saturate(0.5);
+}
+
+.leaflet-vignette {
+    box-shadow: inset 0 0 100px #000;
+}
+
+@keyframes radar-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-radar {
+    animation: radar-spin 10s linear infinite;
+}
+
+.scanning-line {
+    background: linear-gradient(transparent, #00d4ff, transparent);
+    height: 100px;
+    width: 100%;
+    position: absolute;
+    z-index: 20;
+    opacity: 0.3;
+    pointer-events: none;
+}

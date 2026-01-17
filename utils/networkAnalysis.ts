@@ -156,14 +156,19 @@ export class FrontendNetworkAnalysis {
       }
     } catch (error: any) {
       // SSL Labs API doesn't support CORS - this is expected, use fallback silently
+      // Suppress all CORS-related errors from console (expected behavior)
       const errorMessage = error?.message || '';
       const isCorsError = errorMessage.includes('CORS') || 
                         errorMessage.includes('Access-Control-Allow-Origin') ||
                         error?.status === 403 ||
-                        error?.name === 'TypeError';
+                        error?.status === 0 ||
+                        error?.name === 'TypeError' ||
+                        error?.name === 'NetworkError';
       
-      // Only log unexpected errors (not CORS/403)
-      if (!isCorsError) {
+      // Silently handle CORS errors - don't log to console
+      // Only log unexpected errors in development mode
+      const isDev = import.meta.env?.MODE === 'development' || import.meta.env?.DEV === true;
+      if (!isCorsError && isDev) {
         console.warn('[NetworkAnalysis] SSL check failed:', errorMessage);
       }
     }

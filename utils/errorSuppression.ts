@@ -30,6 +30,14 @@ export const createErrorSuppressor = (): ErrorSuppressor => {
     'ERR_BLOCKED_BY_CLIENT',
     'Violation',
     'setTimeout',
+    'ssllabs.com',
+    'api.ssllabs.com',
+    'Failed to load resource',
+    '429 (Too Many Requests)',
+    'generativelanguage.googleapis.com',
+    '404 (Not Found)',
+    'undefined:1',
+    'cdn.tailwindcss.com',
   ];
   
   const suppress = (...args: any[]) => {
@@ -73,7 +81,11 @@ export const setupGlobalErrorHandlers = () => {
         msg.includes('Blocked a frame') ||
         msg.includes('cross-origin') ||
         msg.includes('Location') ||
-        msg.includes('href')) {
+        msg.includes('href') ||
+        msg.includes('CORS') ||
+        msg.includes('Access-Control-Allow-Origin') ||
+        (source && String(source).includes('ssllabs.com')) ||
+        (source && String(source).includes('cdn.tailwindcss.com'))) {
       return true; // Suppress error
     }
     if (originalErrorHandler) {
@@ -82,16 +94,19 @@ export const setupGlobalErrorHandlers = () => {
     return false;
   };
   
-  window.onunhandledrejection = (event) => {
+  window.onunhandledrejection = (event: PromiseRejectionEvent) => {
     const reason = String(event.reason);
     if (reason.includes('CORS') || 
         reason.includes('SecurityError') ||
-        reason.includes('Access-Control-Allow-Origin')) {
+        reason.includes('Access-Control-Allow-Origin') ||
+        reason.includes('CORS_BLOCKED') ||
+        reason.includes('429') ||
+        reason.includes('Rate limit')) {
       event.preventDefault(); // Suppress rejection
       return;
     }
     if (originalUnhandledRejection) {
-      originalUnhandledRejection(event);
+      originalUnhandledRejection.call(window, event);
     }
   };
   

@@ -105,7 +105,12 @@ export class GeminiService {
         const jitter = Math.random() * 2000; // Increased jitter (0-2s)
         const totalDelay = backoff + jitter;
         
-        console.warn(`[GeminiService] Rate limit hit. Retrying in ${Math.round(totalDelay/1000)}s... (${retries} attempts left)`);
+        // Only log rate limit warnings in development mode or when retries are low
+        // This reduces console noise in production
+        const isDev = import.meta.env?.MODE === 'development' || import.meta.env?.DEV === true;
+        if (isDev || retries <= 2) {
+          console.warn(`[GeminiService] Rate limit hit. Retrying in ${Math.round(totalDelay/1000)}s... (${retries} attempts left)`);
+        }
         await new Promise(resolve => setTimeout(resolve, totalDelay));
         return this.executeWithRetry(fn, retries - 1, baseDelay);
       }
@@ -326,7 +331,8 @@ export class GeminiService {
     level: ScanLevel, 
     reconIntel: string = "", 
     language: string = "English",
-    tierBasedData?: any // OPTIMIZED: Tier-based data for token reduction
+    tierBasedData?: any, // OPTIMIZED: Tier-based data for token reduction
+    corsStatus?: { domBlocked: boolean; headersBlocked: boolean; sslBlocked: boolean; directScanBlocked: boolean } // CORS status for AI compensation
   ): Promise<MissionReport> {
     const isDeep = level === 'DEEP';
     const modelName = isDeep ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
@@ -472,15 +478,48 @@ FULL_DOM: ${tierBasedData.dom ? maskData(tierBasedData.dom.substring(0, 50000)) 
 - Use extended reasoning (32K thinking budget) for complex triage`
       };
 
+      // Build CORS compensation context
+      const corsContext = corsStatus?.directScanBlocked ? `
+  
+⚠️ CORS_RESTRICTION_DETECTED: Direct scan blocked by CORS policy (browser security restriction).
+
+AVAILABLE_DATA_SOURCES:
+- SSL/TLS Info: ${tierBasedData?.sslInfo ? JSON.stringify(tierBasedData.sslInfo) : 'Limited/Blocked'}
+- DNS Records: ${tierBasedData?.dnsInfo ? JSON.stringify(tierBasedData.dnsInfo) : 'Limited'}
+- OSINT Intelligence: ${reconIntel ? 'Available (from Search Grounding)' : 'Limited'}
+- Security Headers: ${tierBasedData?.headers ? 'Partially Available' : 'Blocked by CORS'}
+
+AI_INTELLIGENCE_COMPENSATION_MODE:
+You are operating in AI compensation mode due to CORS restrictions. Use your advanced reasoning capabilities to:
+
+1. **Infer Security Posture**: Analyze available network data (SSL grade, DNS records, IP info) to infer overall security posture
+2. **CVE Cross-Reference**: Use Search Grounding to cross-reference detected technologies/versions with live CVE databases
+3. **Intelligent Deduction**: Make evidence-based deductions about potential vulnerabilities:
+   - SSL/TLS misconfigurations (weak protocols, expired certs, poor grades)
+   - DNS security issues (open resolvers, missing DNSSEC, suspicious records)
+   - Infrastructure vulnerabilities inferred from OSINT data
+   - Technology stack inference from available metadata
+4. **Risk Assessment**: Provide security score and confidence based on available data quality
+5. **Transparency**: Clearly indicate in findings which are:
+   - **High Confidence**: Based on concrete available data (SSL, DNS, OSINT)
+   - **Medium Confidence**: Inferred from patterns and intelligence
+   - **Low Confidence**: Assumptions based on limited data
+
+This demonstrates AI-powered workaround for browser security restrictions - turning limitations into intelligent analysis opportunities.
+
+CRITICAL: Do not fabricate findings. Only report vulnerabilities with clear evidence from available data sources.` : '';
+
       const prompt = `[MISSION_COMMAND: ACTIVE_SOC_FORENSIC_V9.0]
 TARGET: ${targetUrl} | LEVEL: ${level}
 RECON_INTEL: ${reconIntel.substring(0, 2000)}
 ${promptData}
+${corsContext}
 
 ${levelInstructions[level]}
 
 CORE MISSION:
 Analyze the target for vulnerabilities and logic flaws according to the mission focus above.
+${corsStatus?.directScanBlocked ? 'NOTE: Operating in CORS compensation mode - use available data intelligently.' : ''}
 
 CRITICAL ACCURACY REQUIREMENTS:
 - PRIORITIZE PRECISION OVER SPEED: Take time to analyze thoroughly. Accuracy is more important than speed.

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import 'leaflet/dist/leaflet.css';
+import './index.css';
 import { setupGlobalErrorHandlers } from './utils/errorSuppression';
 import { AnimatePresence } from 'framer-motion';
 import { useScanner } from './hooks/useScanner';

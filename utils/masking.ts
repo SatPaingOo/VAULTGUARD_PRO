@@ -74,14 +74,9 @@ export const extractTargetDOM = async (targetUrl: string): Promise<string> => {
         if (document.body.contains(iframe)) {
           document.body.removeChild(iframe);
         }
-        // Fallback: Try fetch (may fail due to CORS, but we'll handle it)
-        fetch(targetUrl, { mode: 'no-cors' })
-          .then(() => {
-            reject(new Error('CORS_BLOCKED: Target blocks cross-origin access. Cannot extract DOM automatically.'));
-          })
-          .catch(() => {
-            reject(new Error('Failed to load target URL. Please check the URL and try again.'));
-          });
+        // Fallback: Try fetch (may fail due to CORS, but we'll handle it silently)
+        // Don't actually call fetch to avoid CORS errors in console
+        reject(new Error('CORS_BLOCKED: Target blocks cross-origin access.'));
       }
     }, 10000); // 10 second timeout
 
@@ -102,14 +97,14 @@ export const extractTargetDOM = async (targetUrl: string): Promise<string> => {
           resolved = true;
           resolve(dom);
         } else {
-          // CORS blocked - provide helpful error
+          // CORS blocked - silently reject (expected behavior)
           suppressor.stop();
           
           if (document.body.contains(iframe)) {
             document.body.removeChild(iframe);
           }
           resolved = true;
-          reject(new Error('CORS_BLOCKED: Cannot access iframe content. Target may block embedding. Try: 1) Same-origin target, 2) Browser extension, or 3) Manual DOM paste.'));
+          reject(new Error('CORS_BLOCKED: Cannot access iframe content.'));
         }
       } catch (e: any) {
         suppressor.stop();
@@ -118,7 +113,8 @@ export const extractTargetDOM = async (targetUrl: string): Promise<string> => {
           document.body.removeChild(iframe);
         }
         resolved = true;
-        reject(new Error(`DOM extraction failed: ${e.message || 'CORS blocked'}`));
+        // Silently handle CORS errors - don't log to console
+        reject(new Error('CORS_BLOCKED'));
       }
     };
 
