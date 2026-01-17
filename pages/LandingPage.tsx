@@ -402,54 +402,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         </div>
 
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 py-6 px-6 md:px-10">
-           {!isEngineLinked && (
-             <div className="flex flex-col items-center gap-3 max-w-2xl">
-                {/* Required Services Info */}
-                <div className="mt-2 bg-[#00d4ff]/5 border border-[#00d4ff]/10 rounded-lg p-4 max-w-md w-full">
-                  <div className="flex items-center gap-2 mb-3">
-                    <InfoIcon size={12} className="text-[#00d4ff]" />
-                    <p className="text-[9px] md:text-[10px] font-black text-white/70 uppercase tracking-wider">
-                      Required Configuration
-                    </p>
-                  </div>
-                  <ul className="space-y-1.5 text-[10px] md:text-[11px] font-mono text-white/50">
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#00ff9d] mt-0.5">•</span>
-                      <span>Google AI Studio API Key</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#00ff9d] mt-0.5">•</span>
-                      <span>Models: <code className="text-[#00d4ff]">gemini-3-flash-preview</code> & <code className="text-[#00d4ff]">gemini-3-pro-preview</code></span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#00ff9d] mt-0.5">•</span>
-                      <span>Search Grounding enabled</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#00ff9d] mt-0.5">•</span>
-                      <span>Active billing on Google Cloud Project</span>
-                    </li>
-                  </ul>
-                  <a 
-                    href="https://aistudio.google.com/apikey" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-1.5 text-[10px] md:text-[11px] text-[#00d4ff] hover:text-[#00ff9d] underline"
-                  >
-                    Get API Key
-                    <ExternalLink size={10} />
-                  </a>
-                </div>
-                
-                <button 
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="mt-2 px-6 py-2.5 rounded-full bg-red-500 text-black font-black text-[10px] uppercase tracking-widest hover:bg-red-400 transition-colors shadow-[0_5px_15px_rgba(239,68,68,0.2)] flex items-center gap-2"
-                >
-                  <KeyRound size={14} />
-                  LINK_NEURAL_CORE
-                </button>
-             </div>
-           )}
            {isEngineLinked && apiKeyStatus === 'testing' && (
              <div className="flex flex-col items-center gap-2">
                 <p className="text-[10px] md:text-[12px] font-black text-[#00d4ff] uppercase tracking-widest animate-pulse flex items-center gap-2 bg-[#00d4ff]/5 px-6 py-2.5 rounded-full border border-[#00d4ff]/20">
