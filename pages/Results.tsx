@@ -106,8 +106,8 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
 
       const rgb = hexToRgb(themeColor);
 
-      // Enhanced Header with Logo area - Clean design
-      const headerHeight = 45; // Compact header - logo, title, subtitle only
+      // Enhanced Header with Logo area and two-column scan info
+      const headerHeight = 70; // Increased to accommodate scan info in two columns
       doc.setFillColor(2, 4, 8); // Deep Navy
       doc.rect(0, 0, 210, headerHeight, 'F');
 
@@ -115,12 +115,12 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFillColor(rgb[0], rgb[1], rgb[2]);
       doc.rect(0, 0, 210, 8, 'F');
 
-      // Center logo and make it bigger
+      // Center logo - slightly smaller to make room for scan info
       const pageWidth = 210; // A4 width in mm
-      const logoWidth = 25; // Bigger logo
-      const logoHeight = 25; // Bigger logo
+      const logoWidth = 20; // Slightly smaller
+      const logoHeight = 20; // Slightly smaller
       const logoX = (pageWidth - logoWidth) / 2; // Center horizontally
-      const logoY = 12; // Start after cyan bar with spacing
+      const logoY = 10; // Start after cyan bar with spacing
 
       // Load and add logo image using fetch (more reliable)
       try {
@@ -148,10 +148,10 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       }
 
       // Title below logo - centered
-      const titleY = logoY + logoHeight + 6; // Below logo with proper spacing
+      const titleY = logoY + logoHeight + 4; // Tighter spacing
       doc.setTextColor(rgb[0], rgb[1], rgb[2]);
       doc.setFont("courier", "bold");
-      doc.setFontSize(18);
+      doc.setFontSize(16); // Slightly smaller
 
       // "VAULTGUARD PRO" text
       const titleText = "VAULTGUARD PRO";
@@ -160,7 +160,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.text(titleText, titleX, titleY);
 
       // Version "v1.1.0" - smaller, inline with title
-      doc.setFontSize(10); // Smaller font
+      doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
       const versionText = "v1.1.0";
@@ -168,61 +168,50 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.text(versionText, versionX, titleY);
 
       // Subtitle "NEURAL FORENSIC DEBRIEF" - centered below title
-      const subtitleY = titleY + 6; // Proper spacing from title
+      const subtitleY = titleY + 5; // Tighter spacing
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(11);
+      doc.setFontSize(10); // Slightly smaller
       doc.setFont("courier", "normal");
       const subtitleText = "NEURAL FORENSIC DEBRIEF";
       const subtitleWidth = doc.getTextWidth(subtitleText);
       const subtitleX = (pageWidth - subtitleWidth) / 2; // Center
       doc.text(subtitleText, subtitleX, subtitleY);
 
+      // Two-column scan information in header
+      const infoStartY = subtitleY + 7;
+      const leftColumnX = 15;
+      const rightColumnX = 110; // Right side of page
+      const infoFontSize = 7;
+      const infoLineHeight = 4;
+
+      doc.setFontSize(infoFontSize);
+      doc.setFont("courier", "normal");
+      doc.setTextColor(220, 220, 220); // Brighter gray for better readability on dark background
+
+      // Left Column (5 items to match right column)
+      doc.text(`${tEn('pdf.scan_id')}: ${scanId}`, leftColumnX, infoStartY);
+      doc.text(`${tEn('pdf.timestamp')}: ${timestamp}`, leftColumnX, infoStartY + infoLineHeight);
+      doc.text(`${tEn('pdf.operator')}: ${operatorName}`, leftColumnX, infoStartY + infoLineHeight * 2);
+      doc.text(`Mission: ${level}`, leftColumnX, infoStartY + infoLineHeight * 3);
+      doc.text(`Target: ${targetUrl}`, leftColumnX, infoStartY + infoLineHeight * 4);
+
+      // Right Column
+      doc.text(`${tEn('pdf.risk_score')}: ${securityScore}/100`, rightColumnX, infoStartY);
+      if (missionDuration) {
+        doc.text(`${tEn('pdf.mission_duration')}: ${missionDuration.formattedFull}`, rightColumnX, infoStartY + infoLineHeight);
+        doc.text(`${tEn('pdf.start_time')}: ${missionDuration.startTime.toLocaleString()}`, rightColumnX, infoStartY + infoLineHeight * 2);
+        doc.text(`${tEn('pdf.end_time')}: ${missionDuration.endTime.toLocaleString()}`, rightColumnX, infoStartY + infoLineHeight * 3);
+      }
+      doc.text(`${tEn('pdf.neural_load')}: ${usage.tokens.toLocaleString()} ${tEn('pdf.tokens')}`, rightColumnX, infoStartY + infoLineHeight * 4);
+
       // Body Sections - start after header with proper spacing
       let yPos = headerHeight + 12; // 12mm spacing after header
+      
+      // CRITICAL: Reset text color to black after header (header uses white/gray colors)
+      doc.setTextColor(0, 0, 0); // Black text for body content
 
-      // Executive Intelligence Section
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(14);
-      doc.setFont("courier", "bold");
-      doc.text(tEn('pdf.executive_intelligence'), 15, yPos);
-
-      yPos += 10;
-      doc.setFontSize(9);
-      doc.setFont("courier", "normal");
-      doc.setTextColor(100, 100, 100); // Gray for metadata
-      // Scan Information - integrated into Executive Intelligence section
-      doc.text(`${tEn('pdf.scan_id')}: ${scanId}`, 15, yPos);
-      yPos += 5;
-      doc.text(`${tEn('pdf.timestamp')}: ${timestamp}`, 15, yPos);
-
-      // Main metrics - back to black
-      yPos += 8;
-      doc.setFontSize(10);
-      doc.setTextColor(0, 0, 0);
-
-      yPos += 10;
-      doc.setFontSize(10);
-      doc.text(`${tEn('pdf.risk_score')}: ${securityScore}/100`, 15, yPos);
-      yPos += 6;
-      doc.text(`${tEn('pdf.mission_intensity')}: ${level}`, 15, yPos);
-      yPos += 6;
-      doc.text(`${tEn('pdf.neural_load')}: ${usage.tokens.toLocaleString()} ${tEn('pdf.tokens')}`, 15, yPos);
-      yPos += 6;
-      doc.text(`Target: ${targetUrl}`, 15, yPos);
-      yPos += 6;
-      doc.text(`${tEn('pdf.operator')}: ${operatorName}`, 15, yPos);
-
-      // Mission Duration in Executive Intelligence
-      if (missionDuration) {
-        yPos += 6;
-        doc.setFontSize(9);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`${tEn('pdf.mission_duration')}: ${missionDuration.formattedFull}`, 15, yPos);
-        yPos += 5;
-        doc.text(`${tEn('pdf.start_time')}: ${missionDuration.startTime.toLocaleString()}`, 15, yPos);
-        yPos += 5;
-        doc.text(`${tEn('pdf.end_time')}: ${missionDuration.endTime.toLocaleString()}`, 15, yPos);
-      }
+      // Executive Intelligence Section - Skip if no content (all info is in header now)
+      // Scan information is now in header, so we skip this section entirely
 
       // Calculate topology counts once for use in multiple sections
       const topologyCounts = {
@@ -239,48 +228,66 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       if (yPos > 280) {
         doc.addPage();
         yPos = 20;
+        doc.setTextColor(0, 0, 0); // Reset text color after page break
       }
       doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(0, 0, 0); // Ensure black text
       doc.setFont("courier", "bold");
       doc.text(tEn('results.target_summary'), 15, yPos);
       yPos += 8;
 
       doc.setFontSize(9);
       doc.setFont("courier", "normal");
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
       doc.text(`${tEn('results.domain')}: ${targetUrl}`, 15, yPos);
       yPos += 6;
 
       if (targetIntelligence?.hosting?.ip && targetIntelligence.hosting.ip !== '0.0.0.0') {
+        doc.setFontSize(9); // Ensure font size
+        doc.setFont("courier", "normal"); // Ensure font
+        doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
         doc.text(`${tEn('results.ip_address')}: ${targetIntelligence.hosting.ip}`, 15, yPos);
         yPos += 6;
       }
 
       if (targetIntelligence?.hosting?.provider && targetIntelligence.hosting.provider !== 'Unknown') {
+        doc.setFontSize(9); // Ensure font size
+        doc.setFont("courier", "normal"); // Ensure font
+        doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
         doc.text(`${tEn('results.hosting_provider')}: ${targetIntelligence.hosting.provider}`, 15, yPos);
         yPos += 6;
       }
 
       if (targetIntelligence?.hosting?.location && targetIntelligence.hosting.location !== 'Unknown') {
+        doc.setFontSize(9); // Ensure font size
+        doc.setFont("courier", "normal"); // Ensure font
+        doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
         doc.text(`${tEn('results.location')}: ${targetIntelligence.hosting.location}`, 15, yPos);
         yPos += 6;
       }
 
       if (targetIntelligence?.associatedLinks && targetIntelligence.associatedLinks.length > 0) {
         yPos += 3;
+        doc.setFontSize(9); // Ensure font size
         doc.setFont("courier", "bold");
+        doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
         doc.text(`${tEn('results.subdomains')} / ${tEn('results.associated_links')}:`, 15, yPos);
         yPos += 6;
         doc.setFont("courier", "normal");
         doc.setFontSize(8);
+        doc.setTextColor(0, 0, 0); // Ensure black text
         targetIntelligence.associatedLinks.forEach((link: string) => {
           if (yPos > 280) {
             doc.addPage();
             yPos = 20;
+            doc.setTextColor(0, 0, 0); // Reset text color after page break
           }
+          doc.setFontSize(8); // Ensure font size
+          doc.setFont("courier", "normal"); // Ensure font
+          doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
           const linkText = doc.splitTextToSize(`• ${link}`, 180);
           linkText.forEach((line: string) => {
+            doc.setTextColor(0, 0, 0); // Ensure black text for each line
             doc.text(line, 20, yPos);
             yPos += 5;
           });
@@ -290,19 +297,26 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
 
       if (targetIntelligence?.apis && targetIntelligence.apis.length > 0) {
         yPos += 3;
+        doc.setFontSize(9); // Ensure font size
         doc.setFont("courier", "bold");
-        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
         doc.text(`${tEn('results.apis')}:`, 15, yPos);
         yPos += 6;
         doc.setFont("courier", "normal");
         doc.setFontSize(8);
+        doc.setTextColor(0, 0, 0); // Ensure black text
         targetIntelligence.apis.forEach((api: string) => {
           if (yPos > 280) {
             doc.addPage();
             yPos = 20;
+            doc.setTextColor(0, 0, 0); // Reset text color after page break
           }
+          doc.setFontSize(8); // Ensure font size
+          doc.setFont("courier", "normal"); // Ensure font
+          doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
           const apiText = doc.splitTextToSize(`• ${api}`, 180);
           apiText.forEach((line: string) => {
+            doc.setTextColor(0, 0, 0); // Ensure black text for each line
             doc.text(line, 20, yPos);
             yPos += 5;
           });
@@ -372,18 +386,22 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
 
         doc.setFontSize(9);
         doc.setFont("courier", "normal");
+        doc.setTextColor(0, 0, 0); // Ensure black text
 
         if (targetIntelligence?.purpose && targetIntelligence.purpose !== '---') {
           doc.setFont("courier", "bold");
+          doc.setTextColor(0, 0, 0); // Ensure black text
           doc.text(`${tEn('results.purpose')}:`, 15, yPos);
           yPos += 6;
           doc.setFont("courier", "normal");
+          doc.setTextColor(0, 0, 0); // Ensure black text
           const purposeText = doc.splitTextToSize(targetIntelligence.purpose, 180);
           purposeText.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
               yPos = 20;
             }
+            doc.setTextColor(0, 0, 0); // Ensure black text after page break
             doc.text(line, 20, yPos);
             yPos += 5;
           });
@@ -396,15 +414,18 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
             yPos = 20;
           }
           doc.setFont("courier", "bold");
+          doc.setTextColor(0, 0, 0); // Ensure black text
           doc.text(`${tEn('results.business_logic')}:`, 15, yPos);
           yPos += 6;
           doc.setFont("courier", "normal");
+          doc.setTextColor(0, 0, 0); // Ensure black text
           const logicText = doc.splitTextToSize(targetIntelligence.businessLogic, 180);
           logicText.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
               yPos = 20;
             }
+            doc.setTextColor(0, 0, 0); // Ensure black text after page break
             doc.text(line, 20, yPos);
             yPos += 5;
           });
@@ -417,15 +438,18 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
             yPos = 20;
           }
           doc.setFont("courier", "bold");
+          doc.setTextColor(0, 0, 0); // Ensure black text
           doc.text(`${tEn('results.attack_surface')}:`, 15, yPos);
           yPos += 6;
           doc.setFont("courier", "normal");
+          doc.setTextColor(0, 0, 0); // Ensure black text
           const surfaceText = doc.splitTextToSize(targetIntelligence.attackSurfaceSummary, 180);
           surfaceText.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
               yPos = 20;
             }
+            doc.setTextColor(0, 0, 0); // Ensure black text after page break
             doc.text(line, 20, yPos);
             yPos += 5;
           });
@@ -485,7 +509,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.text(`${tEn('pdf.limitations')}:`, 15, yPos);
           yPos += 7;
           doc.setFontSize(8);
-          doc.setTextColor(100, 100, 100);
+          doc.setTextColor(60, 60, 60); // Darker gray for better readability
           dataQuality.limitations.forEach((lim: string) => {
             doc.text(`• ${lim}`, 20, yPos);
             yPos += 6;
@@ -545,7 +569,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.text(`${tech.name} ${tech.version}`, 15, yPos);
           yPos += 5;
           doc.setFont("courier", "normal");
-          doc.setTextColor(100, 100, 100);
+          doc.setTextColor(60, 60, 60); // Darker gray for better readability
           doc.text(`${tEn('pdf.category')}: ${tech.category} | ${tEn('pdf.status')}: ${tech.status}`, 15, yPos);
           yPos += 5;
           const actionPlan = doc.splitTextToSize(`${tEn('pdf.action')}: ${tech.actionPlan}`, 180);
@@ -581,7 +605,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.text(`${probe.method} ${probe.endpoint}`, 15, yPos);
           yPos += 5;
           doc.setFont("courier", "normal");
-          doc.setTextColor(100, 100, 100);
+          doc.setTextColor(60, 60, 60); // Darker gray for better readability
           doc.text(`${tEn('pdf.status')}: ${probe.status || 'N/A'} | ${tEn('pdf.response_time')}: ${probe.responseTime || 'N/A'}ms`, 15, yPos);
           yPos += 5;
           if (probe.vulnerable) {
@@ -627,10 +651,15 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
 
           // Title
           doc.setFontSize(10);
-          doc.setTextColor(0, 0, 0);
+          doc.setTextColor(0, 0, 0); // Ensure black text
           doc.setFont("courier", "bold");
           const title = doc.splitTextToSize(`${index + 1}. ${f.title}`, 180);
           title.forEach((line: string) => {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.setTextColor(0, 0, 0); // Ensure black text after page break
             doc.text(line, 15, yPos);
             yPos += 5;
           });
@@ -638,7 +667,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
 
           // Severity, CWE, and Confidence
           doc.setFontSize(8);
-          doc.setTextColor(100, 100, 100);
+          doc.setTextColor(60, 60, 60); // Darker gray for better readability
           doc.setFont("courier", "normal");
           const confidenceText = f.confidence ? ` | ${tEn('pdf.confidence')}: ${f.confidence.toUpperCase()}` : '';
           doc.text(`${tEn('pdf.severity')}: ${f.severity.toUpperCase()} | ${tEn('pdf.cwe')}: ${f.cwe || 'N/A'}${confidenceText}`, 15, yPos);
@@ -647,15 +676,21 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           // Evidence Sources (if available)
           if (f.evidence && Array.isArray(f.evidence) && f.evidence.length > 0) {
             doc.setFontSize(7);
-            doc.setTextColor(150, 150, 150);
+            doc.setTextColor(80, 80, 80); // Darker gray for better readability
             doc.text(`${tEn('pdf.evidence_sources')}: ${f.evidence.join(', ')}`, 15, yPos);
             yPos += 4;
           }
 
           // Full Description
-          doc.setTextColor(0, 0, 0);
+          doc.setTextColor(0, 0, 0); // Ensure black text
+          doc.setFontSize(9); // Ensure readable font size
           const description = doc.splitTextToSize(`${tEn('pdf.description')}: ${f.description || tEn('pdf.no_description')}`, 180);
           description.forEach((line: string) => {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.setTextColor(0, 0, 0); // Ensure black text after page break
             doc.text(line, 15, yPos);
             yPos += 4;
           });
@@ -715,7 +750,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           yPos = 20;
         }
         doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
+        doc.setTextColor(60, 60, 60); // Darker gray for better readability
         doc.text(tEn('pdf.no_vulnerabilities'), 15, yPos);
         yPos += 10;
       }
@@ -856,13 +891,13 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       }
       doc.setFontSize(10);
       doc.setFont("courier", "bold");
-      doc.setTextColor(100, 100, 100);
+      doc.setTextColor(60, 60, 60); // Darker gray for better readability
       doc.text(tEn('pdf.ai_disclaimer'), 15, yPos);
       yPos += 8;
 
       doc.setFontSize(8);
       doc.setFont("courier", "normal");
-      doc.setTextColor(80, 80, 80);
+      doc.setTextColor(50, 50, 50); // Darker gray for better readability
       const disclaimerText = doc.splitTextToSize(
         "This report is generated using Gemini 3 AI-powered analysis and represents a point-in-time assessment of the target system's security posture. " +
         "While AI analysis provides comprehensive coverage, it is recommended to supplement this assessment with manual security audits conducted by certified security professionals. " +
@@ -921,7 +956,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(7);
-        doc.setTextColor(150, 150, 150);
+        doc.setTextColor(100, 100, 100); // Brighter gray for better readability
         doc.setFont("courier", "normal");
         doc.text(`Generated by VaultGuard Pro Neural Security Operations Center | ${tEn('pdf.scan_id')}: ${scanId}`, 105, 290, { align: 'center' });
         doc.text(`Page ${i} of ${pageCount}`, 105, 295, { align: 'center' });
