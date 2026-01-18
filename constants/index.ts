@@ -78,7 +78,7 @@ export const TOKEN_ESTIMATES = {
 
 // Scan Level Time Estimates (seconds)
 export const TIME_ESTIMATES = {
-  FAST: 45,
-  STANDARD: 120,
-  DEEP: 300,
+  FAST: 180,      // 3 minutes
+  STANDARD: 300,  // 5 minutes
+  DEEP: 600,      // 10 minutes
 } as const;

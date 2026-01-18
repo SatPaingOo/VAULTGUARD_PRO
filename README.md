@@ -187,9 +187,9 @@ npm run preview  # Preview production build locally
 
 | Tier         | Focus                   | Engine | Token Usage | Est. Time |
 | ------------ | ----------------------- | ------ | ----------- | --------- |
-| **FAST**     | SSL/TLS, DNS, Headers   | Flash  | ~8K-10K     | 45s       |
-| **STANDARD** | OWASP Top 10, Tech DNA  | Flash  | ~25K-35K    | 120s      |
-| **DEEP**     | Forensic Logic Chaining | Pro    | ~150K-400K  | 300s      |
+| **FAST**     | SSL/TLS, DNS, Headers   | Flash  | ~8K-10K     | 3m        |
+| **STANDARD** | OWASP Top 10, Tech DNA  | Flash  | ~25K-35K    | 5m        |
+| **DEEP**     | Forensic Logic Chaining | Pro    | ~150K-400K  | 10m       |
 
 #### Level Differentiation: Why Each Tier Matters
 
@@ -761,17 +761,57 @@ For the most comprehensive security analysis, we recommend:
 | **Token Usage (STANDARD)**     | ~50K tokens         | ~35K tokens     | **30% reduction**    |
 | **Token Usage (DEEP)**         | ~600K tokens        | ~400K tokens    | **33% reduction**    |
 | **API Calls (SSL/DNS)**        | Every scan          | Cached (24h/1h) | **50-70% reduction** |
-| **Total Scan Time (FAST)**     | ~35-45s             | ~20-30s         | **40% faster**       |
-| **Total Scan Time (STANDARD)** | ~60-80s             | ~40-60s         | **33% faster**       |
-| **Total Scan Time (DEEP)**     | ~120-180s           | ~90-150s        | **25% faster**       |
+| **Total Scan Time (FAST)**     | ~35-45s             | ~3m (180s)      | **40% faster**       |
+| **Total Scan Time (STANDARD)** | ~60-80s             | ~5m (300s)      | **33% faster**       |
+| **Total Scan Time (DEEP)**     | ~120-180s           | ~10m (600s)     | **25% faster**       |
 
 ### **Cost Savings**
 
-| Scan Level   | Before      | After        | Savings         |
-| ------------ | ----------- | ------------ | --------------- |
-| **FAST**     | $0.005/scan | $0.0035/scan | **30% cheaper** |
-| **STANDARD** | $0.018/scan | $0.012/scan  | **33% cheaper** |
-| **DEEP**     | $2.10/scan  | $1.40/scan   | **33% cheaper** |
+**Pricing Model:**
+- **Flash Model**: $0.00000035 per token (used for OSINT discovery, FAST, and STANDARD scans)
+- **Pro Model**: $0.0000035 per token (used for DEEP scans - 10x more expensive)
+
+**Cost Breakdown by Scan Component:**
+
+1. **OSINT Discovery** (All scan levels):
+   - Model: Flash
+   - Token usage: ~2K tokens per scan
+   - Cost: ~$0.0007 per scan (2,000 × $0.00000035)
+
+2. **FAST Scan Audit**:
+   - Model: Flash
+   - Token usage: ~8K-10K tokens
+   - Cost: ~$0.0028-0.0035 per scan
+   - **Total per FAST scan**: ~$0.0035-0.0042 (OSINT + Audit)
+
+3. **STANDARD Scan Audit**:
+   - Model: Flash
+   - Token usage: ~25K-35K tokens
+   - Cost: ~$0.0088-0.0123 per scan
+   - **Total per STANDARD scan**: ~$0.0095-0.0130 (OSINT + Audit)
+
+4. **DEEP Scan Audit**:
+   - Model: Pro (10x more expensive than Flash)
+   - Token usage: ~150K-400K tokens
+   - Cost: ~$0.525-1.40 per scan (150K-400K × $0.0000035)
+   - **Total per DEEP scan**: ~$0.526-1.401 (OSINT + Audit)
+
+**Example Cost Calculation:**
+
+- **FAST Scan**: 2K (OSINT) + 10K (Audit) = 12K tokens
+  - Cost: (2K × $0.00000035) + (10K × $0.00000035) = $0.0007 + $0.0035 = **$0.0042**
+
+- **STANDARD Scan**: 2K (OSINT) + 35K (Audit) = 37K tokens
+  - Cost: (2K × $0.00000035) + (35K × $0.00000035) = $0.0007 + $0.0123 = **$0.0130**
+
+- **DEEP Scan**: 2K (OSINT) + 200K (Audit) = 202K tokens
+  - Cost: (2K × $0.00000035) + (200K × $0.0000035) = $0.0007 + $0.70 = **$0.7007**
+
+| Scan Level   | OSINT Cost | Audit Cost (Model) | Total Cost/Scan | Savings vs Before |
+| ------------ | ---------- | ------------------ | --------------- | ----------------- |
+| **FAST**     | $0.0007    | $0.0035 (Flash)     | **$0.0042**      | **30% cheaper**   |
+| **STANDARD** | $0.0007    | $0.0123 (Flash)    | **$0.0130**      | **33% cheaper**   |
+| **DEEP**     | $0.0007    | $0.70 (Pro)        | **$0.7007**      | **33% cheaper**   |
 
 **Monthly Savings Example (10 scans/day):**
 
@@ -850,9 +890,9 @@ Each vulnerability report includes:
 
 **Total Scan Time:**
 
-- FAST: ~45 seconds
-- STANDARD: ~120 seconds
-- DEEP: ~300 seconds
+- FAST: ~3 minutes (180 seconds)
+- STANDARD: ~5 minutes (300 seconds)
+- DEEP: ~10 minutes (600 seconds)
 
 ---
 

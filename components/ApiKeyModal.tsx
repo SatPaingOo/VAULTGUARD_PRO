@@ -400,33 +400,50 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                         </div>
                       </div>
                       
-                      {/* Required Models */}
+                      {/* Required APIs */}
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] mt-1.5 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-white/70 font-semibold mb-1">2. Required Models Access</p>
+                          <p className="text-white/70 font-semibold mb-1">2. Enable Required APIs</p>
                           <p className="text-white/50 leading-relaxed mb-1">
-                            Your API key must have access to:
+                            You must enable this service in Google Cloud Console:
                           </p>
-                          <ul className="list-none text-white/40 ml-2 mt-1 space-y-1">
-                            <li className="flex items-center gap-2">
-                              <span className="text-[#00d4ff]">•</span>
-                              <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-flash-preview</code>
-                              <span className="text-white/30 text-[10px]">(FAST/STANDARD scans)</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <span className="text-[#00d4ff]">•</span>
-                              <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-pro-preview</code>
-                              <span className="text-white/30 text-[10px]">(DEEP scans)</span>
+                          <ul className="list-none text-white/40 ml-2 mt-1 space-y-1.5">
+                            <li className="flex items-start gap-2">
+                              <span className="text-[#00d4ff] mt-0.5">•</span>
+                              <div className="flex-1">
+                                <span className="text-white/60 font-semibold">Generative Language API</span>
+                                <span className="text-white/30 text-[10px] ml-1">(Required for Gemini models)</span>
+                                <p className="text-white/40 text-[9px] mt-0.5">
+                                  Go to Google Cloud Console → APIs & Services → Library → Search "Generative Language API" → Enable
+                                </p>
+                              </div>
                             </li>
                           </ul>
+                          <div className="mt-2 space-y-1">
+                            <p className="text-white/50 leading-relaxed text-[10px]">
+                              <strong className="text-white/70">Required Models:</strong>
+                            </p>
+                            <ul className="list-none text-white/40 ml-2 space-y-1">
+                              <li className="flex items-center gap-2">
+                                <span className="text-[#00d4ff]">•</span>
+                                <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-flash-preview</code>
+                                <span className="text-white/30 text-[10px]">(FAST/STANDARD scans)</span>
+                              </li>
+                              <li className="flex items-center gap-2">
+                                <span className="text-[#00d4ff]">•</span>
+                                <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-pro-preview</code>
+                                <span className="text-white/30 text-[10px]">(DEEP scans)</span>
+                              </li>
+                            </ul>
+                          </div>
                           <a 
                             href="https://console.cloud.google.com/apis/library" 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-[#00d4ff] hover:text-[#00ff9d] text-[10px] underline inline-flex items-center gap-1 mt-1"
+                            className="text-[#00d4ff] hover:text-[#00ff9d] text-[10px] underline inline-flex items-center gap-1 mt-2"
                           >
-                            Enable in Google Cloud Console
+                            Open Google Cloud Console API Library
                             <ExternalLink size={9} />
                           </a>
                         </div>
@@ -441,11 +458,28 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                             Enable <strong className="text-white/70">Google Search Grounding</strong> in your Google Cloud Project.
                             Required for live CVE database cross-referencing.
                           </p>
+                          <div className="mt-2 space-y-1.5">
+                            <p className="text-white/50 leading-relaxed text-[10px]">
+                              <strong className="text-white/70">Also enable:</strong>
+                            </p>
+                            <ul className="list-none text-white/40 ml-2 space-y-1.5">
+                              <li className="flex items-start gap-2">
+                                <span className="text-[#00d4ff] mt-0.5">•</span>
+                                <div className="flex-1">
+                                  <span className="text-white/60 font-semibold">Vertex AI API</span>
+                                  <span className="text-white/30 text-[10px] ml-1">(Required for advanced features)</span>
+                                  <p className="text-white/40 text-[9px] mt-0.5">
+                                    Go to Google Cloud Console → APIs & Services → Library → Search "Vertex AI API" → Enable
+                                  </p>
+                                </div>
+                              </li>
+                            </ul>
+                          </div>
                           <a 
                             href="https://console.cloud.google.com/apis/library" 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-[#00d4ff] hover:text-[#00ff9d] text-[8px] underline inline-flex items-center gap-1"
+                            className="text-[#00d4ff] hover:text-[#00ff9d] text-[8px] underline inline-flex items-center gap-1 mt-2"
                           >
                             Enable Search Grounding
                             <ExternalLink size={9} />

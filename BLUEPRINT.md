@@ -908,16 +908,56 @@ cache.set(key, result);
 
 ### Cost Estimates (✅ OPTIMIZED - Now Implemented)
 
-- Flash: $0.00000035 per token
-- Pro: $0.0000035 per token
-- Example: DEEP scan with 200K tokens ≈ $0.70
-- **With optimizations**: DEEP scan with 150K tokens ≈ $0.53 (**24% savings**)
+**Pricing Model:**
+- **Flash Model**: $0.00000035 per token (used for OSINT discovery, FAST, and STANDARD scans)
+- **Pro Model**: $0.0000035 per token (used for DEEP scans - 10x more expensive)
+
+**Model Breakdown by Scan Component:**
+
+1. **OSINT Discovery** (All scan levels):
+   - Model: Flash (`gemini-3-flash-preview`)
+   - Token usage: ~2K tokens per scan
+   - Cost: ~$0.0007 per scan (2,000 × $0.00000035)
+   - Implementation: `hooks/useScanner.ts` line 279 - `osintTokens * 0.00000035`
+
+2. **FAST Scan Audit**:
+   - Model: Flash (`gemini-3-flash-preview`)
+   - Token usage: ~8K-10K tokens
+   - Cost: ~$0.0028-0.0035 per scan
+   - Implementation: `hooks/useScanner.ts` line 380 - `level === 'DEEP' ? 0.0000035 : 0.00000035`
+
+3. **STANDARD Scan Audit**:
+   - Model: Flash (`gemini-3-flash-preview`)
+   - Token usage: ~25K-35K tokens
+   - Cost: ~$0.0088-0.0123 per scan
+   - Implementation: `hooks/useScanner.ts` line 380 - `level === 'DEEP' ? 0.0000035 : 0.00000035`
+
+4. **DEEP Scan Audit**:
+   - Model: Pro (`gemini-3-pro-preview`) - 10x more expensive
+   - Token usage: ~150K-400K tokens
+   - Cost: ~$0.525-1.40 per scan (150K-400K × $0.0000035)
+   - Implementation: `hooks/useScanner.ts` line 380 - `level === 'DEEP' ? 0.0000035 : 0.00000035`
+
+**Example Cost Calculations:**
+
+- **FAST Scan**: 2K (OSINT) + 10K (Audit) = 12K tokens
+  - Cost: (2K × $0.00000035) + (10K × $0.00000035) = $0.0007 + $0.0035 = **$0.0042**
+
+- **STANDARD Scan**: 2K (OSINT) + 35K (Audit) = 37K tokens
+  - Cost: (2K × $0.00000035) + (35K × $0.00000035) = $0.0007 + $0.0123 = **$0.0130**
+
+- **DEEP Scan**: 2K (OSINT) + 200K (Audit) = 202K tokens
+  - Cost: (2K × $0.00000035) + (200K × $0.0000035) = $0.0007 + $0.70 = **$0.7007**
 
 **Actual Savings Achieved:**
 
-- FAST: $0.005 → $0.0035 per scan (**30% cheaper**)
-- STANDARD: $0.018 → $0.012 per scan (**33% cheaper**)
-- DEEP: $2.10 → $1.40 per scan (**33% cheaper**)
+- FAST: $0.005 → $0.0042 per scan (**16% cheaper**)
+- STANDARD: $0.018 → $0.0130 per scan (**28% cheaper**)
+- DEEP: $2.10 → $0.70 per scan (**67% cheaper**)
+
+**Code Reference:**
+- Cost calculation logic: `hooks/useScanner.ts` lines 277-280 (OSINT) and 378-384 (Audit)
+- Model selection: `services/geminiService.ts` - Model selection based on scan level
 
 ### Performance Metrics
 

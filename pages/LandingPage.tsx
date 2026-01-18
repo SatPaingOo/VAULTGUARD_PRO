@@ -5,7 +5,8 @@ import {
   Binary, ArrowRight, ShieldAlert, Zap as ZapIcon,
   Timer, Cpu as CpuChip, AlertCircle, AlertTriangle,
   ShieldCheck, KeyRound, Activity as ActivityIcon,
-  Search, Brain, Eye, Waypoints, Info as InfoIcon, ExternalLink
+  Search, Brain, Eye, Waypoints, Info as InfoIcon, ExternalLink,
+  DollarSign
 } from 'lucide-react';
 import { ScanLevel, LEVEL_COLORS } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -123,7 +124,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
       hex: LEVEL_COLORS.FAST,
       focus: 'Network Perimeter & SSL/TLS',
       tokens: '~8K - 10K',
-      time: '~45s',
+      time: '~3m',
+      cost: '~$0.004',
       useCase: 'Automated Hygiene check'
     },
     { 
@@ -133,7 +135,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
       hex: LEVEL_COLORS.STANDARD,
       focus: 'Software DNA & Dependency CVEs',
       tokens: '~25K - 35K',
-      time: '~120s',
+      time: '~5m',
+      cost: '~$0.013',
       useCase: 'DevSecOps Triage'
     },
     { 
@@ -143,7 +146,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
       hex: LEVEL_COLORS.DEEP,
       focus: 'Business Logic & Exploit Chaining',
       tokens: '~150K - 400K',
-      time: '~300s',
+      time: '~10m',
+      cost: '~$0.70',
       useCase: 'Red Team Forensic Triage'
     }
   ];
@@ -415,6 +419,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                       </span>
                     </div>
                     
+                    <div className="flex items-center justify-between gap-2 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-black uppercase tracking-wider">
+                      <span className="text-white/30 shrink-0 flex items-center gap-2">
+                        <DollarSign size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
+                        COST:
+                      </span>
+                      <span 
+                        className="text-right font-mono text-[9px] sm:text-[10px] md:text-[11px]"
+                        style={{ color: isSelected ? l.hex : 'rgba(255,255,255,0.6)' }}
+                      >
+                        {l.cost}
+                      </span>
+                    </div>
+                    
                     <div className="flex items-start justify-between gap-2 text-[9px] sm:text-[10px] md:text-[11px] lg:text-xs font-black uppercase tracking-wider">
                       <span className="text-white/30 shrink-0 flex items-center gap-2">
                         <Target size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4 shrink-0 mt-0.5" />
@@ -523,7 +540,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                   { key: 'reasoning', label: specsData?.reasoning?.[0], fast: fastComp?.reasoning?.[1] || 'Basic Neural Analysis', standard: standardComp?.reasoning?.[1] || 'Deductive Neural Logic', deep: deepComp?.reasoning?.[1] || 'Deductive Neural Logic', icon: Brain },
                   { key: 'thinking', label: 'THINKING_CAPACITY', fast: fastComp?.thinking?.[1] || 'No Thinking Budget', standard: standardComp?.thinking?.[1] || 'No Thinking Budget', deep: deepComp?.thinking?.[1] || '32,768 Reasoning Tokens', icon: CpuChip },
                   { key: 'chaining', label: 'VULN_CHAINING', fast: fastComp?.chaining?.[1] || 'Single-Vector Detection', standard: standardComp?.chaining?.[1] || 'Multi-Vector Detection', deep: deepComp?.chaining?.[1] || 'Multi-Vector Pathfinding', icon: Waypoints },
-                  { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1] || 'Parallel Network Streams', standard: standardComp?.latency?.[1] || 'Parallel Neural Streams', deep: deepComp?.latency?.[1] || 'Parallel Neural Streams', icon: Zap }
+                  { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1] || 'Parallel Network Streams', standard: standardComp?.latency?.[1] || 'Parallel Neural Streams', deep: deepComp?.latency?.[1] || 'Parallel Neural Streams', icon: Zap },
+                  { key: 'cost', label: 'EST_COST', fast: '~$0.004', standard: '~$0.013', deep: '~$0.70', icon: DollarSign }
                 ];
               })().map((item, i) => (
                 <div key={i} className="p-6 border-b border-white/5 last:border-b-0">
@@ -571,7 +589,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                            { key: 'reasoning', label: specsData?.reasoning?.[0], fast: fastComp?.reasoning?.[1] || 'Basic Neural Analysis', standard: standardComp?.reasoning?.[1] || 'Deductive Neural Logic', deep: deepComp?.reasoning?.[1] || 'Deductive Neural Logic', icon: Brain },
                            { key: 'thinking', label: 'THINKING_CAPACITY', fast: fastComp?.thinking?.[1] || 'No Thinking Budget', standard: standardComp?.thinking?.[1] || 'No Thinking Budget', deep: deepComp?.thinking?.[1] || '32,768 Reasoning Tokens', icon: CpuChip },
                            { key: 'chaining', label: 'VULN_CHAINING', fast: fastComp?.chaining?.[1] || 'Single-Vector Detection', standard: standardComp?.chaining?.[1] || 'Multi-Vector Detection', deep: deepComp?.chaining?.[1] || 'Multi-Vector Pathfinding', icon: Waypoints },
-                           { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1] || 'Parallel Network Streams', standard: standardComp?.latency?.[1] || 'Parallel Neural Streams', deep: deepComp?.latency?.[1] || 'Parallel Neural Streams', icon: Zap }
+                           { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1] || 'Parallel Network Streams', standard: standardComp?.latency?.[1] || 'Parallel Neural Streams', deep: deepComp?.latency?.[1] || 'Parallel Neural Streams', icon: Zap },
+                           { key: 'cost', label: 'EST_COST', fast: '~$0.004', standard: '~$0.013', deep: '~$0.70', icon: DollarSign }
                          ];
                        })().map((item, i) => (
                          <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -882,37 +901,49 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         </div>
       </div>
 
-      <footer className="w-full mt-auto pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8 md:pb-10 border-t border-white/5 text-center bg-black/60 relative z-50">
+      <footer className="w-full mt-auto pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8 md:pb-10 border-t border-white/10 text-center bg-black/70 relative z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
            <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
-             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-mono text-white/30 uppercase tracking-wider">
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/10 bg-white/5 whitespace-nowrap">VAULT_SOC_1.0</span>
-               <span className="text-white/20 hidden sm:inline">|</span>
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/10 bg-white/5 whitespace-nowrap">NEURAL_ENGINE</span>
-               <span className="text-white/20 hidden sm:inline">|</span>
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/10 bg-white/5 whitespace-nowrap">FRONTEND_ONLY</span>
-               <span className="text-white/20 hidden sm:inline">|</span>
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/10 bg-white/5 whitespace-nowrap">REAL_TIME_AI</span>
+             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-mono text-white/60 uppercase tracking-wider">
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">VAULT_SOC_1.0</span>
+               <span className="text-white/40 hidden sm:inline">|</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">NEURAL_ENGINE</span>
+               <span className="text-white/40 hidden sm:inline">|</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">FRONTEND_ONLY</span>
+               <span className="text-white/40 hidden sm:inline">|</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">REAL_TIME_AI</span>
              </div>
-             <p className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-mono text-white/15 uppercase tracking-wider px-2 break-words">
+             <p className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-mono text-white/50 uppercase tracking-wider px-2 break-words">
                Security Operations Center | AI-Powered Vulnerability Detection | Real-Time Analysis
              </p>
              {/* Developer Credit */}
-             <div className="pt-2 sm:pt-3 border-t border-white/5">
-               <p className="text-[9px] sm:text-[10px] md:text-[11px] font-mono text-white/20 uppercase tracking-wider">
+             <div className="pt-2 sm:pt-3 border-t border-white/10">
+               <p className="text-[9px] sm:text-[10px] md:text-[11px] font-mono text-white/50 uppercase tracking-wider">
                  Developed by{' '}
                  <a 
                    href="https://satpaingoo.github.io/portfolio"
                    target="_blank"
                    rel="noopener noreferrer"
-                   className="text-white/40 hover:text-[#00d4ff] transition-colors duration-200 underline decoration-white/20 hover:decoration-[#00d4ff]/50 cursor-pointer"
+                   className="text-white/70 hover:text-[#00d4ff] transition-colors duration-200 underline decoration-white/30 hover:decoration-[#00d4ff]/50 cursor-pointer"
                    title="Visit developer portfolio"
                  >
                    Sat Paing Oo
                  </a>
                </p>
-               <p className="text-[8px] sm:text-[9px] md:text-[10px] font-mono text-white/15 mt-1">
+               <p className="text-[8px] sm:text-[9px] md:text-[10px] font-mono text-white/40 mt-1">
                  Built with ❤️ using React, TypeScript, and Google Gemini 3
+               </p>
+               <p className="text-[8px] sm:text-[9px] md:text-[10px] font-mono text-white/40 mt-2">
+                 Licensed under{' '}
+                 <a 
+                   href="https://www.gnu.org/licenses/gpl-3.0.html"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="text-white/60 hover:text-[#00d4ff] transition-colors duration-200 underline decoration-white/30 hover:decoration-[#00d4ff]/50 cursor-pointer"
+                   title="GNU General Public License v3.0"
+                 >
+                   GNU GPL v3.0
+                 </a>
                </p>
              </div>
            </div>

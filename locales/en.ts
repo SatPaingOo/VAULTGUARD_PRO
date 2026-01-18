@@ -12,9 +12,9 @@ export default {
     "deep": "FORENSIC_DEEP"
   },
   "etas": {
-    "fast": "EST: 45s",
-    "standard": "EST: 120s",
-    "deep": "EST: 300s"
+    "fast": "EST: 3m",
+    "standard": "EST: 5m",
+    "deep": "EST: 10m"
   },
   "token_estimates": {
     "fast": "~8K",
@@ -37,7 +37,7 @@ export default {
       "reasoning": ["Pattern/Regex Matching", "Basic Neural Analysis", "Fast Detection"],
       "thinking": ["Non-existent", "No Thinking Budget", "Instant Results"],
       "chaining": ["Isolated Vulnerabilities", "Single-Vector Detection", "Basic Hygiene"],
-      "latency": ["Sequential Processing", "Parallel Network Streams", "45s Average"]
+      "latency": ["Sequential Processing", "Parallel Network Streams", "3m Average"]
     },
     "standard": {
       "grounding": ["Static Local DB (Outdated)", "Live CVE Mapping via Search Grounding", "Stack-Wide Accuracy"],
@@ -45,7 +45,7 @@ export default {
       "reasoning": ["Pattern/Regex Matching", "Deductive Neural Logic", "Zero False Positives"],
       "thinking": ["Non-existent", "No Thinking Budget", "Fast Analysis"],
       "chaining": ["Isolated Vulnerabilities", "Multi-Vector Detection", "Dependency Mapping"],
-      "latency": ["Sequential Processing", "Parallel Neural Streams", "120s Average"]
+      "latency": ["Sequential Processing", "Parallel Neural Streams", "5m Average"]
     },
     "deep": {
       "grounding": ["Static Local DB (Outdated)", "Live CVE Mapping + Full Grounding", "Zero-Day Accuracy"],
@@ -53,7 +53,7 @@ export default {
       "reasoning": ["Pattern/Regex Matching", "Heuristic Logic Probing", "Zero False Positives"],
       "thinking": ["Non-existent", "32K Recursive Reasoning (32,768 Tokens)", "Complex Triage"],
       "chaining": ["Isolated Vulnerabilities", "Recursive Attack Chain Simulation", "Killchain Logic"],
-      "latency": ["Sequential Processing", "Parallel Neural Streams", "300s Average"]
+      "latency": ["Sequential Processing", "Parallel Neural Streams", "10m Average"]
     }
   },
   "legal": {
@@ -221,6 +221,9 @@ export default {
     "cwe": "CWE",
     "confidence": "Confidence",
     "evidence_sources": "Evidence Sources",
+    "grounding_sources": "Search Grounding Sources",
+    "grounding_sources_subtitle": "Live sources from Google Search Grounding",
+    "no_grounding_sources": "No grounding sources available",
     "no_description": "No description available.",
     "remediation": "REMEDIATION",
     "no_remediation": "No remediation available.",
@@ -228,6 +231,21 @@ export default {
     "proof_of_concept": "PROOF_OF_CONCEPT",
     "no_vulnerabilities": "No vulnerabilities detected in neural simulation.",
     "error_generating": "Error generating PDF. Check console for details.",
+    "scan_id": "Scan ID",
+    "operator": "Operator",
+    "mission_duration": "Mission Duration",
+    "start_time": "Start Time",
+    "end_time": "End Time",
+    "executive_summary": "EXECUTIVE SUMMARY",
+    "prioritized_action_plan": "PRIORITIZED ACTION PLAN",
+    "critical_priority": "CRITICAL PRIORITY",
+    "high_priority": "HIGH PRIORITY",
+    "ai_disclaimer": "AI DISCLAIMER",
+    "next_steps": "NEXT STEPS WITH VAULT ACADEMY",
+    "ai_compensation_title": "AI INTELLIGENCE COMPENSATION MODE",
+    "ai_compensation_desc": "Direct scan was blocked by CORS. AI successfully compensated using:",
+    "ai_compensation_bullet1": "Advanced reasoning on SSL, DNS, and OSINT intelligence data",
+    "ai_compensation_bullet2": "Google Search Grounding for live CVE cross-referencing",
     "target_summary": "TARGET_SUMMARY",
     "target_summary_subtitle": "Domain, IP, Hosting & Infrastructure Intelligence",
     "domain": "Domain",
@@ -266,6 +284,7 @@ export default {
     "forensic_target_reasoning": "Forensic target reasoning and posture",
     "security_score": "SECURITY_SCORE",
     "audit_intensity": "AUDIT_INTENSITY",
+    "mission_duration": "MISSION_DURATION",
     "neural_forensic_deduction": "Neural_Forensic_Deduction",
     "no_telemetry": "No telemetry data available",
     "vulnerability_ledger": "VULNERABILITY_LEDGER",

@@ -79,6 +79,11 @@ export interface MissionReport {
       latitude: number;
       longitude: number;
     };
+    groundingSources?: Array<{
+      uri?: string;
+      url?: string;
+      title?: string;
+    }>;
   };
   activeProbes: VerificationPayload[];
   digitalFootprint: DigitalFootprint[];
@@ -327,6 +332,15 @@ export class GeminiService {
           longitude: 0
         };
       })(),
+      groundingSources: Array.isArray(targetIntelligence.groundingSources) 
+        ? targetIntelligence.groundingSources.filter((s): s is { uri?: string; url?: string; title?: string } => 
+            typeof s === 'object' && s !== null && (typeof s === 'object')
+          ).map(s => ({
+            uri: typeof (s as any).uri === 'string' ? (s as any).uri : undefined,
+            url: typeof (s as any).url === 'string' ? (s as any).url : undefined,
+            title: typeof (s as any).title === 'string' ? (s as any).title : undefined,
+          }))
+        : undefined,
     } : {
       purpose: 'Analysis incomplete',
       businessLogic: 'Analysis incomplete',
@@ -340,7 +354,8 @@ export class GeminiService {
         ip: '0.0.0.0',
         latitude: 0,
         longitude: 0
-      }
+      },
+      groundingSources: undefined
     };
 
     // Ensure scores are numbers and within valid range

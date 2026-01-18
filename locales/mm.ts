@@ -12,9 +12,9 @@ export default {
     "deep": "အသေးစိတ် စစ်ဆေးမှု"
   },
   "etas": {
-    "fast": "ကြာချိန်: ၄၅စက္ကန့်",
-    "standard": "ကြာချိန်: ၁၂၀စက္ကန့်",
-    "deep": "ကြာချိန်: ၃၀၀စက္ကန့်"
+    "fast": "ကြာချိန်: ၃မိနစ်",
+    "standard": "ကြာချိန်: ၅မိနစ်",
+    "deep": "ကြာချိန်: ၁၀မိနစ်"
   },
   "token_estimates": {
     "fast": "~၈ထောင်",
@@ -37,7 +37,7 @@ export default {
       "reasoning": ["Pattern/Regex Matching", "Basic Neural Analysis", "မြန်ဆန်သော Detection"],
       "thinking": ["မရှိပါ", "No Thinking Budget", "ချက်ချင်း Results"],
       "chaining": ["Isolated Vulnerabilities", "Single-Vector Detection", "အခြေခံ Hygiene"],
-      "latency": ["Sequential Processing", "Parallel Network Streams", "၄၅စက္ကန့် ပျမ်းမျှ"]
+      "latency": ["Sequential Processing", "Parallel Network Streams", "၃မိနစ် ပျမ်းမျှ"]
     },
     "standard": {
       "grounding": ["Static Local DB (အဟောင်း)", "Live CVE Mapping via Search Grounding", "Stack-Wide တိကျမှု"],
@@ -45,7 +45,7 @@ export default {
       "reasoning": ["Pattern/Regex Matching", "Deductive Neural Logic", "Zero False Positives"],
       "thinking": ["မရှိပါ", "No Thinking Budget", "မြန်ဆန်သော Analysis"],
       "chaining": ["Isolated Vulnerabilities", "Multi-Vector Detection", "Dependency Mapping"],
-      "latency": ["Sequential Processing", "Parallel Neural Streams", "၁၂၀စက္ကန့် ပျမ်းမျှ"]
+      "latency": ["Sequential Processing", "Parallel Neural Streams", "၅မိနစ် ပျမ်းမျှ"]
     },
     "deep": {
       "grounding": ["Static Local DB (အဟောင်း)", "Live CVE Mapping + Full Grounding", "Zero-Day တိကျမှု"],
@@ -53,7 +53,7 @@ export default {
       "reasoning": ["Pattern/Regex Matching", "Heuristic Logic Probing", "Zero False Positives"],
       "thinking": ["မရှိပါ", "32K Recursive Reasoning (32,768 Tokens)", "ရှုပ်ထွေးသော Triage"],
       "chaining": ["Isolated Vulnerabilities", "Recursive Attack Chain Simulation", "Killchain Logic"],
-      "latency": ["Sequential Processing", "Parallel Neural Streams", "၃၀၀စက္ကန့် ပျမ်းမျှ"]
+      "latency": ["Sequential Processing", "Parallel Neural Streams", "၁၀မိနစ် ပျမ်းမျှ"]
     }
   },
   "legal": {
@@ -221,13 +221,31 @@ export default {
     "cwe": "CWE",
     "confidence": "ယုံကြည်မှု",
     "evidence_sources": "သက်သေအထောက်အထား အရင်းအမြစ်များ",
+    "grounding_sources": "Search Grounding Sources",
+    "grounding_sources_subtitle": "Google Search Grounding မှ live sources များ",
+    "no_grounding_sources": "Grounding sources မရှိပါ",
     "no_description": "ဖော်ပြချက် မရှိပါ။",
     "remediation": "ပြင်ဆင်ရန်",
     "no_remediation": "ပြင်ဆင်နည်း မရှိပါ။",
     "business_impact": "လုပ်ငန်း ထိခိုက်မှု",
     "proof_of_concept": "သက်သေပြမှု",
     "no_vulnerabilities": "AI ဆန်းစစ်မှုတွင် အားနည်းချက် မတွေ့ရှိပါ။",
-    "error_generating": "PDF ထုတ်ယူရာတွင် အမှားအယွင်း ဖြစ်ပွားပါသည်။ Console တွင် အသေးစိတ် စစ်ဆေးပါ။"
+    "error_generating": "PDF ထုတ်ယူရာတွင် အမှားအယွင်း ဖြစ်ပွားပါသည်။ Console တွင် အသေးစိတ် စစ်ဆေးပါ။",
+    "scan_id": "Scan ID",
+    "operator": "Operator",
+    "mission_duration": "Mission Duration",
+    "start_time": "စတင်ချိန်",
+    "end_time": "ပြီးဆုံးချိန်",
+    "executive_summary": "အဓိက အကျဉ်းချုပ်",
+    "prioritized_action_plan": "ဦးစားပေး လုပ်ဆောင်ရန် အစီအစဉ်",
+    "critical_priority": "အရေးကြီးဆုံး ဦးစားပေး",
+    "high_priority": "မြင့်မားသော ဦးစားပေး",
+    "ai_disclaimer": "AI သတိပေးချက်",
+    "next_steps": "Vault Academy နှင့် နောက်ထပ် လုပ်ဆောင်ရန်",
+    "ai_compensation_title": "AI INTELLIGENCE COMPENSATION MODE",
+    "ai_compensation_desc": "Direct scan ကို CORS က ပိတ်ဆို့ထားသည်။ AI က အောက်ပါနည်းလမ်းများဖြင့် အောင်မြင်စွာ ဖြည့်ဆည်းပေးခဲ့သည်:",
+    "ai_compensation_bullet1": "SSL, DNS, နှင့် OSINT intelligence data များအပေါ် အဆင့်မြင့် reasoning",
+    "ai_compensation_bullet2": "Live CVE cross-referencing အတွက် Google Search Grounding"
   },
   "results": {
     "data_quality": "ဒေတာ အရည်အသွေး",

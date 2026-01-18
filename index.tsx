@@ -46,6 +46,7 @@ const ScannerApp = () => {
             missionReport={missionReport} usage={usage} 
             targetUrl={targetUrl} level={currentLevel} onReset={resetMission}
             telemetry={telemetry} dispatchedProbes={dispatchedProbes}
+            missionDuration={missionDuration}
           />
         )}
       </AnimatePresence>

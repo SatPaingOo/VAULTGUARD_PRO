@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { GeminiService, MissionReport, ScanLevel, VerificationPayload, VulnerabilityFinding } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
@@ -30,7 +30,7 @@ export interface DispatchedProbe extends VerificationPayload {
 }
 
 const INITIAL_REPORT: MissionReport = {
-  targetIntelligence: { purpose: "---", businessLogic: "---", attackSurfaceSummary: "---", forensicAnalysis: "---", apis: [], associatedLinks: [], hosting: { provider: "---", location: "---", ip: "0.0.0.0", latitude: 0, longitude: 0 } },
+  targetIntelligence: { purpose: "---", businessLogic: "---", attackSurfaceSummary: "---", forensicAnalysis: "---", apis: [], associatedLinks: [], hosting: { provider: "---", location: "---", ip: "0.0.0.0", latitude: 0, longitude: 0 }, groundingSources: undefined },
   activeProbes: [],
   digitalFootprint: [], 
   technologyDNA: [], 
@@ -55,6 +55,8 @@ export const useScanner = () => {
   const [recentFindings, setRecentFindings] = useState<VulnerabilityFinding[]>([]);
   const [dispatchedProbes, setDispatchedProbes] = useState<DispatchedProbe[]>([]);
   const [error, setError] = useState<{ message: string; type: 'api_key' | 'network' | 'unknown' } | null>(null);
+  const [scanStartTime, setScanStartTime] = useState<Date | null>(null);
+  const [scanEndTime, setScanEndTime] = useState<Date | null>(null);
 
   const gemini = useRef<GeminiService | null>(null);
 
@@ -92,6 +94,12 @@ export const useScanner = () => {
     // Pre-flight validation: Check if URL is valid and website is reachable
     setTargetUrl(url);
     setCurrentLevel(level);
+    
+    // Record scan start time
+    const startTime = new Date();
+    setScanStartTime(startTime);
+    setScanEndTime(null);
+    
     setMissionPhase('Simulation');
     setScanStatus('Recon');
     setProgress(2);
@@ -161,11 +169,17 @@ export const useScanner = () => {
       };
       
       // Phase 1: Parallel Data Collection (OPTIMIZED: All requests in parallel for 2-3x speed)
-      addLog(`[NETWORK] Collecting data in parallel (DOM, OSINT, Headers, SSL, DNS)...`, 'info', 10);
+      // Level-specific data collection messages
+      if (level === 'FAST') {
+        addLog(`[NETWORK] Collecting data in parallel (Headers, SSL, DNS)...`, 'info', 10);
+      } else {
+        addLog(`[NETWORK] Collecting data in parallel (DOM, OSINT, Headers, SSL, DNS)...`, 'info', 10);
+        addLog(`[OSINT] Fetching Live CVE Data from Google Search Grounding...`, 'info', 11);
+      }
       setScanStatus('Discovery');
       
-      // Execute all data collection in parallel
-      const [domResult, osintResult, headersResult, sslResult, dnsResult] = await Promise.allSettled([
+      // Execute data collection - OSINT only for STANDARD and DEEP levels
+      const dataCollectionPromises = [
         extractTargetDOM(target).catch(err => {
           if (err.message?.includes('CORS_BLOCKED') || err.message?.includes('CORS')) {
             corsStatus.domBlocked = true;
@@ -173,11 +187,18 @@ export const useScanner = () => {
           }
           throw err;
         }),
-        g.runIntelligenceDiscovery(domain, target, languageName),
+        // Only run OSINT for STANDARD and DEEP levels
+        ...(level === 'STANDARD' || level === 'DEEP' 
+          ? [g.runIntelligenceDiscovery(domain, target, languageName)]
+          : [Promise.resolve({ usage: { totalTokenCount: 0 }, sources: [] })]
+        ),
         networkAnalysis.analyzeHeaders(target),
         networkAnalysis.analyzeSSL(domain),
         networkAnalysis.checkDNS(domain),
-      ]);
+      ];
+      
+      const [domResult, osintResult, headersResult, sslResult, dnsResult] = 
+        await Promise.allSettled(dataCollectionPromises);
       
       // Extract results
       const rawDom = domResult.status === 'fulfilled' 
@@ -191,7 +212,12 @@ export const useScanner = () => {
         corsStatus.domBlocked = true;
         corsStatus.directScanBlocked = true;
         addLog(`[WARN] DOM extraction blocked by CORS. AI intelligence compensation activated...`, 'warn', 15);
-        addLog(`[AI_COMPENSATION] Neural reasoning mode: Analyzing available data (SSL, DNS, OSINT) with AI intelligence`, 'info', 16);
+        // Level-specific compensation message
+        if (level === 'FAST') {
+          addLog(`[AI_COMPENSATION] Neural reasoning mode: Analyzing available data (SSL, DNS) with AI intelligence`, 'info', 16);
+        } else {
+          addLog(`[AI_COMPENSATION] Neural reasoning mode: Analyzing available data (SSL, DNS, OSINT) with AI intelligence`, 'info', 16);
+        }
         addLog(`[AI_COMPENSATION] Using Gemini reasoning to infer security posture from network metadata`, 'info', 17);
       }
       
@@ -199,6 +225,16 @@ export const useScanner = () => {
       const headers = headersResult.status === 'fulfilled' ? headersResult.value : null;
       const sslInfo = sslResult.status === 'fulfilled' ? sslResult.value : null;
       const dnsInfo = dnsResult.status === 'fulfilled' ? dnsResult.value : null;
+      
+      // Add status message after OSINT discovery completes (only for STANDARD and DEEP)
+      if (level === 'STANDARD' || level === 'DEEP') {
+        if (osintResult.status === 'fulfilled' && disc.sources && Array.isArray(disc.sources) && disc.sources.length > 0) {
+          const sourceCount = disc.sources.length;
+          addLog(`[OSINT] Retrieved ${sourceCount} live sources from Google Search Grounding`, 'success', 25);
+        } else if (osintResult.status === 'fulfilled') {
+          addLog(`[OSINT] OSINT intelligence gathered successfully`, 'success', 25);
+        }
+      }
       
       // Check headers CORS status
       if (headers && !headers.cors?.allowed) {
@@ -224,16 +260,25 @@ export const useScanner = () => {
         addLog(`[NETWORK] Resolved IP: ${dnsInfo.ip}`, 'success', 21);
       }
       
-      // AI Compensation Status Log
+      // AI Compensation Status Log (level-specific)
       if (corsStatus.directScanBlocked) {
         addLog(`[AI_COMPENSATION] CORS restriction detected. Compensating with AI-powered analysis...`, 'warn', 22);
-        const availableSources = [
-          sslInfo ? 'SSL ✓' : 'SSL ✗',
-          dnsInfo?.ip ? 'DNS ✓' : 'DNS ✗',
-          osintResult.status === 'fulfilled' ? 'OSINT ✓' : 'OSINT ✗'
-        ].join(' | ');
+        const availableSources = level === 'FAST'
+          ? [
+              sslInfo ? 'SSL ✓' : 'SSL ✗',
+              dnsInfo?.ip ? 'DNS ✓' : 'DNS ✗'
+            ].join(' | ')
+          : [
+              sslInfo ? 'SSL ✓' : 'SSL ✗',
+              dnsInfo?.ip ? 'DNS ✓' : 'DNS ✗',
+              osintResult.status === 'fulfilled' ? 'OSINT ✓' : 'OSINT ✗'
+            ].join(' | ');
         addLog(`[AI_COMPENSATION] Available data sources: ${availableSources}`, 'info', 23);
-        addLog(`[AI_COMPENSATION] AI will use Search Grounding + Network Intelligence to compensate for CORS limitations`, 'info', 24);
+        if (level === 'STANDARD' || level === 'DEEP') {
+          addLog(`[AI_COMPENSATION] AI will use Search Grounding + Network Intelligence to compensate for CORS limitations`, 'info', 24);
+        } else {
+          addLog(`[AI_COMPENSATION] AI will use Network Intelligence to compensate for CORS limitations`, 'info', 24);
+        }
       }
       
       // Extract security signals (only if DOM available)
@@ -263,10 +308,19 @@ export const useScanner = () => {
         return 0;
       };
 
-      setUsage(prev => ({ 
-        tokens: prev.tokens + getTokenCount(disc.usage), 
-        cost: prev.cost + getTokenCount(disc.usage) * 0.00000035 
-      }));
+      // Track OSINT token usage and show status (only for STANDARD and DEEP)
+      const osintTokens = (level === 'STANDARD' || level === 'DEEP') ? getTokenCount(disc.usage) : 0;
+      if (osintTokens > 0) {
+        setUsage(prev => ({ 
+          tokens: prev.tokens + osintTokens, 
+          cost: prev.cost + osintTokens * 0.00000035 
+        }));
+        
+        // Add status message with actual token count from OSINT
+        const formattedOsintTokens = osintTokens.toLocaleString();
+        addLog(`[OSINT] Live CVE data retrieved (${formattedOsintTokens} tokens)`, 'success', 26);
+      }
+      
       setProgress(30);
       
       // Merge network analysis into OSINT data
@@ -291,7 +345,20 @@ export const useScanner = () => {
       
       if (corsStatus.directScanBlocked) {
         addLog(`[NEURAL] AI Compensation Mode: Enabling advanced reasoning to overcome CORS restrictions...`, 'success', 36);
-        addLog(`[NEURAL] Gemini will analyze: SSL config, DNS records, OSINT intelligence, and infer vulnerabilities`, 'info', 37);
+        // Level-specific analysis message
+        if (level === 'FAST') {
+          addLog(`[NEURAL] Gemini will analyze: SSL config, DNS records, and infer vulnerabilities`, 'info', 37);
+        } else {
+          addLog(`[NEURAL] Gemini will analyze: SSL config, DNS records, OSINT intelligence, and infer vulnerabilities`, 'info', 37);
+        }
+      }
+      
+      // Add status message based on scan level
+      if (level === 'STANDARD' || level === 'DEEP') {
+        addLog(`[AI] Analyzing Technology DNA & Infrastructure...`, 'info', 38);
+        if (level === 'DEEP') {
+          addLog(`[AI] Deep reasoning mode: Simulating multi-step attack chains...`, 'info', 39);
+        }
       }
       
       addLog(`[SANDBOX] Initializing Heuristic Simulation...`, 'info', 40);
@@ -323,6 +390,17 @@ export const useScanner = () => {
         },
       };
       
+      // Show current token usage before AI analysis
+      // Calculate current tokens from OSINT discovery
+      const currentTokens = osintTokens;
+      if (currentTokens > 0) {
+        const formattedCurrent = currentTokens.toLocaleString();
+        addLog(`[AI] AI reasoning in progress (${formattedCurrent} tokens loaded)...`, 'info', 46);
+      } else {
+        const estimatedTokens = level === 'FAST' ? '~8K-10K' : level === 'STANDARD' ? '~25K-35K' : '~150K-400K';
+        addLog(`[AI] AI reasoning in progress (estimated ${estimatedTokens} tokens)...`, 'info', 46);
+      }
+      
       const audit = await g.performDeepAudit(
         target, 
         signals, 
@@ -336,11 +414,24 @@ export const useScanner = () => {
       // Track deep audit token usage
       setUsage(prev => {
         const auditTokens = getTokenCount(audit.usage);
+        
+        // Use correct pricing based on model used
+        // FAST/STANDARD: Flash model ($0.00000035 per token)
+        // DEEP: Pro model ($0.0000035 per token - 10x more expensive)
+        const tokenPrice = level === 'DEEP' ? 0.0000035 : 0.00000035;
+        
         return {
           tokens: prev.tokens + auditTokens,
-          cost: prev.cost + auditTokens * 0.00000035
+          cost: prev.cost + (auditTokens * tokenPrice)
         };
       });
+      
+      // After audit completes, show actual token count
+      const auditTokens = getTokenCount(audit.usage);
+      if (auditTokens > 0) {
+        const formattedTokens = auditTokens.toLocaleString();
+        addLog(`[AI] AI reasoning completed (${formattedTokens} tokens processed)`, 'success', 70);
+      }
       
       // Track probe execution for data quality
       let probesExecuted = 0;
@@ -556,12 +647,14 @@ export const useScanner = () => {
       };
       
       const probeSuccessRate = probesExecuted > 0 ? probesSuccessful / probesExecuted : 0;
+      // OSINT success only counts for STANDARD and DEEP levels
+      const osintSuccess = (level === 'STANDARD' || level === 'DEEP') && osintResult.status === 'fulfilled';
       const trustScore = calculateTrustScore(
         domExtractionSuccess,
         headers?.cors?.allowed || false,
         sslInfo?.valid || false,
         !!dnsInfo?.ip,
-        osintResult.status === 'fulfilled',
+        osintSuccess,
         probeSuccessRate
       );
       
@@ -574,7 +667,7 @@ export const useScanner = () => {
           headers: headers?.cors?.allowed || false,
           ssl: sslInfo?.valid || false,
           dns: !!dnsInfo?.ip,
-          osint: osintResult.status === 'fulfilled',
+          osint: (level === 'STANDARD' || level === 'DEEP') && osintResult.status === 'fulfilled',
           probes: {
             executed: probesExecuted,
             successful: probesSuccessful,
@@ -582,10 +675,31 @@ export const useScanner = () => {
         },
       };
       
-      // Add data quality to mission report
+      // Extract grounding sources from OSINT discovery (only for STANDARD and DEEP)
+      const groundingSources = (level === 'STANDARD' || level === 'DEEP') && disc.sources && Array.isArray(disc.sources) && disc.sources.length > 0
+        ? disc.sources.map((source: any) => {
+            // Handle different source formats from Google Search Grounding
+            if (typeof source === 'string') {
+              return { uri: source, url: source };
+            } else if (typeof source === 'object' && source !== null) {
+              return {
+                uri: source.uri || source.url || source.web?.uri || source.web?.url || undefined,
+                url: source.url || source.uri || source.web?.url || source.web?.uri || undefined,
+                title: source.title || source.web?.title || source.snippet || undefined,
+              };
+            }
+            return undefined;
+          }).filter((s): s is { uri?: string; url?: string; title?: string } => s !== undefined)
+        : undefined;
+
+      // Add data quality and grounding sources to mission report
       const reportWithQuality = {
         ...audit,
         dataQuality,
+        targetIntelligence: {
+          ...audit.targetIntelligence,
+          groundingSources: groundingSources && groundingSources.length > 0 ? groundingSources : undefined,
+        },
       };
       
       setMissionReport(reportWithQuality);
@@ -593,6 +707,10 @@ export const useScanner = () => {
       if (dataQuality.limitations.length > 0) {
         addLog(`[DATA_QUALITY] Limitations: ${dataQuality.limitations.join(', ')}`, 'warn', 96);
       }
+      
+      // Record scan end time
+      const endTime = new Date();
+      setScanEndTime(endTime);
       
       setTimeout(() => setMissionPhase('Debriefing'), 1500);
 
@@ -672,6 +790,8 @@ export const useScanner = () => {
     setRecentFindings([]);
     setUsage({ tokens: 0, cost: 0 });
     setError(null);
+    setScanStartTime(null);
+    setScanEndTime(null);
   };
 
   const clearError = () => {
@@ -681,5 +801,27 @@ export const useScanner = () => {
     setProgress(0);
   };
 
-  return { missionPhase, scanStatus, progress, telemetry, missionReport, usage, targetUrl, currentLevel, recentFindings, dispatchedProbes, error, runMission, resetMission, clearError };
+  // Calculate mission duration
+  const missionDuration = useMemo(() => {
+    if (!scanStartTime) return null;
+    const endTime = scanEndTime || new Date();
+    const durationMs = endTime.getTime() - scanStartTime.getTime();
+    const seconds = Math.floor(durationMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    
+    return {
+      startTime: scanStartTime,
+      endTime: scanEndTime || endTime,
+      durationMs,
+      formatted: minutes > 0 
+        ? `${minutes}m ${remainingSeconds}s`
+        : `${remainingSeconds}s`,
+      formattedFull: minutes > 0
+        ? `${minutes} minute${minutes !== 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`
+        : `${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`
+    };
+  }, [scanStartTime, scanEndTime]);
+
+  return { missionPhase, scanStatus, progress, telemetry, missionReport, usage, targetUrl, currentLevel, recentFindings, dispatchedProbes, error, missionDuration, runMission, resetMission, clearError };
 };
