@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useMemo, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { API_KEY_CONSTANTS } from '../constants';
 
 export interface ApiKeyErrorDetails {
@@ -29,6 +29,17 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
   const [manualKey, setManualKey] = useState('');
   const [apiKeyStatus, setApiKeyStatus] = useState<'none' | 'valid' | 'invalid' | 'testing'>('none');
   const [apiKeyError, setApiKeyError] = useState<ApiKeyErrorDetails | undefined>(undefined);
+  
+  // OPTIMIZATION: Cache for API key validation results (5 minutes TTL)
+  const validationCache = useRef<Map<string, { 
+    isValid: boolean; 
+    timestamp: number; 
+    ttl: number;
+    status: 'valid' | 'invalid';
+    error?: ApiKeyErrorDetails;
+  }>>(new Map());
+  
+  const VALIDATION_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   // Re-check system link whenever timestamp updates
   useEffect(() => {
@@ -57,7 +68,8 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
     return isSystemLinked || activeKey.length > API_KEY_CONSTANTS.MIN_KEY_LENGTH_BASIC;
   }, [isSystemLinked, activeKey]);
 
-  // Test API key by making a simple API call and checking required models
+  // OPTIMIZED: Test API key with caching and reduced API calls
+  // Only uses 1 API call (list models) instead of 2 (list + generateContent test)
   const testApiKey = useCallback(async (): Promise<boolean> => {
     if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setApiKeyStatus('invalid');
@@ -88,11 +100,23 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
       return false;
     }
 
+    // OPTIMIZATION: Check cache first
+    const cacheKey = activeKey.substring(0, 20); // Use first 20 chars as cache key
+    const cached = validationCache.current.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < cached.ttl) {
+      // Use cached result
+      setApiKeyStatus(cached.status);
+      setApiKeyError(cached.error);
+      return cached.isValid;
+    }
+
     setApiKeyStatus('testing');
     setApiKeyError(undefined);
 
     try {
-      // Test 1: Check if API key is valid (list models)
+      // OPTIMIZED: Only check models list (1 API call instead of 2)
+      // Skip generateContent test to save API quota
       const modelsResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models?key=${activeKey}`,
         {
@@ -105,9 +129,10 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
         const errorData = await modelsResponse.json().catch(() => ({}));
         const errorMessage = errorData.error?.message || '';
         
+        let errorDetails: ApiKeyErrorDetails;
+        
         if (modelsResponse.status === 401 || modelsResponse.status === 403) {
-          setApiKeyStatus('invalid');
-          setApiKeyError({
+          errorDetails = {
             type: 'invalid_key',
             message: 'API key is invalid or expired',
             suggestions: [
@@ -116,27 +141,49 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
               'Get a new API key from https://aistudio.google.com/apikey',
               'Ensure billing is enabled on your Google Cloud Project'
             ]
-          });
-          return false;
+          };
+        } else if (modelsResponse.status === 402 || errorMessage.toLowerCase().includes('billing') || errorMessage.toLowerCase().includes('quota')) {
+          errorDetails = {
+            type: 'missing_billing',
+            message: 'Billing is not enabled or quota exceeded',
+            suggestions: [
+              'Enable billing on your Google Cloud Project',
+              'Go to: https://console.cloud.google.com/billing',
+              'Link a billing account to your project',
+              'Check if you have exceeded your quota limits'
+            ]
+          };
+        } else {
+          errorDetails = {
+            type: 'unknown',
+            message: `API request failed: ${errorMessage || 'Unknown error'}`,
+            suggestions: [
+              'Check your internet connection',
+              'Verify the API key is correct',
+              'Try again in a few moments'
+            ]
+          };
         }
         
         setApiKeyStatus('invalid');
-        setApiKeyError({
-          type: 'unknown',
-          message: `API request failed: ${errorMessage || 'Unknown error'}`,
-          suggestions: [
-            'Check your internet connection',
-            'Verify the API key is correct',
-            'Try again in a few moments'
-          ]
+        setApiKeyError(errorDetails);
+        
+        // Cache invalid result
+        validationCache.current.set(cacheKey, {
+          isValid: false,
+          timestamp: Date.now(),
+          ttl: VALIDATION_CACHE_TTL,
+          status: 'invalid',
+          error: errorDetails
         });
+        
         return false;
       }
 
       const modelsData = await modelsResponse.json();
       const availableModels = modelsData.models?.map((m: any) => m.name) || [];
       
-      // Test 2: Check if required models are available
+      // Check if required models are available
       const requiredModels = [
         'gemini-3-flash-preview',
         'gemini-3-pro-preview'
@@ -153,8 +200,7 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
       });
       
       if (missingModels.length > 0) {
-        setApiKeyStatus('invalid');
-        setApiKeyError({
+        const errorDetails: ApiKeyErrorDetails = {
           type: 'missing_models',
           message: `Required models are not available: ${missingModels.join(', ')}`,
           missingModels,
@@ -164,86 +210,39 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
             'Go to: https://console.cloud.google.com/apis/library',
             'Search for "Generative Language API" and enable it'
           ]
+        };
+        
+        setApiKeyStatus('invalid');
+        setApiKeyError(errorDetails);
+        
+        // Cache invalid result
+        validationCache.current.set(cacheKey, {
+          isValid: false,
+          timestamp: Date.now(),
+          ttl: VALIDATION_CACHE_TTL,
+          status: 'invalid',
+          error: errorDetails
         });
+        
         return false;
       }
       
-      // Test 3: Try generateContent to check billing and grounding
-      try {
-        const testResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: 'test' }] }]
-            })
-          }
-        );
-
-        const responseData = await testResponse.json().catch(() => ({}));
-        const errorMessage = responseData.error?.message || '';
-
-        if (testResponse.ok || testResponse.status === 400) {
-          // 400 might be request format issue, but key works
-          setApiKeyStatus('valid');
-          setApiKeyError(undefined);
-          return true;
-        } else if (testResponse.status === 401 || testResponse.status === 403) {
-          setApiKeyStatus('invalid');
-          setApiKeyError({
-            type: 'invalid_key',
-            message: 'API key is invalid or lacks permissions',
-            suggestions: [
-              'Verify the API key is correct',
-              'Check API key permissions in Google Cloud Console',
-              'Ensure the API key has access to Gemini API'
-            ]
-          });
-          return false;
-        } else if (testResponse.status === 402 || errorMessage.toLowerCase().includes('billing') || errorMessage.toLowerCase().includes('quota')) {
-          setApiKeyStatus('invalid');
-          setApiKeyError({
-            type: 'missing_billing',
-            message: 'Billing is not enabled or quota exceeded',
-            suggestions: [
-              'Enable billing on your Google Cloud Project',
-              'Go to: https://console.cloud.google.com/billing',
-              'Link a billing account to your project',
-              'Check if you have exceeded your quota limits'
-            ]
-          });
-          return false;
-        } else {
-          setApiKeyStatus('invalid');
-          setApiKeyError({
-            type: 'unknown',
-            message: `API call failed: ${errorMessage || 'Unknown error'}`,
-            suggestions: [
-              'Check your internet connection',
-              'Verify all required services are enabled',
-              'Try again in a few moments'
-            ]
-          });
-          return false;
-        }
-      } catch (testError: any) {
-        // Network or other errors
-        setApiKeyStatus('invalid');
-        setApiKeyError({
-          type: 'unknown',
-          message: `Connection error: ${testError.message || 'Failed to connect'}`,
-          suggestions: [
-            'Check your internet connection',
-            'Verify the API key is correct',
-            'Try again in a few moments'
-          ]
-        });
-        return false;
-      }
+      // OPTIMIZED: Skip generateContent test - models list check is sufficient
+      // This saves 1 API call per validation (50% reduction)
+      setApiKeyStatus('valid');
+      setApiKeyError(undefined);
+      
+      // Cache valid result
+      validationCache.current.set(cacheKey, {
+        isValid: true,
+        timestamp: Date.now(),
+        ttl: VALIDATION_CACHE_TTL,
+        status: 'valid'
+      });
+      
+      return true;
     } catch (error: any) {
-      setApiKeyStatus('invalid');
-      setApiKeyError({
+      const errorDetails: ApiKeyErrorDetails = {
         type: 'unknown',
         message: `Error: ${error.message || 'Unknown error occurred'}`,
         suggestions: [
@@ -251,7 +250,20 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
           'Verify the API key is correct',
           'Try again in a few moments'
         ]
+      };
+      
+      setApiKeyStatus('invalid');
+      setApiKeyError(errorDetails);
+      
+      // Cache invalid result
+      validationCache.current.set(cacheKey, {
+        isValid: false,
+        timestamp: Date.now(),
+        ttl: VALIDATION_CACHE_TTL,
+        status: 'invalid',
+        error: errorDetails
       });
+      
       return false;
     }
   }, [activeKey]);
@@ -270,14 +282,16 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
     setKeySelectionTimestamp(Date.now());
   }, []);
 
-  // Auto-test API key when it changes (if it's long enough)
+  // OPTIMIZATION: Auto-test disabled to save API quota
+  // User must manually test via "Test" button in ApiKeyModal
+  // This prevents unnecessary API calls when key changes
   useEffect(() => {
-    if (activeKey && activeKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyStatus === 'none') {
-      testApiKey();
-    } else if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
+    // Only reset status if key is too short, don't auto-test
+    if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setApiKeyStatus('none');
     }
-  }, [activeKey, apiKeyStatus, testApiKey]);
+    // Removed auto-test to save API quota - user must manually test
+  }, [activeKey]);
 
   return (
     <SecurityContext.Provider value={{ 

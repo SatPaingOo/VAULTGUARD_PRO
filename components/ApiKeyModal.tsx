@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   KeyRound, X, Search, Activity as ActivityIcon, 
@@ -22,6 +22,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
   const [showKey, setShowKey] = useState(false);
+  
+  // OPTIMIZATION: Debounce timer for API key validation
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -29,41 +32,80 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
       setShowKey(false);
       setTestResult(null);
       setIsTesting(false);
+      // Clear debounce timer when modal closes
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
     }
+    
+    // Cleanup debounce timer on unmount
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [isOpen]);
 
+  // OPTIMIZED: Debounced test function to reduce API calls
   const handleTestKey = async () => {
     if (!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setTestResult('error');
       return;
     }
 
+    // Clear previous debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
     setIsTesting(true);
     setTestResult(null);
     
-    const originalKey = activeKey;
-    updateManualKey(inputKey);
-    
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    const isValid = await testApiKey();
-    
-    if (isValid) {
-      setTestResult('success');
-    } else {
-      setTestResult('error');
-      if (originalKey) {
-        updateManualKey(originalKey);
+    // OPTIMIZATION: Debounce validation - wait 1 second after user stops typing
+    debounceTimerRef.current = setTimeout(async () => {
+      const originalKey = activeKey;
+      updateManualKey(inputKey);
+      
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const isValid = await testApiKey();
+      
+      if (isValid) {
+        setTestResult('success');
+      } else {
+        setTestResult('error');
+        if (originalKey) {
+          updateManualKey(originalKey);
+        }
       }
-    }
-    
-    setIsTesting(false);
+      
+      setIsTesting(false);
+      debounceTimerRef.current = null;
+    }, 1000); // 1 second debounce
   };
 
+  // OPTIMIZED: Conditional validation - skip test if key unchanged and already valid
   const handleManualSave = async () => {
     if (!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setTestResult('error');
       return;
+    }
+
+    // OPTIMIZATION: Skip validation if key unchanged and already valid
+    if (inputKey === activeKey && apiKeyStatus === 'valid') {
+      // Key unchanged and already valid - skip test to save API quota
+      setTestResult('success');
+      setTimeout(() => {
+        onClose();
+      }, 1000);
+      return;
+    }
+
+    // Clear any pending debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
     }
 
     setIsTesting(true);
