@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "NEURAL_SECURITY_OPS_v1.1",
+  "app_subtitle": "NEURAL_SECURITY_OPS_v1.1.1",
   "app_gemini_tagline": "Powered by Gemini 3 Pro & Flash • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Built for Gemini 3 Hackathon",
   "initiate_scan": "INITIATE_SCAN",
@@ -449,7 +449,7 @@ export default {
     "error_unknown_suggestions": ["Check your internet connection", "Verify the API key is correct", "Try again in a few moments"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.0",
+    "version_badge": "VAULT_SOC_1.1.1",
     "neural_engine": "NEURAL_ENGINE",
     "frontend_only": "FRONTEND_ONLY",
     "real_time_ai": "REAL_TIME_AI",

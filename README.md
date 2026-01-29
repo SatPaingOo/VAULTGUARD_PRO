@@ -4,7 +4,7 @@
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.1.0  
+**Version:** 1.1.1  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -500,7 +500,12 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.1.0 (Current)
+### v1.1.1 (Current)
+
+- **PDF debrief fix** – Sanitize text for jsPDF so Unicode bullets, emojis, and AI-generated content render correctly (no more garbled symbols)
+- Language data and input improvements
+
+### v1.1.0
 
 - **Vault Academy** – Multi-language security knowledge base (EN/MM)
 - **503/500 retry** – Service overload/unavailable now retried with backoff

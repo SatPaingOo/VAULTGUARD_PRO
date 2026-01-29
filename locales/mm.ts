@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.1",
+  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.1.1",
   "app_gemini_tagline": "Gemini 3 Pro & Flash ဖြင့် မောင်းနှင်သည် • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Gemini 3 Hackathon အတွက် တည်ဆောက်ထားသည်",
   "initiate_scan": "စစ်ဆေးမှု စတင်ရန်",
@@ -429,7 +429,7 @@ export default {
     "error_unknown_suggestions": ["အင်တာနက် ချိတ်ဆက်မှု စစ်ပါ", "API key မှန်ကန်မှု စစ်ပါ", "ခဏအကြာ ပြန်ကြိုးစားပါ"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.0",
+    "version_badge": "VAULT_SOC_1.1.1",
     "neural_engine": "နျူရယ် အင်ဂျင်",
     "frontend_only": "ဖရန့်တင့်သာ",
     "real_time_ai": "တိုက်ရိုက် AI",

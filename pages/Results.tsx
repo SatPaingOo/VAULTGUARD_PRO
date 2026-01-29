@@ -185,11 +185,11 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       const titleX = (pageWidth - titleWidth) / 2; // Center
       doc.text(titleText, titleX, titleY);
 
-      // Version "v1.1.0" - smaller, inline with title
+      // Version "v1.1.1" - smaller, inline with title
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.1.0";
+      const versionText = "v1.1.1";
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
