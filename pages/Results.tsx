@@ -85,28 +85,27 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
     return typeof value === 'string' ? value : path;
   };
 
-  // Sanitize text for jsPDF: default fonts only support basic Latin. Replace Unicode bullets,
-  // emojis, curly quotes, etc. so PDF renders correctly instead of garbled symbols.
+  // Sanitize text for jsPDF: default fonts only support Latin-1. Replace Unicode bullets,
+  // emojis, curly quotes; collapse non-Latin runs (e.g. Thai/Burmese) to " [...] " so PDF is readable.
   const sanitizeForPdf = (raw: string | undefined | null): string => {
     if (raw == null || typeof raw !== 'string') return '';
-    return (
-      raw
-        .replace(/\u2022/g, '-')             // bullet -> hyphen
-        .replace(/[\u2018\u2019]/g, "'")    // curly single quotes
-        .replace(/[\u201C\u201D]/g, '"')    // curly double quotes
-        .replace(/\u2013/g, '-')             // en dash
-        .replace(/\u2014/g, '-')             // em dash
-        .replace(/[\u200B-\u200D\uFEFF]/g, '') // zero-width chars
-        .replace(/\u26A1/g, '[!]')           // lightning
-        .replace(/\u{1F534}/gu, '[CRITICAL]') // red circle
-        .replace(/\u{1F7E0}/gu, '[HIGH]')    // orange circle
-        .replace(/\u{1F4A1}/gu, '[TIP]')     // light bulb
-        .replace(/\u{1F6E1}\uFE0F?/gu, '[VG]') // shield
-        .replace(/[\uFF01-\uFF5E]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)) // fullwidth ASCII
-        .split('')
-        .map((c) => (c.charCodeAt(0) <= 255 ? c : '?'))
-        .join('')
-    );
+    const step1 = raw
+      .replace(/\u2022/g, '-')             // bullet -> hyphen
+      .replace(/[\u2018\u2019]/g, "'")   // curly single quotes
+      .replace(/[\u201C\u201D]/g, '"')   // curly double quotes
+      .replace(/\u2013/g, '-')           // en dash
+      .replace(/\u2014/g, '-')           // em dash
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // zero-width chars
+      .replace(/\u26A1/g, '[!]')         // lightning
+      .replace(/\u{1F534}/gu, '[CRITICAL]')
+      .replace(/\u{1F7E0}/gu, '[HIGH]')
+      .replace(/\u{1F4A1}/gu, '[TIP]')
+      .replace(/\u{1F6E1}\uFE0F?/gu, '[VG]')
+      .replace(/[\uFF01-\uFF5E]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)); // fullwidth ASCII
+    // Replace runs of non-Latin-1 (e.g. Thai, Burmese) with one placeholder so we don't get long ??? strings
+    const step2 = step1.replace(/[^\u0000-\u00FF]+/g, ' [...] ');
+    // Collapse multiple placeholders/spaces and trim
+    return step2.replace(/(\s*\[\.\.\.\]\s*)+/g, ' [...] ').replace(/\s+/g, ' ').trim();
   };
 
   const generatePDF = async () => {

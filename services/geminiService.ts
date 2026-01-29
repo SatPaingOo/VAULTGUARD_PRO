@@ -601,6 +601,7 @@ OUTPUT REQUIREMENTS:
 - Technology DNA must include: name, version, category, status, actionPlan
 - Security score must be calculated based on actual findings (0-100)
 - Confidence score must reflect overall analysis quality (0-100)
+- PDF_EXPORT: Write ALL report text fields in English only (purpose, businessLogic, attackSurfaceSummary, forensicAnalysis, technology actionPlan, probe description, finding title/description/remediation/businessImpact/poc) so the PDF debrief displays correctly. Use English regardless of UI language.
 - Output in ${language}`;
 
       const response = await ai.models.generateContent({ model: modelName, contents: prompt, config });
