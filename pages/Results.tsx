@@ -85,6 +85,30 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
     return typeof value === 'string' ? value : path;
   };
 
+  // Sanitize text for jsPDF: default fonts only support basic Latin. Replace Unicode bullets,
+  // emojis, curly quotes, etc. so PDF renders correctly instead of garbled symbols.
+  const sanitizeForPdf = (raw: string | undefined | null): string => {
+    if (raw == null || typeof raw !== 'string') return '';
+    return (
+      raw
+        .replace(/\u2022/g, '-')             // bullet -> hyphen
+        .replace(/[\u2018\u2019]/g, "'")    // curly single quotes
+        .replace(/[\u201C\u201D]/g, '"')    // curly double quotes
+        .replace(/\u2013/g, '-')             // en dash
+        .replace(/\u2014/g, '-')             // em dash
+        .replace(/[\u200B-\u200D\uFEFF]/g, '') // zero-width chars
+        .replace(/\u26A1/g, '[!]')           // lightning
+        .replace(/\u{1F534}/gu, '[CRITICAL]') // red circle
+        .replace(/\u{1F7E0}/gu, '[HIGH]')    // orange circle
+        .replace(/\u{1F4A1}/gu, '[TIP]')     // light bulb
+        .replace(/\u{1F6E1}\uFE0F?/gu, '[VG]') // shield
+        .replace(/[\uFF01-\uFF5E]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)) // fullwidth ASCII
+        .split('')
+        .map((c) => (c.charCodeAt(0) <= 255 ? c : '?'))
+        .join('')
+    );
+  };
+
   const generatePDF = async () => {
     try {
       const doc = new jsPDF();
@@ -140,11 +164,13 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           throw new Error('Logo not found');
         }
       } catch (err) {
-        // Fallback to emoji if image loading fails
-        console.warn('Logo loading failed, using emoji fallback:', err);
-        doc.setFontSize(24);
-        const emojiX = (pageWidth - doc.getTextWidth("🛡️")) / 2;
-        doc.text("🛡️", emojiX, logoY + 5);
+        // Fallback to ASCII label if image loading fails (jsPDF default font does not support emoji)
+        console.warn('Logo loading failed, using text fallback:', err);
+        doc.setFontSize(18);
+        doc.setFont("courier", "bold");
+        const fallbackText = "[VG]";
+        const fallbackX = (pageWidth - doc.getTextWidth(fallbackText)) / 2;
+        doc.text(fallbackText, fallbackX, logoY + 8);
       }
 
       // Title below logo - centered
@@ -193,7 +219,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.text(`${tEn('pdf.timestamp')}: ${timestamp}`, leftColumnX, infoStartY + infoLineHeight);
       doc.text(`${tEn('pdf.operator')}: ${operatorName}`, leftColumnX, infoStartY + infoLineHeight * 2);
       doc.text(`Mission: ${level}`, leftColumnX, infoStartY + infoLineHeight * 3);
-      doc.text(`Target: ${targetUrl}`, leftColumnX, infoStartY + infoLineHeight * 4);
+      doc.text(`Target: ${sanitizeForPdf(targetUrl)}`, leftColumnX, infoStartY + infoLineHeight * 4);
 
       // Right Column
       doc.text(`${tEn('pdf.risk_score')}: ${securityScore}/100`, rightColumnX, infoStartY);
@@ -239,14 +265,14 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(9);
       doc.setFont("courier", "normal");
       doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
-      doc.text(`${tEn('results.domain')}: ${targetUrl}`, 15, yPos);
+      doc.text(`${tEn('results.domain')}: ${sanitizeForPdf(targetUrl)}`, 15, yPos);
       yPos += 6;
 
       if (targetIntelligence?.hosting?.ip && targetIntelligence.hosting.ip !== '0.0.0.0') {
         doc.setFontSize(9); // Ensure font size
         doc.setFont("courier", "normal"); // Ensure font
         doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
-        doc.text(`${tEn('results.ip_address')}: ${targetIntelligence.hosting.ip}`, 15, yPos);
+        doc.text(`${tEn('results.ip_address')}: ${sanitizeForPdf(targetIntelligence.hosting.ip)}`, 15, yPos);
         yPos += 6;
       }
 
@@ -254,7 +280,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         doc.setFontSize(9); // Ensure font size
         doc.setFont("courier", "normal"); // Ensure font
         doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
-        doc.text(`${tEn('results.hosting_provider')}: ${targetIntelligence.hosting.provider}`, 15, yPos);
+        doc.text(`${tEn('results.hosting_provider')}: ${sanitizeForPdf(targetIntelligence.hosting.provider)}`, 15, yPos);
         yPos += 6;
       }
 
@@ -262,7 +288,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         doc.setFontSize(9); // Ensure font size
         doc.setFont("courier", "normal"); // Ensure font
         doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
-        doc.text(`${tEn('results.location')}: ${targetIntelligence.hosting.location}`, 15, yPos);
+        doc.text(`${tEn('results.location')}: ${sanitizeForPdf(targetIntelligence.hosting.location)}`, 15, yPos);
         yPos += 6;
       }
 
@@ -285,7 +311,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.setFontSize(8); // Ensure font size
           doc.setFont("courier", "normal"); // Ensure font
           doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
-          const linkText = doc.splitTextToSize(`• ${link}`, 180);
+          const linkText = doc.splitTextToSize(`- ${sanitizeForPdf(link)}`, 180);
           linkText.forEach((line: string) => {
             doc.setTextColor(0, 0, 0); // Ensure black text for each line
             doc.text(line, 20, yPos);
@@ -314,7 +340,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.setFontSize(8); // Ensure font size
           doc.setFont("courier", "normal"); // Ensure font
           doc.setTextColor(0, 0, 0); // Ensure black text - set right before text
-          const apiText = doc.splitTextToSize(`• ${api}`, 180);
+          const apiText = doc.splitTextToSize(`- ${sanitizeForPdf(api)}`, 180);
           apiText.forEach((line: string) => {
             doc.setTextColor(0, 0, 0); // Ensure black text for each line
             doc.text(line, 20, yPos);
@@ -395,7 +421,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           yPos += 6;
           doc.setFont("courier", "normal");
           doc.setTextColor(0, 0, 0); // Ensure black text
-          const purposeText = doc.splitTextToSize(targetIntelligence.purpose, 180);
+          const purposeText = doc.splitTextToSize(sanitizeForPdf(targetIntelligence.purpose), 180);
           purposeText.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
@@ -419,7 +445,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           yPos += 6;
           doc.setFont("courier", "normal");
           doc.setTextColor(0, 0, 0); // Ensure black text
-          const logicText = doc.splitTextToSize(targetIntelligence.businessLogic, 180);
+          const logicText = doc.splitTextToSize(sanitizeForPdf(targetIntelligence.businessLogic), 180);
           logicText.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
@@ -443,7 +469,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           yPos += 6;
           doc.setFont("courier", "normal");
           doc.setTextColor(0, 0, 0); // Ensure black text
-          const surfaceText = doc.splitTextToSize(targetIntelligence.attackSurfaceSummary, 180);
+          const surfaceText = doc.splitTextToSize(sanitizeForPdf(targetIntelligence.attackSurfaceSummary), 180);
           surfaceText.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
@@ -481,13 +507,13 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.setTextColor(255, 255, 255);
           doc.setFont("courier", "bold");
           doc.setFontSize(13);
-          doc.text(`⚡ ${tEn('pdf.ai_compensation_title')}`, 15, yPos + 5);
+          doc.text(`[!] ${tEn('pdf.ai_compensation_title')}`, 15, yPos + 5);
 
           doc.setFontSize(9);
           doc.setFont("courier", "normal");
           doc.text(tEn('pdf.ai_compensation_desc'), 15, yPos + 12);
-          doc.text(`• ${tEn('pdf.ai_compensation_bullet1')}`, 20, yPos + 18);
-          doc.text(`• ${tEn('pdf.ai_compensation_bullet2')}`, 20, yPos + 23);
+          doc.text(`- ${tEn('pdf.ai_compensation_bullet1')}`, 20, yPos + 18);
+          doc.text(`- ${tEn('pdf.ai_compensation_bullet2')}`, 20, yPos + 23);
 
           yPos += 35;
         }
@@ -511,7 +537,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.setFontSize(8);
           doc.setTextColor(60, 60, 60); // Darker gray for better readability
           dataQuality.limitations.forEach((lim: string) => {
-            doc.text(`• ${lim}`, 20, yPos);
+            doc.text(`- ${sanitizeForPdf(lim)}`, 20, yPos);
             yPos += 6;
           });
           yPos += 5;
@@ -519,7 +545,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       }
 
       // Forensic Analysis
-      const splitAnalysis = doc.splitTextToSize(`${tEn('pdf.forensic_deduction')}: ${targetIntelligence?.forensicAnalysis || tEn('pdf.no_analysis')}`, 180);
+      const splitAnalysis = doc.splitTextToSize(`${tEn('pdf.forensic_deduction')}: ${sanitizeForPdf(targetIntelligence?.forensicAnalysis) || tEn('pdf.no_analysis')}`, 180);
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0);
       splitAnalysis.forEach((line: string) => {
@@ -566,13 +592,13 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           }
           doc.setTextColor(0, 0, 0);
           doc.setFont("courier", "bold");
-          doc.text(`${tech.name} ${tech.version}`, 15, yPos);
+          doc.text(`${sanitizeForPdf(tech.name)} ${sanitizeForPdf(tech.version)}`, 15, yPos);
           yPos += 5;
           doc.setFont("courier", "normal");
           doc.setTextColor(60, 60, 60); // Darker gray for better readability
-          doc.text(`${tEn('pdf.category')}: ${tech.category} | ${tEn('pdf.status')}: ${tech.status}`, 15, yPos);
+          doc.text(`${tEn('pdf.category')}: ${sanitizeForPdf(tech.category)} | ${tEn('pdf.status')}: ${sanitizeForPdf(tech.status)}`, 15, yPos);
           yPos += 5;
-          const actionPlan = doc.splitTextToSize(`${tEn('pdf.action')}: ${tech.actionPlan}`, 180);
+          const actionPlan = doc.splitTextToSize(`${tEn('pdf.action')}: ${sanitizeForPdf(tech.actionPlan)}`, 180);
           actionPlan.forEach((line: string) => {
             doc.text(line, 20, yPos);
             yPos += 4;
@@ -620,7 +646,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           }
           if (probe.description) {
             doc.setTextColor(0, 0, 0);
-            const desc = doc.splitTextToSize(`${tEn('pdf.description')}: ${probe.description}`, 180);
+            const desc = doc.splitTextToSize(`${tEn('pdf.description')}: ${sanitizeForPdf(probe.description)}`, 180);
             desc.forEach((line: string) => {
               doc.text(line, 20, yPos);
               yPos += 4;
@@ -653,7 +679,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           doc.setFontSize(10);
           doc.setTextColor(0, 0, 0); // Ensure black text
           doc.setFont("courier", "bold");
-          const title = doc.splitTextToSize(`${index + 1}. ${f.title}`, 180);
+          const title = doc.splitTextToSize(`${index + 1}. ${sanitizeForPdf(f.title)}`, 180);
           title.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
@@ -677,14 +703,14 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           if (f.evidence && Array.isArray(f.evidence) && f.evidence.length > 0) {
             doc.setFontSize(7);
             doc.setTextColor(80, 80, 80); // Darker gray for better readability
-            doc.text(`${tEn('pdf.evidence_sources')}: ${f.evidence.join(', ')}`, 15, yPos);
+            doc.text(`${tEn('pdf.evidence_sources')}: ${sanitizeForPdf(f.evidence.join(', '))}`, 15, yPos);
             yPos += 4;
           }
 
           // Full Description
           doc.setTextColor(0, 0, 0); // Ensure black text
           doc.setFontSize(9); // Ensure readable font size
-          const description = doc.splitTextToSize(`${tEn('pdf.description')}: ${f.description || tEn('pdf.no_description')}`, 180);
+          const description = doc.splitTextToSize(`${tEn('pdf.description')}: ${sanitizeForPdf(f.description) || tEn('pdf.no_description')}`, 180);
           description.forEach((line: string) => {
             if (yPos > 280) {
               doc.addPage();
@@ -703,7 +729,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           yPos += 5;
           doc.setFont("courier", "normal");
           doc.setTextColor(0, 0, 0);
-          const remediation = doc.splitTextToSize(f.remediation || tEn('pdf.no_remediation'), 180);
+          const remediation = doc.splitTextToSize(sanitizeForPdf(f.remediation) || tEn('pdf.no_remediation'), 180);
           remediation.forEach((line: string) => {
             doc.text(line, 20, yPos);
             yPos += 4;
@@ -718,7 +744,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
             yPos += 5;
             doc.setFont("courier", "normal");
             doc.setTextColor(0, 0, 0);
-            const impact = doc.splitTextToSize(f.businessImpact, 180);
+            const impact = doc.splitTextToSize(sanitizeForPdf(f.businessImpact), 180);
             impact.forEach((line: string) => {
               doc.text(line, 20, yPos);
               yPos += 4;
@@ -734,7 +760,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
             yPos += 5;
             doc.setFont("courier", "normal");
             doc.setTextColor(0, 100, 0);
-            const poc = doc.splitTextToSize(f.poc, 180);
+            const poc = doc.splitTextToSize(sanitizeForPdf(f.poc), 180);
             poc.forEach((line: string) => {
               doc.text(line, 20, yPos);
               yPos += 4;
@@ -825,14 +851,16 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       if (criticalFindings.length > 0) {
         doc.setFont("courier", "bold");
         doc.setTextColor(200, 0, 0);
-        doc.text(`🔴 ${tEn('pdf.critical_priority')}:`, 15, yPos);
+        doc.text(`[CRITICAL] ${tEn('pdf.critical_priority')}:`, 15, yPos);
         yPos += 6;
         doc.setFont("courier", "normal");
         doc.setTextColor(0, 0, 0);
         const criticalText = doc.splitTextToSize(
-          `Immediately address ${criticalFindings.length} critical vulnerability${criticalFindings.length !== 1 ? 'ies' : 'y'}. ` +
-          `Primary recommendation: ${criticalFindings[0]?.title || 'Review critical findings'}. ` +
-          `Implement Content Security Policy (CSP) and strengthen authentication mechanisms.`,
+          sanitizeForPdf(
+            `Immediately address ${criticalFindings.length} critical vulnerability${criticalFindings.length !== 1 ? 'ies' : 'y'}. ` +
+            `Primary recommendation: ${criticalFindings[0]?.title || 'Review critical findings'}. ` +
+            `Implement Content Security Policy (CSP) and strengthen authentication mechanisms.`
+          ),
           180
         );
         criticalText.forEach((line: string) => {
@@ -847,13 +875,15 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       } else if (highFindings.length > 0) {
         doc.setFont("courier", "bold");
         doc.setTextColor(200, 100, 0);
-        doc.text(`🟠 ${tEn('pdf.high_priority')}:`, 15, yPos);
+        doc.text(`[HIGH] ${tEn('pdf.high_priority')}:`, 15, yPos);
         yPos += 6;
         doc.setFont("courier", "normal");
         doc.setTextColor(0, 0, 0);
         const highText = doc.splitTextToSize(
-          `Address ${highFindings.length} high-severity finding${highFindings.length !== 1 ? 's' : ''} within 30 days. ` +
-          `Focus on: ${highFindings[0]?.title || 'Review high-severity findings'}.`,
+          sanitizeForPdf(
+            `Address ${highFindings.length} high-severity finding${highFindings.length !== 1 ? 's' : ''} within 30 days. ` +
+            `Focus on: ${highFindings[0]?.title || 'Review high-severity findings'}.`
+          ),
           180
         );
         highText.forEach((line: string) => {
@@ -930,7 +960,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(11);
       doc.setFont("courier", "bold");
       doc.setTextColor(0, 100, 200);
-      doc.text("💡 " + tEn('pdf.next_steps'), 15, yPos + 5);
+      doc.text("[TIP] " + tEn('pdf.next_steps'), 15, yPos + 5);
       yPos += 10;
 
       doc.setFontSize(8);
