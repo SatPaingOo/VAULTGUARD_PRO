@@ -1,3 +1,4 @@
+import { createErrorSuppressor } from './errorSuppression';
 
 export const maskData = (text: string): string => {
   if (!text) return "";
@@ -45,18 +46,36 @@ export const extractSecuritySignals = (dom: string): string => {
 };
 
 /**
- * Extract DOM from target URL using iframe (frontend-only, no backend required)
- * Falls back gracefully if CORS blocks access
+ * Extract DOM from target URL.
+ * 1. Tries fetch() first so "Allow CORS" extension can make cross-origin HTML readable.
+ * 2. Falls back to iframe (same-origin only; cross-origin iframe content is never readable by JS).
  */
-import { createErrorSuppressor } from './errorSuppression';
-
 export const extractTargetDOM = async (targetUrl: string): Promise<string> => {
+  // 1. Try fetch first – when user has "Allow CORS: Access-Control-Allow-Origin" extension,
+  //    the extension injects CORS headers so we can read the response body from another origin.
+  try {
+    const res = await fetch(targetUrl, { mode: 'cors', credentials: 'omit', redirect: 'follow' });
+    if (res.ok) {
+      const html = await res.text();
+      if (html && html.length > 0) {
+        // Parse to get document element outerHTML for consistency with iframe path
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        if (doc?.documentElement) {
+          return doc.documentElement.outerHTML;
+        }
+        return html;
+      }
+    }
+  } catch (_) {
+    // CORS or network error – fall back to iframe
+  }
+
+  // 2. Fallback: iframe (works only when target is same-origin or allows embedding and is same-origin for contentDocument)
   return new Promise((resolve, reject) => {
-    // Suppress third-party script errors from target site (GTM, Braze, etc.)
-    // These are expected when loading external sites in iframes
     const suppressor = createErrorSuppressor();
     suppressor.start();
-    
+
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
     iframe.style.width = '0';
@@ -64,56 +83,38 @@ export const extractTargetDOM = async (targetUrl: string): Promise<string> => {
     iframe.style.position = 'absolute';
     iframe.style.left = '-9999px';
     iframe.src = targetUrl;
-    
+
     let resolved = false;
     const timeout = setTimeout(() => {
       if (!resolved) {
         resolved = true;
         suppressor.stop();
-        
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe);
-        }
-        // Fallback: Try fetch (may fail due to CORS, but we'll handle it silently)
-        // Don't actually call fetch to avoid CORS errors in console
+        if (document.body.contains(iframe)) document.body.removeChild(iframe);
         reject(new Error('CORS_BLOCKED: Target blocks cross-origin access.'));
       }
-    }, 10000); // 10 second timeout
+    }, 10000);
 
     iframe.onload = () => {
       if (resolved) return;
       clearTimeout(timeout);
-      
       try {
         const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (iframeDoc && iframeDoc.documentElement) {
+        if (iframeDoc?.documentElement) {
           const dom = iframeDoc.documentElement.outerHTML;
-          
           suppressor.stop();
-          
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
           resolved = true;
           resolve(dom);
         } else {
-          // CORS blocked - silently reject (expected behavior)
           suppressor.stop();
-          
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
+          if (document.body.contains(iframe)) document.body.removeChild(iframe);
           resolved = true;
           reject(new Error('CORS_BLOCKED: Cannot access iframe content.'));
         }
-      } catch (e: any) {
+      } catch {
         suppressor.stop();
-        
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe);
-        }
+        if (document.body.contains(iframe)) document.body.removeChild(iframe);
         resolved = true;
-        // Silently handle CORS errors - don't log to console
         reject(new Error('CORS_BLOCKED'));
       }
     };
@@ -121,12 +122,8 @@ export const extractTargetDOM = async (targetUrl: string): Promise<string> => {
     iframe.onerror = () => {
       if (resolved) return;
       clearTimeout(timeout);
-      
       suppressor.stop();
-      
-      if (document.body.contains(iframe)) {
-        document.body.removeChild(iframe);
-      }
+      if (document.body.contains(iframe)) document.body.removeChild(iframe);
       resolved = true;
       reject(new Error('Failed to load target URL in iframe. Please verify the URL is accessible.'));
     };

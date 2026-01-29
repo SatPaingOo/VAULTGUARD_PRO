@@ -34,7 +34,7 @@ export default {
   },
   "level_comparison": {
     "fast": {
-      "grounding": ["Static Local DB (Outdated)", "Real-time OSINT Grounding", "Network-Level Accuracy"],
+      "grounding": ["Static Local DB (Outdated)", "Network-Level Only (Headers, SSL, DNS)", "No OSINT in FAST"],
       "context": ["Atomic Request Analysis", "Headers + SSL + DNS Only", "Surface-Level Triage"],
       "reasoning": ["Pattern/Regex Matching", "Basic Neural Analysis", "Fast Detection"],
       "thinking": ["Non-existent", "No Thinking Budget", "Instant Results"],

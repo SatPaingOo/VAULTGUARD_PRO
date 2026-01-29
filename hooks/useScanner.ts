@@ -179,6 +179,19 @@ export const useScanner = () => {
       setScanStatus('Discovery');
       
       // Execute data collection - OSINT only for STANDARD and DEEP levels
+      // OSINT: retry once after 5s on failure (transient 503/429 can recover)
+      const osintPromise = (level === 'STANDARD' || level === 'DEEP')
+        ? (async () => {
+            try {
+              return await g.runIntelligenceDiscovery(domain, target, languageName);
+            } catch (e) {
+              addLog(`[OSINT] First attempt failed, retrying in 5s...`, 'warn', 12);
+              await new Promise(r => setTimeout(r, 5000));
+              return await g.runIntelligenceDiscovery(domain, target, languageName);
+            }
+          })()
+        : Promise.resolve({ usage: { totalTokenCount: 0 }, sources: [] });
+
       const dataCollectionPromises = [
         extractTargetDOM(target).catch(err => {
           if (err.message?.includes('CORS_BLOCKED') || err.message?.includes('CORS')) {
@@ -187,11 +200,7 @@ export const useScanner = () => {
           }
           throw err;
         }),
-        // Only run OSINT for STANDARD and DEEP levels
-        ...(level === 'STANDARD' || level === 'DEEP' 
-          ? [g.runIntelligenceDiscovery(domain, target, languageName)]
-          : [Promise.resolve({ usage: { totalTokenCount: 0 }, sources: [] })]
-        ),
+        osintPromise,
         networkAnalysis.analyzeHeaders(target),
         networkAnalysis.analyzeSSL(domain),
         networkAnalysis.checkDNS(domain),
