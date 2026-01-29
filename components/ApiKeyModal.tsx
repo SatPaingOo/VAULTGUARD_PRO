@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   KeyRound, X, Search, Activity as ActivityIcon, 
   AlertCircle, ShieldCheck, Eye, EyeOff, Cpu as CpuChip, 
-  Info as InfoIcon, ExternalLink, Shield, Zap
+  Link2, Info as InfoIcon, ExternalLink, Shield, Zap
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
@@ -185,12 +185,12 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 </div>
                 <div>
                   <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter mb-2">
-                    Neural_Core_Auth
+                    {t('apikey.modal_title')}
                   </h3>
                   <div className="flex items-center gap-2.5">
                     <div className={`w-2 h-2 rounded-full ${isEngineLinked ? 'bg-[#00ff9d] shadow-[0_0_10px_rgba(0,255,157,0.5)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'} animate-pulse`} />
                     <span className="text-[10px] md:text-[12px] font-mono text-white/40 uppercase tracking-[0.3em]">
-                      {isEngineLinked ? 'CORE_LINKED' : 'CORE_DISCONNECTED'}
+                      {isEngineLinked ? t('apikey.core_linked') : t('apikey.core_disconnected')}
                     </span>
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 onClick={onClose} 
                 className="p-2.5 md:p-3 hover:bg-white/10 rounded-xl transition-all duration-200 group border border-transparent hover:border-white/10 z-20 relative"
                 type="button"
-                aria-label="Close modal"
+                aria-label={t('apikey.close_modal')}
               >
                 <X size={20} className="md:w-6 md:h-6 text-white/30 group-hover:text-white transition-colors" />
               </button>
@@ -210,7 +210,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
               <div className="space-y-3 md:space-y-4">
                 <label className="text-[11px] md:text-[13px] font-black text-white/60 uppercase tracking-[0.4em] flex items-center gap-2.5">
                   <div className="w-1 h-4 bg-gradient-to-b from-[#00d4ff] to-[#00ff9d]" />
-                  <span>Manual_Token_Input</span>
+                  <span>{t('apikey.manual_token_input')}</span>
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-gradient-to-r from-[#00d4ff]/10 via-[#00ff9d]/5 to-[#00d4ff]/10 opacity-0 group-focus-within:opacity-100 blur-xl transition-opacity duration-500" />
@@ -220,7 +220,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       value={inputKey}
                       onChange={(e) => setInputKey(e.target.value)}
                       className="w-full bg-transparent px-5 py-4 md:px-7 md:py-6 pr-14 md:pr-16 outline-none font-mono text-sm md:text-base text-white placeholder:text-white/25 placeholder:font-normal"
-                      placeholder="AIzaSy..."
+                      placeholder={t('apikey.placeholder')}
                       autoFocus
                     />
                     <button 
@@ -247,11 +247,31 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       {t('apikey.validated_success')}
                     </p>
                   )}
-                  {testResult === 'error' && inputKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyError && (
+                  {testResult === 'error' && inputKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyError && (() => {
+                        const type = apiKeyError.type;
+                        const msgKey = `apikey.error_${type}_message`;
+                        const displayMessage = type === 'unknown'
+                          ? `${t('apikey.error_unknown_message')}${apiKeyError.message ? `: ${apiKeyError.message}` : ''}`
+                          : (t(msgKey) !== msgKey ? t(msgKey) : apiKeyError.message);
+                        let displaySuggestions: string[] = [];
+                        if (type === 'missing_models' && apiKeyError.missingModels?.length) {
+                          const arr = t('apikey.error_missing_models_suggestions');
+                          const base = Array.isArray(arr) ? arr : [];
+                          displaySuggestions = [
+                            base[0] || '',
+                            `${t('apikey.error_missing_models_enable_models')} ${apiKeyError.missingModels.join(', ')}`,
+                            base[1] || '',
+                            base[2] || ''
+                          ].filter(Boolean);
+                        } else {
+                          const sug = t(`apikey.error_${type}_suggestions`);
+                          displaySuggestions = Array.isArray(sug) ? sug : apiKeyError.suggestions;
+                        }
+                        return (
                     <div className="space-y-2 w-full bg-red-500/5 border border-red-500/20 rounded-lg p-3">
                       <p className="text-[9px] md:text-[10px] font-mono text-red-400/80 uppercase tracking-wider flex items-center gap-2">
                         <AlertCircle size={12} className="shrink-0" />
-                        {apiKeyError.message}
+                        {displayMessage}
                       </p>
                       <div className="space-y-2 mt-2">
                         {/* Specific Error Details */}
@@ -311,7 +331,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                             <strong className="text-white/70">{t('apikey.what_to_do')}</strong>
                           </p>
                           <ul className="space-y-1 text-[10px] md:text-[11px] font-mono text-white/50">
-                            {apiKeyError.suggestions.map((suggestion, idx) => (
+                            {displaySuggestions.map((suggestion, idx) => (
                               <li key={idx} className="flex items-start gap-2">
                                 <span className="text-[#00d4ff] mt-0.5">→</span>
                                 <span>{suggestion}</span>
@@ -321,7 +341,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                         </div>
                       </div>
                     </div>
-                  )}
+                        );
+                  })()}
                   
                   {/* Fallback generic error if no specific error details */}
                   {testResult === 'error' && inputKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && !apiKeyError && (
@@ -366,7 +387,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   ) : (
                     <>
                       <Search size={14} className="md:w-4 md:h-4" />
-                      <span>Test</span>
+                      <span>{t('apikey.testing')}</span>
                     </>
                   )}
                 </button>
@@ -376,7 +397,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   className="py-4 md:py-5 rounded-xl md:rounded-2xl bg-gradient-to-r from-white via-white/95 to-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs hover:from-white/95 hover:via-white/90 hover:to-white/95 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-1 sm:col-span-1"
                 >
                   <KeyRound size={14} className="md:w-4 md:h-4" />
-                  <span>Apply</span>
+                  <span>{t('apikey.apply')}</span>
                 </button>
                 <button 
                   onClick={handleSystemLink}
@@ -387,12 +408,12 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   {isLinking ? (
                     <>
                       <ActivityIcon size={14} className="md:w-4 md:h-4 animate-pulse" />
-                      <span>Linking</span>
+                      <span>{t('apikey.linking')}</span>
                     </>
                   ) : (
                     <>
-                      <CpuChip size={14} className="md:w-4 md:h-4" />
-                      <span>Auto_Link</span>
+                      <Link2 size={14} className="md:w-4 md:h-4 shrink-0" />
+                      <span className="truncate max-w-[140px] sm:max-w-none">{t('apikey.auto_link')}</span>
                       {!window.aistudio?.openSelectKey && (
                         <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full animate-pulse border border-black" title={t('apikey.extension_not_detected')} />
                       )}
@@ -402,7 +423,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   {!window.aistudio?.openSelectKey && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 pointer-events-none">
                       <div className="bg-yellow-500/90 text-black text-[10px] px-2 py-1 rounded whitespace-nowrap font-mono shadow-lg">
-                        Requires AI Studio Extension
+                        {t('apikey.requires_extension_tooltip')}
                       </div>
                       <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-yellow-500/90 mx-auto"></div>
                     </div>
@@ -416,7 +437,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   <div className="flex items-center gap-2 mb-3">
                     <CpuChip size={16} className="text-[#00d4ff]" />
                     <h4 className="text-xs md:text-sm font-black text-white/80 uppercase tracking-wider">
-                      Required API Configuration
+                      {t('apikey.required_config_title')}
                     </h4>
                   </div>
                   
@@ -426,9 +447,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] mt-1.5 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-white/70 font-semibold mb-1">1. Google AI Studio API Key</p>
+                          <p className="text-white/70 font-semibold mb-1">{t('apikey.step1_title')}</p>
                           <p className="text-white/50 leading-relaxed mb-1">
-                            Get your API key from{' '}
+                            {t('apikey.get_key_from')}{' '}
                             <a 
                               href="https://aistudio.google.com/apikey" 
                               target="_blank" 
@@ -446,36 +467,36 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] mt-1.5 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-white/70 font-semibold mb-1">2. Enable Required APIs</p>
+                          <p className="text-white/70 font-semibold mb-1">{t('apikey.step2_title')}</p>
                           <p className="text-white/50 leading-relaxed mb-1">
-                            You must enable this service in Google Cloud Console:
+                            {t('apikey.enable_service_hint')}
                           </p>
                           <ul className="list-none text-white/40 ml-2 mt-1 space-y-1.5">
                             <li className="flex items-start gap-2">
                               <span className="text-[#00d4ff] mt-0.5">•</span>
                               <div className="flex-1">
-                                <span className="text-white/60 font-semibold">Generative Language API</span>
-                                <span className="text-white/30 text-[10px] ml-1">(Required for Gemini models)</span>
+                                <span className="text-white/60 font-semibold">{t('apikey.gen_lang_api')}</span>
+                                <span className="text-white/30 text-[10px] ml-1">{t('apikey.required_gemini')}</span>
                                 <p className="text-white/40 text-[9px] mt-0.5">
-                                  Go to Google Cloud Console → APIs & Services → Library → Search "Generative Language API" → Enable
+                                  {t('apikey.go_enable_gen_lang')}
                                 </p>
                               </div>
                             </li>
                           </ul>
                           <div className="mt-2 space-y-1">
                             <p className="text-white/50 leading-relaxed text-[10px]">
-                              <strong className="text-white/70">Required Models:</strong>
+                              <strong className="text-white/70">{t('apikey.required_models')}</strong>
                             </p>
                             <ul className="list-none text-white/40 ml-2 space-y-1">
                               <li className="flex items-center gap-2">
                                 <span className="text-[#00d4ff]">•</span>
                                 <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-flash-preview</code>
-                                <span className="text-white/30 text-[10px]">(FAST/STANDARD scans)</span>
+                                <span className="text-white/30 text-[10px]">{t('apikey.for_fast_standard')}</span>
                               </li>
                               <li className="flex items-center gap-2">
                                 <span className="text-[#00d4ff]">•</span>
                                 <code className="text-[#00d4ff] text-[10px] md:text-[11px]">gemini-3-pro-preview</code>
-                                <span className="text-white/30 text-[10px]">(DEEP scans)</span>
+                                <span className="text-white/30 text-[10px]">{t('apikey.for_deep')}</span>
                               </li>
                             </ul>
                           </div>
@@ -485,7 +506,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                             rel="noopener noreferrer"
                             className="text-[#00d4ff] hover:text-[#00ff9d] text-[10px] underline inline-flex items-center gap-1 mt-2"
                           >
-                            Open Google Cloud Console API Library
+                            {t('apikey.open_api_library')}
                             <ExternalLink size={9} />
                           </a>
                         </div>
@@ -495,23 +516,22 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] mt-1.5 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-white/70 font-semibold mb-1">3. Search Grounding Feature</p>
+                          <p className="text-white/70 font-semibold mb-1">{t('apikey.step3_title')}</p>
                           <p className="text-white/50 leading-relaxed mb-1">
-                            Enable <strong className="text-white/70">Google Search Grounding</strong> in your Google Cloud Project.
-                            Required for live CVE database cross-referencing.
+                            {t('apikey.step3_desc')}
                           </p>
                           <div className="mt-2 space-y-1.5">
                             <p className="text-white/50 leading-relaxed text-[10px]">
-                              <strong className="text-white/70">Also enable:</strong>
+                              <strong className="text-white/70">{t('apikey.also_enable')}</strong>
                             </p>
                             <ul className="list-none text-white/40 ml-2 space-y-1.5">
                               <li className="flex items-start gap-2">
                                 <span className="text-[#00d4ff] mt-0.5">•</span>
                                 <div className="flex-1">
-                                  <span className="text-white/60 font-semibold">Vertex AI API</span>
-                                  <span className="text-white/30 text-[10px] ml-1">(Required for advanced features)</span>
+                                  <span className="text-white/60 font-semibold">{t('apikey.vertex_ai_api')}</span>
+                                  <span className="text-white/30 text-[10px] ml-1">{t('apikey.required_advanced')}</span>
                                   <p className="text-white/40 text-[9px] mt-0.5">
-                                    Go to Google Cloud Console → APIs & Services → Library → Search "Vertex AI API" → Enable
+                                    {t('apikey.go_enable_vertex')}
                                   </p>
                                 </div>
                               </li>
@@ -523,7 +543,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                             rel="noopener noreferrer"
                             className="text-[#00d4ff] hover:text-[#00ff9d] text-[8px] underline inline-flex items-center gap-1 mt-2"
                           >
-                            Enable Search Grounding
+                            {t('apikey.enable_search_grounding')}
                             <ExternalLink size={9} />
                           </a>
                         </div>
@@ -533,9 +553,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] mt-1.5 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-white/70 font-semibold mb-1">4. Active Billing Required</p>
+                          <p className="text-white/70 font-semibold mb-1">{t('apikey.step4_title')}</p>
                           <p className="text-white/50 leading-relaxed mb-1">
-                            Gemini 3 models require active billing. Ensure your Google Cloud Project has billing enabled.
+                            {t('apikey.step4_desc')}
                           </p>
                           <a 
                             href="https://console.cloud.google.com/billing" 
@@ -543,7 +563,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                             rel="noopener noreferrer"
                             className="text-[#00d4ff] hover:text-[#00ff9d] text-[8px] underline inline-flex items-center gap-1"
                           >
-                            Setup Billing
+                            {t('apikey.setup_billing')}
                             <ExternalLink size={9} />
                           </a>
                         </div>
@@ -609,7 +629,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                     </div>
                     <div>
                       <p className="text-[10px] md:text-[11px] font-mono text-white/50 leading-relaxed">
-                        <span className="text-white/70 font-semibold">Gemini 3 Series</span> requires active billing. API key stored in React Context (in-memory only, cleared on page reload).
+                        {t('apikey.gemini_billing_note')}
                       </p>
                     </div>
                   </div>
@@ -619,7 +639,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-[10px] md:text-[11px] font-black text-[#00d4ff] hover:text-[#00ff9d] transition-colors uppercase tracking-widest whitespace-nowrap bg-[#00d4ff]/5 px-4 py-2.5 rounded-full border border-[#00d4ff]/20 hover:border-[#00ff9d]/40 hover:bg-[#00d4ff]/10 hover:shadow-[0_0_15px_rgba(0,212,255,0.2)]"
                   >
-                    Setup_Portal <ExternalLink size={11} className="md:w-3.5 md:h-3.5" />
+                    {t('apikey.setup_portal')} <ExternalLink size={11} className="md:w-3.5 md:h-3.5" />
                   </a>
                 </div>
               </div>

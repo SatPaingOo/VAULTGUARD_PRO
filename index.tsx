@@ -20,7 +20,7 @@ const ScannerApp = () => {
   const { 
     missionPhase, scanStatus, progress, telemetry, usage, 
     targetUrl, currentLevel, missionReport,
-    recentFindings, dispatchedProbes, error, runMission, resetMission, clearError
+    recentFindings, dispatchedProbes, error, missionDuration, runMission, resetMission, clearError
   } = useScanner();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 

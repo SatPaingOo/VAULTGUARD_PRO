@@ -123,8 +123,8 @@ export class GeminiService {
   }
 
   /**
-   * Enhanced retry logic with exponential backoff and jitter to mitigate 429 errors.
-   * Improved with longer base delays and better backoff strategy.
+   * Enhanced retry logic with exponential backoff and jitter.
+   * Retries on 429 (rate limit) and 503/500 (service overloaded / unavailable).
    */
   private async executeWithRetry<T>(fn: () => Promise<T>, retries = AI_CONSTANTS.MAX_RETRY_ATTEMPTS, baseDelay = AI_CONSTANTS.RATE_LIMIT_BASE_DELAY_MS): Promise<T> {
     try {
@@ -133,23 +133,27 @@ export class GeminiService {
       const errorStr = (error?.message || "").toLowerCase();
       const status = error?.status;
       const isRateLimit = status === 429 || errorStr.includes('429') || errorStr.includes('quota') || errorStr.includes('too many requests');
-      
-      if (isRateLimit && retries > 0) {
-        // More aggressive exponential backoff: 5s, 10s, 20s, 40s, 80s
+      const isServiceUnavailable = status === 503 || status === 500 ||
+        errorStr.includes('503') || errorStr.includes('500') ||
+        errorStr.includes('overloaded') || errorStr.includes('unavailable') ||
+        errorStr.includes('service unavailable') || errorStr.includes('internal server error');
+
+      const isRetryable = (isRateLimit || isServiceUnavailable) && retries > 0;
+
+      if (isRetryable) {
         const backoff = baseDelay * Math.pow(2, AI_CONSTANTS.MAX_RETRY_ATTEMPTS - retries);
-        const jitter = Math.random() * AI_CONSTANTS.RATE_LIMIT_JITTER_MS; // Increased jitter (0-2s)
+        const jitter = Math.random() * AI_CONSTANTS.RATE_LIMIT_JITTER_MS;
         const totalDelay = backoff + jitter;
-        
-        // Only log rate limit warnings in development mode or when retries are low
-        // This reduces console noise in production
+
         const isDev = import.meta.env?.MODE === 'development' || import.meta.env?.DEV === true;
         if (isDev || retries <= 2) {
-          console.warn(`[GeminiService] Rate limit hit. Retrying in ${Math.round(totalDelay/1000)}s... (${retries} attempts left)`);
+          const reason = isRateLimit ? 'Rate limit' : 'Service busy';
+          console.warn(`[GeminiService] ${reason}. Retrying in ${Math.round(totalDelay / 1000)}s... (${retries} attempts left)`);
         }
         await new Promise(resolve => setTimeout(resolve, totalDelay));
         return this.executeWithRetry(fn, (retries - 1) as typeof retries, baseDelay);
       }
-      
+
       // Handle API key errors (401, 403, unauthorized)
       const isApiKeyError = status === 401 || status === 403 || 
                            errorStr.includes('api key') || 

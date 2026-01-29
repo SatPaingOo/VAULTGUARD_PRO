@@ -1,7 +1,5 @@
 {
-  "requestFramePermissions": [
-    "geolocation"
-  ],
-  "description": "VaultGuard Pro - Advanced AI-powered Security Operations Center and Vulnerability Scanner.",
+  "requestFramePermissions": ["geolocation"],
+  "description": "VaultGuard Pro – Neural SOC powered by Gemini 3 Pro/Flash: 32K thinking budget, Search Grounding for live CVE, structured security reports. Built for Gemini 3 Hackathon.",
   "name": "VaultGuard_Pro"
 }

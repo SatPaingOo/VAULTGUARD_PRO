@@ -235,6 +235,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         <p className="text-[10px] sm:text-[11px] md:text-[12px] lg:text-sm font-mono tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.6em] uppercase max-w-4xl text-center px-4 sm:px-6 break-words transition-colors duration-500" style={{ color: `${themeColor}99` }}>
           {t('app_subtitle')}
         </p>
+        <p className="text-[9px] sm:text-[10px] md:text-[11px] font-mono tracking-widest uppercase max-w-3xl text-center px-4 text-white/40 mt-2">
+          {t('app_gemini_tagline')}
+        </p>
+        <span className="inline-block mt-3 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/50">
+          {t('app_hackathon_badge')}
+        </span>
       </div>
 
       <div className="w-full max-w-5xl z-20 px-2 sm:px-4 md:px-6 flex flex-col gap-6 sm:gap-8 md:gap-10 lg:gap-14">
@@ -250,11 +256,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
               <AlertTriangle size={16} className="text-red-500 shrink-0" />
               <div className="flex-1">
                 <p className="text-[10px] md:text-[11px] font-black text-red-500 uppercase tracking-wider">
-                  {!isEngineLinked ? 'API_KEY_MISSING' : t('apikey.not_working')}
+                  {!isEngineLinked ? t('apikey.api_key_missing') : t('apikey.not_working')}
                 </p>
                 <p className="text-[10px] md:text-[11px] text-white/60 font-mono mt-1">
                   {!isEngineLinked 
-                    ? 'Neural Engine Core not configured. Please link API key to initiate security scans.'
+                    ? t('apikey.engine_not_configured')
                     : t('apikey.invalid_message')
                   }
                 </p>
@@ -313,8 +319,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
               }}
             >
               {!isEngineLinked && isUrlValid ? <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7" /> : <ZapIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7" />}
-              <span className="hidden sm:inline">{!isEngineLinked && isUrlValid ? 'Initialize_Core' : t('initiate_scan')}</span>
-              <span className="sm:hidden">{!isEngineLinked && isUrlValid ? 'Init' : 'Scan'}</span>
+              <span className="hidden sm:inline">{!isEngineLinked && isUrlValid ? t('apikey.init_core') : t('initiate_scan')}</span>
+              <span className="sm:hidden">{!isEngineLinked && isUrlValid ? t('apikey.init_short') : t('apikey.scan_short')}</span>
             </button>
           </div>
         </div>
@@ -452,7 +458,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                       style={{ color: isSelected ? l.hex : 'rgba(255,255,255,0.2)' }}
                     >
                       <Binary size={10} className="sm:w-3 sm:h-3 md:w-3.5 md:h-3.5 shrink-0" />
-                      <span className="hidden sm:inline">PROTOCOL_{l.id}</span>
+                      <span className="hidden sm:inline">{t(`labels.protocol_${l.id.toLowerCase()}`)}</span>
                       <span className="sm:hidden">{l.id}</span>
                     </span>
                     <ArrowRight 
@@ -473,7 +479,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
            {isEngineLinked && apiKeyStatus === 'testing' && (
              <div className="flex flex-col items-center gap-2">
                 <p className="text-[10px] md:text-[12px] font-black text-[#00d4ff] uppercase tracking-widest animate-pulse flex items-center gap-2 bg-[#00d4ff]/5 px-6 py-2.5 rounded-full border border-[#00d4ff]/20">
-                   <ActivityIcon size={14} className="animate-spin"/> TESTING_API_KEY
+                   <ActivityIcon size={14} className="animate-spin"/> {t('apikey.testing_api_key')}
                 </p>
                 <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.validating_connectivity')}</p>
              </div>
@@ -524,7 +530,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
          <div className="flex items-center gap-2 sm:gap-3 md:gap-6 px-2 md:px-4 mb-4 md:mb-6">
             <div className="h-[2px] w-6 sm:w-8 md:w-16 lg:w-24 transition-colors duration-500 shrink-0" style={{ backgroundColor: themeColor }} />
             <h3 className="text-[10px] sm:text-xs md:text-sm lg:text-base font-black text-white uppercase tracking-[0.2em] sm:tracking-[0.3em] md:tracking-[0.4em] lg:tracking-[0.6em] whitespace-nowrap shrink-0">
-              LEVEL_COMPARISON
+              {t('labels.level_comparison')}
             </h3>
             <div className="h-[2px] flex-1 transition-colors duration-500 min-w-0" style={{ backgroundColor: `${themeColor}4d` }} />
          </div>
@@ -535,19 +541,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 const standardComp = t(`level_comparison.standard`) as any;
                 const deepComp = t(`level_comparison.deep`) as any;
                 return [
-                  { key: 'grounding', label: specsData?.grounding?.[0], fast: fastComp?.grounding?.[1] || 'Real-time OSINT Grounding', standard: standardComp?.grounding?.[1] || 'Real-time OSINT + CVE Cross-Reference', deep: deepComp?.grounding?.[1] || 'Real-time OSINT + CVE + Full Grounding', icon: Search },
-                  { key: 'context', label: specsData?.context?.[0], fast: fastComp?.context?.[1] || 'Headers + SSL + DNS Only', standard: standardComp?.context?.[1] || 'Headers + SSL + DNS + Security Signals', deep: deepComp?.context?.[1] || 'Full DOM Logic Chain (50K chars)', icon: Eye },
-                  { key: 'reasoning', label: specsData?.reasoning?.[0], fast: fastComp?.reasoning?.[1] || 'Basic Neural Analysis', standard: standardComp?.reasoning?.[1] || 'Deductive Neural Logic', deep: deepComp?.reasoning?.[1] || 'Deductive Neural Logic', icon: Brain },
-                  { key: 'thinking', label: 'THINKING_CAPACITY', fast: fastComp?.thinking?.[1] || 'No Thinking Budget', standard: standardComp?.thinking?.[1] || 'No Thinking Budget', deep: deepComp?.thinking?.[1] || '32,768 Reasoning Tokens', icon: CpuChip },
-                  { key: 'chaining', label: 'VULN_CHAINING', fast: fastComp?.chaining?.[1] || 'Single-Vector Detection', standard: standardComp?.chaining?.[1] || 'Multi-Vector Detection', deep: deepComp?.chaining?.[1] || 'Multi-Vector Pathfinding', icon: Waypoints },
-                  { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1] || 'Parallel Network Streams', standard: standardComp?.latency?.[1] || 'Parallel Neural Streams', deep: deepComp?.latency?.[1] || 'Parallel Neural Streams', icon: Zap },
-                  { key: 'cost', label: 'EST_COST', fast: '~$0.004', standard: '~$0.013', deep: '~$0.70', icon: DollarSign }
+                  { key: 'grounding', label: specsData?.grounding?.[0], fast: fastComp?.grounding?.[1], standard: standardComp?.grounding?.[1], deep: deepComp?.grounding?.[1], icon: Search },
+                  { key: 'context', label: specsData?.context?.[0], fast: fastComp?.context?.[1], standard: standardComp?.context?.[1], deep: deepComp?.context?.[1], icon: Eye },
+                  { key: 'reasoning', label: specsData?.reasoning?.[0], fast: fastComp?.reasoning?.[1], standard: standardComp?.reasoning?.[1], deep: deepComp?.reasoning?.[1], icon: Brain },
+                  { key: 'thinking', label: specsData?.thinking?.[0] || 'THINKING_CAPACITY', fast: fastComp?.thinking?.[1], standard: standardComp?.thinking?.[1], deep: deepComp?.thinking?.[1], icon: CpuChip },
+                  { key: 'chaining', label: specsData?.chaining?.[0] || 'VULN_CHAINING', fast: fastComp?.chaining?.[1], standard: standardComp?.chaining?.[1], deep: deepComp?.chaining?.[1], icon: Waypoints },
+                  { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1], standard: standardComp?.latency?.[1], deep: deepComp?.latency?.[1], icon: Zap },
+                  { key: 'cost', label: t('labels.est_cost'), fast: t('labels.cost_fast'), standard: t('labels.cost_standard'), deep: t('labels.cost_deep'), icon: DollarSign }
                 ];
               })().map((item, i) => (
                 <div key={i} className="p-6 border-b border-white/5 last:border-b-0">
                   <div className="flex items-center gap-3 mb-4">
-                    <item.icon size={16} className="text-white/30 shrink-0" />
-                    <div className="text-[10px] font-black text-white/30 uppercase tracking-widest">{item.label}</div>
+                    <item.icon size={16} className="text-white/60 shrink-0" />
+                    <div className="text-[10px] font-black text-white/70 uppercase tracking-widest">{item.label}</div>
                   </div>
                   <div className="space-y-3">
                     <div>
@@ -572,29 +578,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                  <table className="w-full text-left border-collapse min-w-[1000px]">
                     <thead>
                        <tr className="bg-white/5 border-b border-white/10">
-                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/40 uppercase tracking-wider whitespace-nowrap">{specsData?.detection?.[0] || 'PARAMETER'}</th>
+                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/70 uppercase tracking-wider whitespace-nowrap">{specsData?.detection?.[0] || t('labels.parameter')}</th>
                           <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-wider whitespace-nowrap" style={{ color: LEVEL_COLORS.FAST, backgroundColor: `${LEVEL_COLORS.FAST}10` }}>{t('scanning_levels.fast')}</th>
                           <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-wider whitespace-nowrap" style={{ color: LEVEL_COLORS.STANDARD, backgroundColor: `${LEVEL_COLORS.STANDARD}10` }}>{t('scanning_levels.standard')}</th>
                           <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-wider whitespace-nowrap" style={{ color: LEVEL_COLORS.DEEP, backgroundColor: `${LEVEL_COLORS.DEEP}10` }}>{t('scanning_levels.deep')}</th>
                        </tr>
                     </thead>
-                    <tbody className="text-[9px] md:text-[10px] lg:text-[11px] xl:text-[12px] font-mono uppercase text-white/70">
+                    <tbody className="text-[9px] md:text-[10px] lg:text-[11px] xl:text-[12px] font-mono uppercase text-white/85">
                        {(() => {
                          const fastComp = t(`level_comparison.fast`) as any;
                          const standardComp = t(`level_comparison.standard`) as any;
                          const deepComp = t(`level_comparison.deep`) as any;
                          return [
-                           { key: 'grounding', label: specsData?.grounding?.[0], fast: fastComp?.grounding?.[1] || 'Real-time OSINT Grounding', standard: standardComp?.grounding?.[1] || 'Real-time OSINT + CVE Cross-Reference', deep: deepComp?.grounding?.[1] || 'Real-time OSINT + CVE + Full Grounding', icon: Search },
-                           { key: 'context', label: specsData?.context?.[0], fast: fastComp?.context?.[1] || 'Headers + SSL + DNS Only', standard: standardComp?.context?.[1] || 'Headers + SSL + DNS + Security Signals', deep: deepComp?.context?.[1] || 'Full DOM Logic Chain (50K chars)', icon: Eye },
-                           { key: 'reasoning', label: specsData?.reasoning?.[0], fast: fastComp?.reasoning?.[1] || 'Basic Neural Analysis', standard: standardComp?.reasoning?.[1] || 'Deductive Neural Logic', deep: deepComp?.reasoning?.[1] || 'Deductive Neural Logic', icon: Brain },
-                           { key: 'thinking', label: 'THINKING_CAPACITY', fast: fastComp?.thinking?.[1] || 'No Thinking Budget', standard: standardComp?.thinking?.[1] || 'No Thinking Budget', deep: deepComp?.thinking?.[1] || '32,768 Reasoning Tokens', icon: CpuChip },
-                           { key: 'chaining', label: 'VULN_CHAINING', fast: fastComp?.chaining?.[1] || 'Single-Vector Detection', standard: standardComp?.chaining?.[1] || 'Multi-Vector Detection', deep: deepComp?.chaining?.[1] || 'Multi-Vector Pathfinding', icon: Waypoints },
-                           { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1] || 'Parallel Network Streams', standard: standardComp?.latency?.[1] || 'Parallel Neural Streams', deep: deepComp?.latency?.[1] || 'Parallel Neural Streams', icon: Zap },
-                           { key: 'cost', label: 'EST_COST', fast: '~$0.004', standard: '~$0.013', deep: '~$0.70', icon: DollarSign }
+                           { key: 'grounding', label: specsData?.grounding?.[0], fast: fastComp?.grounding?.[1], standard: standardComp?.grounding?.[1], deep: deepComp?.grounding?.[1], icon: Search },
+                           { key: 'context', label: specsData?.context?.[0], fast: fastComp?.context?.[1], standard: standardComp?.context?.[1], deep: deepComp?.context?.[1], icon: Eye },
+                           { key: 'reasoning', label: specsData?.reasoning?.[0], fast: fastComp?.reasoning?.[1], standard: standardComp?.reasoning?.[1], deep: deepComp?.reasoning?.[1], icon: Brain },
+                           { key: 'thinking', label: specsData?.thinking?.[0] || 'THINKING_CAPACITY', fast: fastComp?.thinking?.[1], standard: standardComp?.thinking?.[1], deep: deepComp?.thinking?.[1], icon: CpuChip },
+                           { key: 'chaining', label: specsData?.chaining?.[0] || 'VULN_CHAINING', fast: fastComp?.chaining?.[1], standard: standardComp?.chaining?.[1], deep: deepComp?.chaining?.[1], icon: Waypoints },
+                           { key: 'latency', label: specsData?.latency?.[0], fast: fastComp?.latency?.[1], standard: standardComp?.latency?.[1], deep: deepComp?.latency?.[1], icon: Zap },
+                           { key: 'cost', label: t('labels.est_cost'), fast: t('labels.cost_fast'), standard: t('labels.cost_standard'), deep: t('labels.cost_deep'), icon: DollarSign }
                          ];
                        })().map((item, i) => (
                          <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td className="p-4 md:p-6 lg:p-8 font-black text-white/30 flex items-center gap-2 md:gap-3 lg:gap-4 whitespace-nowrap">
+                            <td className="p-4 md:p-6 lg:p-8 font-black text-white/70 flex items-center gap-2 md:gap-3 lg:gap-4 whitespace-nowrap">
                               <item.icon size={12} className="md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 shrink-0" />
                               <span className="truncate">{item.label}</span>
                             </td>
@@ -619,28 +625,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
          </div>
          <div className="glass-panel rounded-[3rem] md:rounded-[4.5rem] border border-white/10 bg-black/40 overflow-hidden shadow-3xl">
             <div className="block md:hidden">
-              {[
-                { key: 'grounding', label: specsData?.grounding?.[0], val1: 'Static Local DB (Outdated)', val2: 'Real-time OSINT Grounding', benefit: 'Zero-Day Accuracy', icon: Search },
-                { key: 'context', label: specsData?.context?.[0], val1: 'Atomic Request Analysis', val2: 'Full-Session DOM Chaining', benefit: 'Deep Triage', icon: Eye },
-                { key: 'reasoning', label: specsData?.reasoning?.[0], val1: 'Pattern/Regex Matching', val2: 'Deductive Neural Logic', benefit: 'Zero False Positives', icon: Brain },
-                { key: 'thinking', label: 'THINKING_CAPACITY', val1: 'Non-existent', val2: '32,768 Reasoning Tokens', benefit: 'Complex Triage', icon: CpuChip },
-                { key: 'chaining', label: 'VULN_CHAINING', val1: 'Isolated Vulnerabilities', val2: 'Multi-Vector Pathfinding', benefit: 'Killchain Logic', icon: Waypoints },
-                { key: 'latency', label: specsData?.latency?.[0], val1: 'Sequential Processing', val2: 'Parallel Neural Streams', benefit: 'Enterprise Speed', icon: Zap }
-              ].map((item, i) => (
+              {['grounding', 'context', 'reasoning', 'thinking', 'chaining', 'latency'].map((key, i) => {
+                const row = t(`neural_legacy.${key}`) as any;
+                const labelKey = key as keyof typeof specsData;
+                const label = specsData?.[labelKey]?.[0];
+                const item = { key, label, val1: row?.val1, val2: row?.val2, benefit: row?.benefit, icon: [Search, Eye, Brain, CpuChip, Waypoints, Zap][i] as React.ComponentType<any> };
+                return (
                 <div key={i} className="p-6 border-b border-white/5 last:border-b-0">
                   <div className="flex items-center gap-3 mb-3">
-                    <item.icon size={16} className="text-white/30 shrink-0" />
-                    <div className="text-[10px] font-black text-white/30 uppercase tracking-widest">{item.label}</div>
+                    <item.icon size={16} className="text-white/60 shrink-0" />
+                    <div className="text-[10px] font-black text-white/70 uppercase tracking-widest">{item.label}</div>
                   </div>
                   <div className="space-y-2 mb-3">
-                    <div className="text-[10px] text-white/40 font-mono uppercase">{item.val1}</div>
+                    <div className="text-[10px] text-white/70 font-mono uppercase">{item.val1}</div>
                     <div className="text-[10px] font-black uppercase transition-colors duration-500" style={{ color: themeColor }}>{item.val2}</div>
                   </div>
                   <div className="text-right">
-                    <span className="px-2 py-1 rounded-full border border-white/10 bg-white/5 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40">{item.benefit}</span>
+                    <span className="px-2 py-1 rounded-full border border-white/15 bg-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/70">{item.benefit}</span>
                   </div>
                 </div>
-              ))}
+              );})}
             </div>
             
             <div className="hidden md:block overflow-x-auto -mx-4 px-4">
@@ -648,33 +652,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                  <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
                        <tr className="bg-white/5 border-b border-white/10">
-                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/40 uppercase tracking-wider whitespace-nowrap">{specsData?.detection?.[0] || 'PARAMETER'}</th>
-                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/20 uppercase tracking-wider whitespace-nowrap">{t('labels.legacy_scanners')}</th>
+                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/70 uppercase tracking-wider whitespace-nowrap">{specsData?.detection?.[0] || t('labels.parameter')}</th>
+                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/60 uppercase tracking-wider whitespace-nowrap">{t('labels.legacy_scanners')}</th>
                           <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-wider transition-colors duration-500 whitespace-nowrap" style={{ color: themeColor }}>{t('labels.vaultguard_neural')}</th>
-                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/10 uppercase tracking-wider text-right whitespace-nowrap">BENEFIT</th>
+                          <th className="p-4 md:p-6 lg:p-8 text-[9px] md:text-[10px] lg:text-[11px] font-black text-white/60 uppercase tracking-wider text-right whitespace-nowrap">{t('neural_legacy.benefit')}</th>
                        </tr>
                     </thead>
-                    <tbody className="text-[9px] md:text-[10px] lg:text-[11px] xl:text-[12px] font-mono uppercase text-white/70">
-                       {[
-                         { key: 'grounding', label: specsData?.grounding?.[0], val1: 'Static Local DB (Outdated)', val2: 'Real-time OSINT Grounding', benefit: 'Zero-Day Accuracy', icon: Search },
-                         { key: 'context', label: specsData?.context?.[0], val1: 'Atomic Request Analysis', val2: 'Full-Session DOM Chaining', benefit: 'Deep Triage', icon: Eye },
-                         { key: 'reasoning', label: specsData?.reasoning?.[0], val1: 'Pattern/Regex Matching', val2: 'Deductive Neural Logic', benefit: 'Zero False Positives', icon: Brain },
-                         { key: 'thinking', label: 'THINKING_CAPACITY', val1: 'Non-existent', val2: '32,768 Reasoning Tokens', benefit: 'Complex Triage', icon: CpuChip },
-                         { key: 'chaining', label: 'VULN_CHAINING', val1: 'Isolated Vulnerabilities', val2: 'Multi-Vector Pathfinding', benefit: 'Killchain Logic', icon: Waypoints },
-                         { key: 'latency', label: specsData?.latency?.[0], val1: 'Sequential Processing', val2: 'Parallel Neural Streams', benefit: 'Enterprise Speed', icon: Zap }
-                       ].map((item, i) => (
+                    <tbody className="text-[9px] md:text-[10px] lg:text-[11px] xl:text-[12px] font-mono uppercase text-white/85">
+                       {['grounding', 'context', 'reasoning', 'thinking', 'chaining', 'latency'].map((key, i) => {
+                         const row = t(`neural_legacy.${key}`) as any;
+                         const labelKey = key as keyof typeof specsData;
+                         const label = specsData?.[labelKey]?.[0];
+                         const Icon = [Search, Eye, Brain, CpuChip, Waypoints, Zap][i];
+                         return (
                          <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td className="p-4 md:p-6 lg:p-8 font-black text-white/30 flex items-center gap-2 md:gap-3 lg:gap-4 whitespace-nowrap">
-                              <item.icon size={12} className="md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 shrink-0" />
-                              <span className="truncate">{item.label}</span>
+                            <td className="p-4 md:p-6 lg:p-8 font-black text-white/70 flex items-center gap-2 md:gap-3 lg:gap-4 whitespace-nowrap">
+                              <Icon size={12} className="md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 shrink-0" />
+                              <span className="truncate">{label}</span>
                             </td>
-                            <td className="p-4 md:p-6 lg:p-8 text-white/40 break-words max-w-[200px] lg:max-w-[250px]">{item.val1}</td>
-                            <td className="p-4 md:p-6 lg:p-8 font-black transition-colors duration-500 break-words max-w-[200px] lg:max-w-[250px]" style={{ color: themeColor, backgroundColor: `${themeColor}08` }}>{item.val2}</td>
+                            <td className="p-4 md:p-6 lg:p-8 text-white/70 break-words max-w-[200px] lg:max-w-[250px]">{row?.val1}</td>
+                            <td className="p-4 md:p-6 lg:p-8 font-black transition-colors duration-500 break-words max-w-[200px] lg:max-w-[250px]" style={{ color: themeColor, backgroundColor: `${themeColor}08` }}>{row?.val2}</td>
                             <td className="p-4 md:p-6 lg:p-8 text-right">
-                               <span className="inline-block px-2 md:px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[7px] md:text-[8px] lg:text-[9px] font-black uppercase tracking-wider text-white/40 whitespace-nowrap">{item.benefit}</span>
+                               <span className="inline-block px-2 md:px-3 py-1 rounded-full border border-white/15 bg-white/10 text-[7px] md:text-[8px] lg:text-[9px] font-black uppercase tracking-wider text-white/70 whitespace-nowrap">{row?.benefit}</span>
                             </td>
                          </tr>
-                       ))}
+                       );})}
                     </tbody>
                  </table>
                </div>
@@ -905,44 +907,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
            <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-mono text-white/60 uppercase tracking-wider">
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">VAULT_SOC_1.0</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.version_badge')}</span>
                <span className="text-white/40 hidden sm:inline">|</span>
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">NEURAL_ENGINE</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.neural_engine')}</span>
                <span className="text-white/40 hidden sm:inline">|</span>
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">FRONTEND_ONLY</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.frontend_only')}</span>
                <span className="text-white/40 hidden sm:inline">|</span>
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">REAL_TIME_AI</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.real_time_ai')}</span>
              </div>
              <p className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-mono text-white/50 uppercase tracking-wider px-2 break-words">
-               Security Operations Center | AI-Powered Vulnerability Detection | Real-Time Analysis
+               {t('footer.tagline')}
              </p>
              {/* Developer Credit */}
              <div className="pt-2 sm:pt-3 border-t border-white/10">
                <p className="text-[9px] sm:text-[10px] md:text-[11px] font-mono text-white/50 uppercase tracking-wider">
-                 Developed by{' '}
+                 {t('footer.developed_by')}{' '}
                  <a 
                    href="https://satpaingoo.github.io/portfolio"
                    target="_blank"
                    rel="noopener noreferrer"
                    className="text-white/70 hover:text-[#00d4ff] transition-colors duration-200 underline decoration-white/30 hover:decoration-[#00d4ff]/50 cursor-pointer"
-                   title="Visit developer portfolio"
+                   title={t('footer.visit_portfolio')}
                  >
-                   Sat Paing Oo
+                   {t('footer.developer_name')}
                  </a>
                </p>
                <p className="text-[8px] sm:text-[9px] md:text-[10px] font-mono text-white/40 mt-1">
-                 Built with ❤️ using React, TypeScript, and Google Gemini 3
+                 {t('footer.built_with')}
                </p>
                <p className="text-[8px] sm:text-[9px] md:text-[10px] font-mono text-white/40 mt-2">
-                 Licensed under{' '}
+                 {t('footer.licensed_under')}{' '}
                  <a 
                    href="https://www.gnu.org/licenses/gpl-3.0.html"
                    target="_blank"
                    rel="noopener noreferrer"
                    className="text-white/60 hover:text-[#00d4ff] transition-colors duration-200 underline decoration-white/30 hover:decoration-[#00d4ff]/50 cursor-pointer"
-                   title="GNU General Public License v3.0"
+                   title={t('footer.gpl_title')}
                  >
-                   GNU GPL v3.0
+                   {t('footer.gpl')}
                  </a>
                </p>
              </div>

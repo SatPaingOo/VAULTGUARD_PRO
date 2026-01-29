@@ -15,6 +15,16 @@
 
 VaultGuard Pro is an autonomous Security Operations Center (SOC) that transforms static vulnerability scanning into a dynamic "Neural Mission" using Google's Gemini 3 Pro/Flash models. It performs multi-stage security triage from surface reconnaissance to forensic logic reasoning.
 
+---
+
+## 🏆 Gemini 3 Hackathon
+
+**Submission:** Built for **Gemini 3 Hackathon**.
+
+**Why Gemini 3:** Traditional security scanners rely on static rules and outdated CVE databases. VaultGuard Pro uses **Gemini 3 Pro** (32K token thinking budget) to simulate multi-step attack chains and reason about vulnerability chaining, **Gemini 3 Flash** for fast inference and tech DNA mapping, and **Search Grounding** for live CVE lookups—so findings are based on real-time intelligence, not static data. The result is a neural SOC that combines extended reasoning, structured output, and grounding for enterprise-grade security analysis in the browser.
+
+---
+
 ## 🚀 New in v1.1.0: Vault Academy
 
 ### Educational Knowledge Base
@@ -35,18 +45,21 @@ Vault Academy showcases how AI can be leveraged in educational contexts, providi
 VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models to deliver enterprise-grade security analysis with advanced reasoning capabilities.
 
 ### **Gemini 3 Pro - Deep Reasoning Engine**
+
 - **32,768 Token Thinking Budget**: Extended internal reasoning for complex vulnerability chaining
 - **Multi-Step Attack Simulation**: Analyzes exploit chains and business logic flaws
 - **Forensic Deduction**: Deep reasoning about attack surface and logic flows
 - **Model**: `gemini-3-pro-preview` (DEEP scan level)
 
 ### **Gemini 3 Flash - Speed-Optimized Engine**
+
 - **Fast Inference**: Optimized for rapid security assessments
 - **Concurrent Analysis**: Parallel tech-stack fingerprinting and metadata extraction
 - **Search Grounding**: Real-time CVE database cross-referencing
 - **Model**: `gemini-3-flash-preview` (FAST/STANDARD scan levels)
 
 ### **Key Gemini 3 Features Used**
+
 - ✅ **Search Grounding**: Live CVE database lookups via Google Search
 - ✅ **Structured Output**: JSON schema enforcement for reliable results
 - ✅ **Extended Thinking**: 32K token reasoning budget for complex analysis
@@ -74,13 +87,11 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
 2. **Configure Gemini 3 API Key** ⚠️ **REQUIRED**
 
    **Gemini 3 API Key Required**: This tool uses Gemini 3 Pro/Flash models which require:
-   
    - ✅ Active Google Cloud Project with billing enabled
    - ✅ Gemini 3 API access enabled
    - ✅ API key from [Google AI Studio](https://ai.google.dev/)
-   
-   **Option 1: Google AI Studio Extension Auto-Link (Easiest)**
 
+   **Option 1: Google AI Studio Extension Auto-Link (Easiest)**
    - Install [Google AI Studio browser extension](https://chromewebstore.google.com/detail/google-ai-studio/your-extension-id) (if available)
    - Click "LINK_ENGINE" button in the app header
    - Click "Auto Link from Extension" button
@@ -89,7 +100,6 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
    - **Note**: If extension is not detected, use Manual Entry option below
 
    **Option 2: Manual Entry (Recommended if Extension Not Available)**
-
    - Click "LINK_ENGINE" button in the app header
    - Click "Manual Token Input" tab
    - Enter your API key manually (must start with `AIzaSy...` and be at least 39 characters)
@@ -99,7 +109,6 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
    - Verify "ENGINE_ACTIVE" status appears
 
    **Option 3: Environment Variable (Development Only)**
-
    - Create a `.env.local` file in the project root:
      ```env
      GEMINI_API_KEY=your_gemini_api_key_here
@@ -108,7 +117,6 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
    - **Note**: Manual entry via UI is preferred for security
 
    **Getting Your API Key:**
-
    1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
    2. Sign in with your Google account
    3. Create or select a Google Cloud Project with billing enabled
@@ -116,7 +124,6 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
    5. Copy the API key (starts with `AIzaSy...`)
 
    **Important:**
-
    - Your API key must be from a paid Google Cloud Project
    - Gemini 3 models require active billing
    - API key must have access to `gemini-3-flash-preview` and `gemini-3-pro-preview` models
@@ -134,40 +141,37 @@ VaultGuard Pro leverages Google's **Gemini 3 Pro** and **Gemini 3 Flash** models
 4. **Optional: Install CORS Extension for Best Results** 💡
 
    For maximum scan accuracy (~95-100% vs ~60-70% without extension):
-   
+
    **Recommended Extension**: "Allow CORS: Access-Control-Allow-Origin"
    - **Stats**: 800,000+ users • 3.4/5 rating • Chrome & Firefox
-   - **Install**: 
+   - **Install**:
      - [Chrome Web Store](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
      - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
-   
+
    **How to Use (5 Simple Steps):**
-   
    1. **Install Extension**: Click the "Chrome Extension" or "Firefox Add-on" link above
    2. **Activate Extension**: After installation, click the extension icon in your browser toolbar (grey "C" icon)
    3. **Toggle On**: In the popup, click the toggle button on the left. The icon will turn orange when active
    4. **Run Scan**: Refresh VaultGuard Pro page and initiate scan. Full DOM access will be enabled.
    5. **Disable After Scan**: ⚠️ **IMPORTANT**: Toggle the extension OFF immediately after your scan is complete for security.
-   
+
    **Why Use CORS Extension?**
-   
-   | Feature | Without Extension | With Extension |
-   |---------|-------------------|----------------|
-   | DOM Access | Limited | Complete |
-   | Security Headers | Partial | All visible |
-   | Analysis Mode | AI compensation needed | Direct analysis |
-   | Accuracy | ~60-70% | ~95-100% |
-   
+
+   | Feature          | Without Extension      | With Extension  |
+   | ---------------- | ---------------------- | --------------- |
+   | DOM Access       | Limited                | Complete        |
+   | Security Headers | Partial                | All visible     |
+   | Analysis Mode    | AI compensation needed | Direct analysis |
+   | Accuracy         | ~60-70%                | ~95-100%        |
+
    **Key Benefits:**
-   
    - ✅ **Complete DOM Analysis** - Full website structure, all JavaScript code, forms, and client-side logic
    - ✅ **All Security Headers** - CSP, HSTS, X-Frame-Options, and all other headers visible
    - ✅ **Maximum Accuracy** - No AI inference needed, direct data analysis
    - ✅ **Better Vulnerability Detection** - Can detect client-side XSS, CSRF, and DOM-based vulnerabilities
    - ✅ **Complete Probe Results** - All HTTP probes return full response data
-   
+
    **Security Warning**: ⚠️
-   
    - Extension disables browser's CORS security guard
    - **Always disable extension after scanning** - keeping it enabled makes you vulnerable to malicious websites
    - Only enable during security testing sessions
@@ -194,6 +198,7 @@ npm run preview  # Preview production build locally
 #### Level Differentiation: Why Each Tier Matters
 
 **🔵 FAST Scan: Basic Security Compliance**
+
 - **Purpose**: Quick infrastructure health check in seconds
 - **What It Tests**: Security headers (X-Frame-Options, CSP, HSTS), SSL/TLS certificate validity, DNS configuration
 - **AI Capability**: Basic neural analysis without thinking budget
@@ -201,6 +206,7 @@ npm run preview  # Preview production build locally
 - **Key Feature**: Real-time OSINT Grounding for network-level accuracy
 
 **🟡 STANDARD Scan: AI-Powered CVE Discovery**
+
 - **Purpose**: Comprehensive security audit with live vulnerability mapping
 - **What It Tests**: OWASP Top 10 vulnerabilities, technology stack DNA, dependency CVEs, security signal analysis
 - **AI Capability**: Deductive neural logic with **Live CVE Mapping** via Google Search Grounding
@@ -208,6 +214,7 @@ npm run preview  # Preview production build locally
 - **Key Feature**: **Real-time CVE Cross-Reference** - Uses Google Search Grounding to check detected technologies against live NVD and GitHub advisories (not outdated static databases)
 
 **🔴 DEEP Scan: Complex Logic Error Detection**
+
 - **Purpose**: Forensic analysis with recursive vulnerability chaining
 - **What It Tests**: Full DOM logic chain analysis (50K+ characters), multi-vector attack pathfinding, business logic flaws, exploit chain simulation
 - **AI Capability**: **32,768 Token Thinking Budget** for recursive reasoning and attack chain simulation
@@ -324,12 +331,10 @@ Switch languages via the header dropdown. To add new languages, see `BLUEPRINT.m
 ### Starting a Scan
 
 1. **Enter Target URL**
-
    - Valid HTTP/HTTPS URLs only
    - Auto-prepends `https://` if protocol missing
 
 2. **Select Scan Level**
-
    - **FAST**: Quick infrastructure check
    - **STANDARD**: Comprehensive audit (recommended)
    - **DEEP**: Forensic analysis with logic chaining
@@ -495,7 +500,16 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.0.0 (Current)
+### v1.1.0 (Current)
+
+- **Vault Academy** – Multi-language security knowledge base (EN/MM)
+- **503/500 retry** – Service overload/unavailable now retried with backoff
+- **User-friendly errors** – 503/429 show clear messages instead of raw JSON
+- **Gemini 3 Hackathon** – Tagline and submission-ready messaging
+- Retry count and cooldown tuned for stability
+- Version and locale strings updated to v1.1
+
+### v1.0.0
 
 - Initial release
 - Gemini 3 Pro/Flash integration
@@ -668,7 +682,6 @@ See `BLUEPRINT.md` section 8 for detailed technical information.
   - **Usage**: Install → Activate (orange icon) → Run scan → **Deactivate after scanning** (security requirement)
   - **Security**: ⚠️ **Always disable extension after scanning** - it disables browser's security guard
   - **Alternative**: VaultGuard Pro works without extension using AI compensation mode (analyzes available metadata)
-  
 - Use iframe for same-origin targets
 - Manual DOM paste option
 
@@ -768,6 +781,7 @@ For the most comprehensive security analysis, we recommend:
 ### **Cost Savings**
 
 **Pricing Model:**
+
 - **Flash Model**: $0.00000035 per token (used for OSINT discovery, FAST, and STANDARD scans)
 - **Pro Model**: $0.0000035 per token (used for DEEP scans - 10x more expensive)
 
@@ -809,9 +823,9 @@ For the most comprehensive security analysis, we recommend:
 
 | Scan Level   | OSINT Cost | Audit Cost (Model) | Total Cost/Scan | Savings vs Before |
 | ------------ | ---------- | ------------------ | --------------- | ----------------- |
-| **FAST**     | $0.0007    | $0.0035 (Flash)     | **$0.0042**      | **30% cheaper**   |
-| **STANDARD** | $0.0007    | $0.0123 (Flash)    | **$0.0130**      | **33% cheaper**   |
-| **DEEP**     | $0.0007    | $0.70 (Pro)        | **$0.7007**      | **33% cheaper**   |
+| **FAST**     | $0.0007    | $0.0035 (Flash)    | **$0.0042**     | **30% cheaper**   |
+| **STANDARD** | $0.0007    | $0.0123 (Flash)    | **$0.0130**     | **33% cheaper**   |
+| **DEEP**     | $0.0007    | $0.70 (Pro)        | **$0.7007**     | **33% cheaper**   |
 
 **Monthly Savings Example (10 scans/day):**
 
@@ -839,6 +853,7 @@ VaultGuard Pro uses **evidence-based analysis** with confidence ratings for ever
 - **Low Confidence**: Potential issues requiring manual verification
 
 Each vulnerability report includes:
+
 - ✅ **Evidence Sources**: Which data led to the finding (headers, DOM, SSL, DNS, probes)
 - ✅ **Confidence Level**: High/Medium/Low rating per finding
 - ✅ **Data Quality Score**: Trust score (0-100%) based on available data sources
@@ -906,6 +921,7 @@ Watch Gemini 3's reasoning process in real-time:
 - **Mission Phases**: Briefing → Simulation → Debriefing with detailed logs
 
 **Example Log Output:**
+
 ```
 [NETWORK] Collecting data in parallel (DOM, OSINT, Headers, SSL, DNS)...
 [NEURAL] Enabling PII-Masking for sensitive forensic data...
@@ -1045,7 +1061,6 @@ All efficiency optimizations are built-in and work automatically:
 ### 💡 Key Capabilities
 
 1. **✅ Excellent For:**
-
    - Client-side vulnerability detection with confidence tracking
    - Security header analysis with evidence attribution
    - Quick security assessments with AI-powered reasoning
@@ -1053,7 +1068,6 @@ All efficiency optimizations are built-in and work automatically:
    - AI-powered code analysis with extended thinking
 
 2. **🚀 Maximize Efficiency:**
-
    - Parallel requests execute simultaneously
    - Tier-based data transmission (only essential data per level)
    - Batch probe processing (3 at a time)
@@ -1074,6 +1088,7 @@ All efficiency optimizations are built-in and work automatically:
 **Repository:** [GitHub](https://github.com/SatPaingOo/VAULTGUARD_PRO.git)
 
 **Built with:**
+
 - 🧠 **Google Gemini 3** - AI reasoning engine (Pro/Flash models)
 - 🎨 **Google AI Studio** - Development environment and API access
 - 💻 **Cursor AI** - AI-powered code editor and development assistance
@@ -1082,6 +1097,7 @@ All efficiency optimizations are built-in and work automatically:
 - 🎯 **Vite** - Build tool and dev server
 
 **Special Thanks:**
+
 - Google Gemini 3 team for the powerful AI models and thinking budget capabilities
 - Google AI Studio for providing the development platform
 - Cursor AI for enhancing the development workflow

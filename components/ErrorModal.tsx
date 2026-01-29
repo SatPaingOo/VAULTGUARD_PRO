@@ -1,16 +1,23 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertOctagon, X, AlertCircle, KeyRound } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ErrorModalProps {
-  error: { message: string; type: 'api_key' | 'network' | 'unknown' };
+  error: { message: string; type: 'api_key' | 'network' | 'rate_limit' | 'service_busy' | 'unknown' };
   onClose: () => void;
   onFixApiKey: () => void;
 }
 
 export const ErrorModal: React.FC<ErrorModalProps> = ({ error, onClose, onFixApiKey }) => {
+  const { t } = useLanguage();
   const isApiKeyError = error.type === 'api_key';
-  
+  const em = (key: string) => t(`error_modal.${key}`);
+  const labels = {
+    title: em(`${error.type}_title`),
+    subtitle: em(`${error.type}_subtitle`),
+  };
+
   return (
     <AnimatePresence mode="wait">
       <motion.div 
@@ -42,11 +49,11 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ error, onClose, onFixApi
                 <AlertOctagon size={32} />
               </div>
               <div>
-                <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">MISSION_ERROR</h3>
+                <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">{em('mission_error')}</h3>
                 <div className="flex items-center gap-2 mt-2">
                   <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                   <span className="text-[10px] md:text-[11px] font-mono text-white/30 uppercase tracking-[0.2em]">
-                    {isApiKeyError ? 'API_KEY_FAILURE' : 'SCAN_FAILED'}
+                    {labels.subtitle}
                   </span>
                 </div>
               </div>
@@ -62,7 +69,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ error, onClose, onFixApi
                 <AlertCircle size={24} className="text-red-500 shrink-0 mt-1" />
                 <div className="flex-1">
                   <h4 className="text-lg md:text-xl font-black text-red-400 uppercase tracking-wider mb-3">
-                    {isApiKeyError ? 'API Key Error' : 'Scan Error'}
+                    {labels.title}
                   </h4>
                   <p className="text-sm md:text-base font-mono text-white/70 leading-relaxed mb-4">
                     {error.message}
@@ -70,22 +77,40 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ error, onClose, onFixApi
                   {isApiKeyError && (
                     <div className="mt-4 p-4 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
                       <p className="text-xs md:text-sm font-mono text-yellow-400/80 leading-relaxed">
-                        <strong>Possible causes:</strong><br />
-                        • API key is invalid or expired<br />
-                        • API key lacks required permissions<br />
-                        • Billing not enabled for Gemini API<br />
-                        • API quota exceeded
+                        <strong>{em('possible_causes')}</strong><br />
+                        • {em('api_key_cause_1')}<br />
+                        • {em('api_key_cause_2')}<br />
+                        • {em('api_key_cause_3')}<br />
+                        • {em('api_key_cause_4')}
                       </p>
                     </div>
                   )}
-                  {!isApiKeyError && error.type === 'network' && (
+                  {error.type === 'service_busy' && (
+                    <div className="mt-4 p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                      <p className="text-xs md:text-sm font-mono text-amber-400/80 leading-relaxed">
+                        <strong>{em('what_to_do')}</strong><br />
+                        • {em('service_busy_do_1')}<br />
+                        • {em('service_busy_do_2')}
+                      </p>
+                    </div>
+                  )}
+                  {error.type === 'rate_limit' && (
+                    <div className="mt-4 p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                      <p className="text-xs md:text-sm font-mono text-amber-400/80 leading-relaxed">
+                        <strong>{em('what_to_do')}</strong><br />
+                        • {em('rate_limit_do_1')}<br />
+                        • {em('rate_limit_do_2')}
+                      </p>
+                    </div>
+                  )}
+                  {error.type === 'network' && (
                     <div className="mt-4 p-4 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
                       <p className="text-xs md:text-sm font-mono text-yellow-400/80 leading-relaxed">
-                        <strong>What to check:</strong><br />
-                        • Verify the URL is correct and includes the protocol (http:// or https://)<br />
-                        • Check if the website is accessible in your browser<br />
-                        • Ensure the domain exists and DNS can resolve it<br />
-                        • The website may be down or blocking connections
+                        <strong>{em('what_to_check')}</strong><br />
+                        • {em('network_check_1')}<br />
+                        • {em('network_check_2')}<br />
+                        • {em('network_check_3')}<br />
+                        • {em('network_check_4')}
                       </p>
                     </div>
                   )}
@@ -100,7 +125,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ error, onClose, onFixApi
                   className="flex-1 py-5 md:py-7 rounded-xl md:rounded-2xl bg-red-500 text-black font-black uppercase tracking-[0.25em] text-xs md:text-sm hover:bg-red-400 transition-all active:scale-[0.98] shadow-[0_8px_25px_rgba(239,68,68,0.2)] flex items-center justify-center gap-2"
                 >
                   <KeyRound size={16} className="md:w-5 md:h-5" />
-                  Fix_API_Key
+                  {em('fix_api_key')}
                 </button>
               )}
               <button 
@@ -108,7 +133,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({ error, onClose, onFixApi
                 className="flex-1 py-5 md:py-7 rounded-xl md:rounded-2xl bg-white/10 text-white border-2 border-white/20 font-black uppercase tracking-[0.25em] text-xs md:text-sm hover:bg-white/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <X size={16} className="md:w-5 md:h-5" />
-                Close
+                {em('close')}
               </button>
             </div>
           </div>

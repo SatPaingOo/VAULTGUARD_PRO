@@ -8,14 +8,14 @@ export const AI_CONSTANTS = {
   /** Thinking budget for DEEP tier (32K tokens) */
   DEEP_THINKING_BUDGET: 32768,
   
-  /** Cooldown period between API calls (5 seconds - optimized for free tier) */
-  API_COOLDOWN_MS: 5000,
+  /** Cooldown period between API calls (8 seconds - reduces 429/503 during scan) */
+  API_COOLDOWN_MS: 8000,
   
-  /** Base delay for rate limit retry (5 seconds) */
+  /** Base delay for rate limit / service unavailable retry (5 seconds) */
   RATE_LIMIT_BASE_DELAY_MS: 5000,
   
-  /** Maximum retry attempts for API calls (reduced from 5 to 2 for free tier) */
-  MAX_RETRY_ATTEMPTS: 2,
+  /** Maximum retry attempts for API calls (3 = 4 total attempts for 429/503) */
+  MAX_RETRY_ATTEMPTS: 3,
   
   /** Jitter range for rate limit backoff (0-2000ms) */
   RATE_LIMIT_JITTER_MS: 2000,

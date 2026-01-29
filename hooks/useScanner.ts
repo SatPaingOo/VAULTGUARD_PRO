@@ -54,7 +54,7 @@ export const useScanner = () => {
   const [currentLevel, setCurrentLevel] = useState<ScanLevel>('STANDARD');
   const [recentFindings, setRecentFindings] = useState<VulnerabilityFinding[]>([]);
   const [dispatchedProbes, setDispatchedProbes] = useState<DispatchedProbe[]>([]);
-  const [error, setError] = useState<{ message: string; type: 'api_key' | 'network' | 'unknown' } | null>(null);
+  const [error, setError] = useState<{ message: string; type: 'api_key' | 'network' | 'rate_limit' | 'service_busy' | 'unknown' } | null>(null);
   const [scanStartTime, setScanStartTime] = useState<Date | null>(null);
   const [scanEndTime, setScanEndTime] = useState<Date | null>(null);
 
@@ -741,18 +741,39 @@ export const useScanner = () => {
         setProgress(0);
         setScanStatus('Idle');
       } else {
-        // Enhanced error handling for network/website errors
+        // Parse API error JSON (e.g. {"error":{"code":503,"message":"The model is overloaded..."}})
         let userMessage = errorMsg;
-        let errorType: 'api_key' | 'network' | 'unknown' = 'unknown';
-        
-        // Check for network-related errors
-        if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('CORS') || 
+        let errorType: 'api_key' | 'network' | 'rate_limit' | 'service_busy' | 'unknown' = 'unknown';
+
+        try {
+          const parsed = JSON.parse(errorMsg);
+          const code = parsed?.error?.code;
+          const msg = parsed?.error?.message || '';
+          if (code === 503 || code === 500 || (msg && (msg.toLowerCase().includes('overloaded') || msg.toLowerCase().includes('unavailable')))) {
+            errorType = 'service_busy';
+            userMessage = msg || 'The AI service is temporarily busy. Please try again in 1–2 minutes.';
+          } else if (code === 429 || (msg && msg.toLowerCase().includes('too many requests'))) {
+            errorType = 'rate_limit';
+            userMessage = msg || 'Too many requests. Please wait 1–2 minutes and try again.';
+          }
+        } catch {
+          // Not JSON; check raw message for 503/429/overloaded
+          if (errorMsg.includes('503') || errorMsg.includes('overloaded') || errorMsg.includes('unavailable') || errorMsg.includes('500')) {
+            errorType = 'service_busy';
+            userMessage = 'The AI service is temporarily busy. Please try again in 1–2 minutes.';
+          } else if (errorMsg.includes('429') || errorMsg.includes('too many requests') || errorMsg.includes('quota')) {
+            errorType = 'rate_limit';
+            userMessage = 'Too many requests. Please wait 1–2 minutes and try again.';
+          }
+        }
+
+        // Check for network-related errors (only if not already service_busy/rate_limit)
+        if (errorType === 'unknown' &&
+            (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('CORS') ||
             errorMsg.includes('Failed to load') || errorMsg.includes('DNS') || errorMsg.includes('timeout') ||
             errorMsg.includes('connection') || errorMsg.includes('unreachable') || errorMsg.includes('not exist') ||
-            errorMsg.includes('404') || errorMsg.includes('not found')) {
+            errorMsg.includes('404') || errorMsg.includes('not found'))) {
           errorType = 'network';
-          
-          // Provide more helpful network error messages
           if (errorMsg.includes('DNS') || errorMsg.includes('not exist') || errorMsg.includes('cannot resolve')) {
             userMessage = `Website not found: "${domain || url}". The domain may not exist or DNS cannot resolve it. Please verify the URL is correct.`;
           } else if (errorMsg.includes('timeout') || errorMsg.includes('did not respond')) {
@@ -764,10 +785,10 @@ export const useScanner = () => {
           } else {
             userMessage = `Network error accessing "${domain || url}": ${errorMsg}`;
           }
-        } else {
+        } else if (errorType === 'unknown') {
           userMessage = errorMsg;
         }
-        
+
         addLog(`[FATAL] MISSION_ABORTED: ${userMessage}`, 'error', 0);
         setError({
           message: userMessage,
