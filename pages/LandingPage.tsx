@@ -276,10 +276,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
           </motion.div>
         )}
         
-        <div ref={inputContainerRef} className="relative glass-panel p-1.5 md:p-3 rounded-[2rem] md:rounded-[4.5rem] border bg-black/95 shadow-[0_40px_100px_rgba(0,0,0,0.8)] transition-all duration-500" style={{ borderColor: isFocused ? `${themeColor}4d` : (url.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)') }}>
-          <div className="flex flex-col lg:flex-row gap-2">
-            <div className="flex-1 flex items-center px-3 sm:px-6 md:px-12 py-3 sm:py-5 md:py-8 bg-white/[0.02] rounded-[1.5rem] md:rounded-[4rem]">
-              <Terminal className={`w-4 h-4 sm:w-5 sm:h-5 md:w-8 md:h-8 mr-3 sm:mr-4 md:mr-8 transition-colors shrink-0`} style={{ color: isFocused ? themeColor : (url.trim() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.25)') }} />
+        <div ref={inputContainerRef} className="relative glass-panel p-1.5 md:p-2 rounded-2xl md:rounded-3xl border bg-black/95 shadow-[0_24px_48px_rgba(0,0,0,0.6)] transition-all duration-500" style={{ borderColor: isFocused ? `${themeColor}4d` : (url.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)') }}>
+          <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
+            <div className="flex-1 flex items-center px-3 sm:px-5 md:px-6 py-2.5 sm:py-3 md:py-3.5 bg-white/[0.02] rounded-xl md:rounded-2xl min-h-[44px] sm:min-h-[48px]">
+              <Terminal className={`w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 mr-2 sm:mr-3 md:mr-4 transition-colors shrink-0`} style={{ color: isFocused ? themeColor : (url.trim() ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.25)') }} />
               <input 
                 ref={inputRef}
                 type="text"
@@ -302,23 +302,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                 onBlur={() => setIsFocused(false)}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleInitiate(); }}
-                className="w-full bg-transparent outline-none font-mono text-sm sm:text-base md:text-2xl text-white placeholder:text-white/30"
+                className="w-full bg-transparent outline-none font-mono text-sm sm:text-base md:text-lg text-white placeholder:text-white/30"
                 placeholder={t('target_url_placeholder')}
               />
             </div>
             
             <button 
+              type="button"
               disabled={!isUrlValid}
               onClick={handleInitiate}
-              className={`px-6 sm:px-10 md:px-16 py-4 sm:py-6 md:py-10 rounded-[1.5rem] md:rounded-[4rem] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all duration-500 flex items-center justify-center gap-2 sm:gap-3 md:gap-5 text-[10px] sm:text-xs md:text-xl shadow-[0_0_50px_rgba(0,0,0,0.4)] ${!isEngineLinked && isUrlValid ? 'bg-red-500 text-black shadow-[0_0_50px_rgba(239,68,68,0.4)] hover:bg-red-400' : ''}`}
+              className={`relative overflow-hidden px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2 text-[10px] sm:text-xs md:text-sm border-2 min-h-[44px] sm:min-h-[48px] self-center sm:self-stretch shrink-0
+                ${!isUrlValid 
+                  ? 'border-white/10 bg-white/5 text-white/30 cursor-not-allowed' 
+                  : isEngineLinked 
+                    ? 'border-transparent text-black hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] cursor-pointer' 
+                    : 'border-red-500/80 bg-red-500 text-black hover:bg-red-400 hover:border-red-400 hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
+                }`}
               style={{ 
-                backgroundColor: !isUrlValid ? 'rgba(255,255,255,0.05)' : (isEngineLinked ? themeColor : undefined),
-                color: !isUrlValid ? 'rgba(255,255,255,0.1)' : (isEngineLinked ? 'black' : undefined),
-                boxShadow: (isUrlValid && isEngineLinked) ? `0 0 50px ${themeColor}66` : undefined,
-                opacity: isUrlValid ? 1 : 0.5
+                backgroundColor: !isUrlValid ? undefined : (isEngineLinked ? themeColor : undefined),
+                boxShadow: isUrlValid && isEngineLinked ? `0 0 24px ${themeColor}40, 0 4px 14px rgba(0,0,0,0.3)` : (!isUrlValid ? undefined : '0 4px 14px rgba(0,0,0,0.25)'),
+                opacity: isUrlValid ? 1 : 0.6
               }}
             >
-              {!isEngineLinked && isUrlValid ? <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7" /> : <ZapIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7" />}
+              {!isEngineLinked && isUrlValid ? <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 shrink-0" /> : <ZapIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 shrink-0" />}
               <span className="hidden sm:inline">{!isEngineLinked && isUrlValid ? t('apikey.init_core') : t('initiate_scan')}</span>
               <span className="sm:hidden">{!isEngineLinked && isUrlValid ? t('apikey.init_short') : t('apikey.scan_short')}</span>
             </button>
