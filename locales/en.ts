@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "NEURAL_SECURITY_OPS_v1.4.0",
+  "app_subtitle": "NEURAL_SECURITY_OPS_v1.4.1",
   "app_gemini_tagline": "Powered by Gemini 3 Pro & Flash • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Built for Gemini 3 Hackathon",
   "app_hybrid_tagline": "Hybrid: Deterministic Rules + AI Reasoning",
@@ -341,6 +341,7 @@ export default {
     "no_telemetry": "No telemetry data available",
     "vulnerability_ledger": "VULNERABILITY_LEDGER",
     "verified_findings": "Verified findings with functional PoC",
+    "finding_origin_disclaimer": "Locations and paths in findings are inferred from the scan target (URL, headers, DOM). They are not from your repository or file system.",
     "technology_dna": "TECHNOLOGY_DNA",
     "detected_tech_stack": "Detected tech stack & version hygiene",
     "tech_category_js_frameworks": "JavaScript frameworks",
@@ -361,6 +362,10 @@ export default {
     "tech_category_server": "Server",
     "tech_category_database": "Database",
     "tech_category_library": "Libraries",
+    "tech_category_label": "Category",
+    "tech_version_label": "Version",
+    "tech_status_label": "Status",
+    "tech_action_plan_label": "Action plan",
     "logic_flow": "Logic_Flow",
     "injections": "Injections",
     "net_hygiene": "Net_Hygiene",
@@ -503,7 +508,7 @@ export default {
     "error_unknown_suggestions": ["Check your internet connection", "Verify the API key is correct", "Try again in a few moments"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.4.0",
+    "version_badge": "VAULT_SOC_1.4.1",
     "evidence_based_badge": "EVIDENCE_BASED_FINDINGS",
     "neural_engine": "NEURAL_ENGINE",
     "frontend_only": "FRONTEND_ONLY",

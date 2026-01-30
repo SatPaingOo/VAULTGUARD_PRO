@@ -4,7 +4,7 @@
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.4.0  
+**Version:** 1.4.1  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -103,6 +103,25 @@ These updates make Tech DNA and findings more reliable and easier to trust for u
 - **Technology DNA in PDF** – PDF Technology DNA section now uses the same category headers and grouping as the Results UI (JavaScript frameworks, Maps, Security, etc.).
 
 These updates improve report trust, deployment security, and alignment between UI and PDF.
+
+---
+
+## 🚀 New in v1.4.1: Report Accuracy, Tech DNA Completeness & Finding Disclaimer
+
+### Report & Finding Accuracy
+
+- **No invented file paths** – Mission prompt instructs AI to use only target URL, URL path, or data source (e.g. "Security headers", "DOM") for finding origin/description; never local or repository file paths (e.g. next.config.js, api/auth/login.ts).
+- **Finding disclaimer** – Results UI and PDF show: "Locations and paths in findings are inferred from the scan target (URL, headers, DOM). They are not from your repository or file system."
+
+### Technology DNA Completeness
+
+- **Ground truth merge** – Technology DNA now always includes detected tech: AI-reported tech is merged with deterministic fingerprint (DOM/headers). So even when AI returns few or no tech items, the report shows all tech we actually detected (React, Vite, Tailwind, Vercel, etc.).
+- **Wappalyzer-style categories** – Added categories: Programming languages, Web servers, Static site generators, Build tools, Package managers, Analytics; same order in UI and PDF.
+- **Detail in UI & PDF** – Each tech card shows Version (or —), Category, Status, and full Action plan; PDF shows Name, Version, Category, Status, and Action plan per tech.
+
+### Scan Duration
+
+- **Sub-second display** – When scan completes in under 1 second, report shows "< 1s" and "less than 1 second" instead of "0 seconds".
 
 ---
 
@@ -591,7 +610,15 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.4.0 (Current)
+### v1.4.1 (Current)
+
+- **Finding origin accuracy** – AI prompt forbids invented file paths; origin/description use only URL path or data source; UI/PDF disclaimer for inferred locations
+- **Technology DNA merge** – Ground truth (techFingerprint) merged into technologyDNA so detected tech always appears in report
+- **Tech DNA detail** – UI shows Version, Category, Status, full Action plan per tech; PDF shows Name, Version, Category, Status, Action plan
+- **Wappalyzer categories** – Programming languages, Web servers, SSG, Build tools, Package managers, Analytics added; same in UI and PDF
+- **Scan duration** – Sub-second scans show "< 1s" instead of "0 seconds"
+
+### v1.4.0
 
 - **Security headers** – `vercel.json` adds X-Frame-Options, CSP, HSTS, Referrer-Policy, Permissions-Policy, X-Content-Type-Options, X-XSS-Protection for deployed app
 - **Technology DNA (Wappalyzer-style)** – Results and PDF group tech by category (JavaScript frameworks, UI frameworks, Maps, Security, PaaS, Font scripts, CDN, etc.); locale keys for category titles (EN/MM)

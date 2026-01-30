@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.4.0",
+  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.4.1",
   "app_gemini_tagline": "Gemini 3 Pro & Flash ဖြင့် မောင်းနှင်သည် • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Gemini 3 Hackathon အတွက် တည်ဆောက်ထားသည်",
   "app_hybrid_tagline": "ပေါင်းစပ်: သတ်မှတ်ချက် စည်းမျဉ်းများ + AI ဆင်ခြင်ချက်",
@@ -321,6 +321,7 @@ export default {
     "no_telemetry": "တိုက်ရိုက် အချက်အလက် မရှိပါ",
     "vulnerability_ledger": "အားနည်းချက် မှတ်တမ်း",
     "verified_findings": "အတည်ပြုထားသော တွေ့ရှိချက်များ (PoC နှင့်အတူ)",
+    "finding_origin_disclaimer": "တွေ့ရှိချက်များရှိ နေရာ/path များသည် စစ်ဆေးသည့် target (URL, headers, DOM) မှ ခန့်မှန်းထားခြင်းဖြစ်သည်။ သင့် repository သို့မဟုတ် file system မှ မဟုတ်ပါ။",
     "technology_dna": "နည်းပညာ DNA",
     "detected_tech_stack": "ရှာဖွေတွေ့ရှိသော tech stack နှင့် version သန့်ရှင်းမှု",
     "tech_category_js_frameworks": "JavaScript frameworks",
@@ -341,6 +342,10 @@ export default {
     "tech_category_server": "Server",
     "tech_category_database": "Database",
     "tech_category_library": "Libraries",
+    "tech_category_label": "Category",
+    "tech_version_label": "Version",
+    "tech_status_label": "Status",
+    "tech_action_plan_label": "Action plan",
     "logic_flow": "Logic_Flow",
     "injections": "Injections",
     "net_hygiene": "Net_Hygiene",
@@ -483,7 +488,7 @@ export default {
     "error_unknown_suggestions": ["အင်တာနက် ချိတ်ဆက်မှု စစ်ပါ", "API key မှန်ကန်မှု စစ်ပါ", "ခဏအကြာ ပြန်ကြိုးစားပါ"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.4.0",
+    "version_badge": "VAULT_SOC_1.4.1",
     "evidence_based_badge": "သက်သေအခြေပြု တွေ့ရှိချက်များ",
     "neural_engine": "နျူရယ် အင်ဂျင်",
     "frontend_only": "ဖရန့်တင့်သာ",

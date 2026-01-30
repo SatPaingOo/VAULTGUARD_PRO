@@ -475,7 +475,7 @@ export class GeminiService {
                   remediation: { type: Type.STRING }, 
                   businessImpact: { type: Type.STRING }, 
                   cwe: { type: Type.STRING }, 
-                  origin: { type: Type.STRING },
+                  origin: { type: Type.STRING, description: "Target URL path or data source only (e.g. target host path, 'Security headers', 'DOM'). Do NOT use local/repository file paths." },
                   poc: { type: Type.STRING, description: "Technical Proof-of-Concept script or detailed curl command sequences." },
                   confidence: { type: Type.STRING, enum: ['High', 'Medium', 'Low'], description: "Confidence level based on evidence quality" },
                   evidence: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Data sources that led to this finding (e.g., headers, DOM, SSL, DNS, probes)" }
@@ -611,10 +611,12 @@ CRITICAL ACCURACY REQUIREMENTS:
 - CONFIDENCE RATING: Rate your confidence level for each finding (High/Medium/Low) based on evidence quality.
 - DATA SOURCE ATTRIBUTION: Note which data source (headers, DOM, SSL, DNS, probes) led to each finding.
 - COMPREHENSIVE ANALYSIS: Be thorough - missing a real vulnerability is worse than taking extra time.
+- FINDING ORIGIN AND DESCRIPTION (CRITICAL): You only have access to the TARGET URL, HTTP headers, DOM/signals, SSL, and DNS. You do NOT have access to the user's repository, file system, or source code. Therefore: (1) Do NOT invent or use local file paths (e.g. next.config.js, api/auth/login.ts, app/page.tsx, app/layout.tsx, d:\\..., C:\\..., Windows or Unix paths). (2) For each finding's "origin" use ONLY: the target URL or a path on that URL (e.g. "https://example.com/", "/", "/api/..." only if inferred from DOM/headers of the scanned site), or a data source label (e.g. "Security headers", "DOM", "SSL", "DNS"). (3) In "description" do NOT reference repository files, folder structure (e.g. app/, api/), or framework-specific paths unless they explicitly appear in the provided DOM/headers. Never assume Next.js, Nuxt, or backend API file structure.
 
 OUTPUT REQUIREMENTS:
 - Output strict JSON according to the schema
 - All findings must include: title, description, severity, remediation, businessImpact, cwe, origin, poc
+- For each finding, "origin" must be only: target URL/path (e.g. target host + path) or data source (e.g. "Security headers", "DOM"). Never output local or repository file paths.
 - For each finding that references a CVE, include evidenceLinks: array of official URLs (NIST: https://nvd.nist.gov/vuln/detail/CVE-XXXX, MITRE: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-XXXX) so users can verify. Use exact CVE IDs from Search Grounding.
 - Technology DNA must include: name, version, category, status, actionPlan (when TECH_FINGERPRINT is provided, only list technologies from that list). For each tech with CVEs, include cveLinks: array of official NIST or MITRE URLs for each CVE ID.
 - Security score must be calculated based on actual findings (0-100)

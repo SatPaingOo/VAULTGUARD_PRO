@@ -251,7 +251,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.4.0";
+      const versionText = "v1.4.1";
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
@@ -672,7 +672,8 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
             }
             doc.setTextColor(0, 0, 0);
             doc.setFont("courier", "bold");
-            doc.text(`${sanitizeForPdf(tech.name)}${tech.version ? ` ${sanitizeForPdf(tech.version)}` : ''}`, 15, yPos);
+            const techVersionPdf = tech.version && tech.version.trim() ? sanitizeForPdf(tech.version) : '—';
+            doc.text(`${sanitizeForPdf(tech.name)} | Version: ${techVersionPdf}`, 15, yPos);
             yPos += 5;
             doc.setFont("courier", "normal");
             doc.setTextColor(60, 60, 60);
@@ -757,6 +758,15 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         doc.setFont("courier", "bold");
         doc.text(tEn('pdf.vulnerability_ledger'), 15, yPos);
         yPos += 8;
+        doc.setFont("courier", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(80, 80, 80);
+        const disclaimerLines = doc.splitTextToSize(tEn('results.finding_origin_disclaimer'), 180);
+        disclaimerLines.forEach((line: string) => {
+          doc.text(line, 15, yPos);
+          yPos += 4;
+        });
+        yPos += 6;
 
         findings.forEach((f: VulnerabilityFinding, index: number) => {
           if (yPos > 280) {
@@ -1795,6 +1805,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
 
         {findings.length > 0 && (
           <SectionCard title={t('results.vulnerability_ledger')} subtitle={t('results.verified_findings')} icon={ShieldAlert} themeColor={LEVEL_COLORS.DEEP}>
+            <p className="text-[10px] md:text-[11px] font-mono text-white/40 uppercase tracking-wider mb-6 md:mb-8 px-1">{t('results.finding_origin_disclaimer')}</p>
             <div className="space-y-8 md:space-y-12">
               {findings.map((f: any, i: number) => (
                 <div key={i} className="p-8 md:p-14 rounded-[2.5rem] md:rounded-[5rem] border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all relative overflow-hidden shadow-3xl">
@@ -1890,20 +1901,25 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {items.map((tech: TechItem, i: number) => (
                     <div key={`${categoryKey}-${i}`} className="p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 bg-black/40 flex flex-col group hover:bg-white/[0.02] transition-all">
-                      <div className="flex justify-between items-start mb-4">
+                      <div className="flex justify-between items-start mb-3">
                         <div className="space-y-1 min-w-0">
                           <h5 className="text-base md:text-lg font-black text-white uppercase tracking-tight truncate">{tech.name}</h5>
-                          {tech.version ? (
-                            <span className="text-[9px] md:text-[10px] font-mono text-white/50">{tech.version}</span>
-                          ) : null}
+                          <div className="flex flex-wrap items-center gap-2 text-[9px] md:text-[10px] font-mono text-white/50">
+                            <span>{t('results.tech_version_label')}: {tech.version || '—'}</span>
+                            <span className="text-white/30">|</span>
+                            <span>{t('results.tech_category_label')}: {tech.category}</span>
+                          </div>
                         </div>
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${tech.status === 'Stable' ? 'bg-[#00ff9d]' : 'bg-orange-500'} animate-pulse`} title={tech.status} />
+                        <div className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${tech.status === 'Stable' ? 'bg-[#00ff9d]' : 'bg-orange-500'} animate-pulse`} title={tech.status} />
                       </div>
                       <div className="p-4 md:p-5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-2 mt-auto">
-                        <div className="text-[8px] md:text-[9px] text-white/20 font-black uppercase tracking-[0.15em]">Neural_Security_Status</div>
+                        <div className="text-[8px] md:text-[9px] text-white/20 font-black uppercase tracking-[0.15em]">{t('results.tech_status_label')}</div>
                         <span className={`text-[9px] md:text-[10px] font-black uppercase ${tech.status === 'Stable' ? 'text-[#00ff9d]' : 'text-orange-500'}`}>{tech.status}</span>
                         {tech.actionPlan ? (
-                          <p className="text-[9px] md:text-[10px] font-mono text-white/50 uppercase leading-relaxed line-clamp-2">{tech.actionPlan}</p>
+                          <>
+                            <div className="text-[8px] md:text-[9px] text-white/20 font-black uppercase tracking-[0.15em] mt-1">{t('results.tech_action_plan_label')}</div>
+                            <p className="text-[9px] md:text-[10px] font-mono text-white/50 uppercase leading-relaxed">{tech.actionPlan}</p>
+                          </>
                         ) : null}
                       </div>
                     </div>

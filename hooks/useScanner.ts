@@ -747,16 +747,29 @@ export const useScanner = () => {
         addLog(`[VERIFY] Removed ${removed} finding(s) for non-existent endpoints (404)`, 'info', 94);
       }
 
-      // Tech DNA: keep all AI-reported tech for Wappalyzer-style completeness; only remove false positives
-      if (finalReport.technologyDNA?.length) {
-        const groundNames = new Set(techFingerprint.map((f) => f.name.toLowerCase()));
-        let dna = finalReport.technologyDNA;
-        // Safeguard: if Vite is in ground truth, exclude Next.js (Vite+React often misreported as Next.js)
-        if (groundNames.has('vite')) {
-          dna = dna.filter((t) => (t.name || '').toLowerCase() !== 'next.js');
-        }
-        finalReport = { ...finalReport, technologyDNA: dna };
+      // Tech DNA: keep all AI-reported tech; remove false positives; merge ground truth so we always show detected tech
+      let dnaList = Array.isArray(finalReport.technologyDNA) ? [...finalReport.technologyDNA] : [];
+      const groundNames = new Set(techFingerprint.map((f) => f.name.toLowerCase()));
+      if (groundNames.has('vite')) {
+        dnaList = dnaList.filter((t) => (t.name || '').toLowerCase() !== 'next.js');
       }
+      const seenNames = new Set(dnaList.map((t) => (t.name || '').toLowerCase()));
+      for (const f of techFingerprint) {
+        const key = f.name.toLowerCase();
+        if (!seenNames.has(key)) {
+          seenNames.add(key);
+          dnaList.push({
+            name: f.name,
+            version: f.version || '',
+            category: f.category,
+            status: 'Stable',
+            actionPlan: f.evidence || 'Detected from scan.',
+            cves: [],
+            cveLinks: undefined,
+          });
+        }
+      }
+      finalReport = { ...finalReport, technologyDNA: dnaList };
 
       setMissionReport(finalReport);
       addLog(`[DATA_QUALITY] Trust score: ${trustScore}%`, trustScore >= 80 ? 'success' : trustScore >= 60 ? 'warn' : 'error', 95);

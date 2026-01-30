@@ -2,7 +2,7 @@
   <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
-# VaultGuard Pro: Neural Mission Blueprints (v1.4.0)
+# VaultGuard Pro: Neural Mission Blueprints (v1.4.1)
 
 **Developer Documentation** - Technical architecture, implementation details, and "how it works"
 
@@ -135,6 +135,8 @@ To reduce AI hallucination (e.g. reporting Next.js when the site is Vite + React
 **v1.3.0 – Multi-Step Verification labels**: `utils/findingVerification.ts` tags each finding with `verificationStatus`: **High** (200 OK), **Potential** (401/403), **Unknown**; findings for 404/error endpoints are discarded. Results page shows badges: Verified (200), Protected (403), Unverified. **CVE Evidence Links**: Mission prompt instructs AI to use version-specific CVE Search Grounding and to include `evidenceLinks` (NIST/MITRE) in findings and `cveLinks` in Tech DNA; Results page renders clickable links. **Expert Mode**: Optional headers (key-value pairs) and cookies; `pages/LandingPage.tsx` – gear icon opens modal (React Portal to `document.body`, body scroll lock); values passed to `runMission` and used in `extractTargetDOM`, `analyzeHeaders`, `verifyFindings`, and probe execution (`utils/masking.ts`, `utils/networkAnalysis.ts`, `utils/findingVerification.ts`, `hooks/useScanner.ts`).
 
 **v1.4.0 – Security headers, Wappalyzer-style Tech DNA, PDF consistency**: **Security headers**: `vercel.json` adds `X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy`, and `Content-Security-Policy` for the deployed app. **Technology DNA (Wappalyzer-style)**: `pages/Results.tsx` groups `technologyDNA` by display category (JavaScript frameworks, UI frameworks, Maps, Security, JavaScript libraries, PaaS, Font scripts, CDN, Backend, Server, Database, Libraries) via `getTechDisplayCategoryKey()` and `technologyDNAByCategory`; locale keys `results.tech_category_*` (EN/MM). **Next.js safeguard**: `hooks/useScanner.ts` – when Ground Truth fingerprint contains Vite, Technology DNA excludes "Next.js" to avoid false positives on Vite+React sites. **PDF Scan ID**: PDF uses `missionDuration.startTime` to generate `VG-YYYYMMDD-HHMMSS` so the Scan ID matches the scan run, not export time. **PDF Technology DNA**: PDF export uses `technologyDNAByCategory` and outputs category headers (same as UI) before each group of tech items.
+
+**v1.4.1 – Report accuracy, Tech DNA completeness, finding disclaimer**: **Finding origin**: `services/geminiService.ts` – mission prompt forbids AI from inventing local/repository file paths; finding `origin` and `description` must use only target URL path or data source (e.g. "Security headers", "DOM"). **Finding disclaimer**: Results UI and PDF show disclaimer that locations/paths in findings are inferred from scan target, not from user's repository. **Technology DNA merge**: `hooks/useScanner.ts` – ground truth (`techFingerprint`) is merged into `technologyDNA` so detected tech (DOM/headers) always appears in report even when AI returns few or no items. **Tech DNA detail**: UI shows Version, Category, Status, full Action plan per tech; PDF shows Name, Version, Category, Status, Action plan. **Wappalyzer categories**: Programming languages, Web servers, Static site generators, Build tools, Package managers, Analytics added to `TECH_DISPLAY_CATEGORY_ORDER` and locales. **Scan duration**: Sub-second scans show "< 1s" instead of "0 seconds".
 
 ## 3. Mission Intensity Tiers & Flow
 
