@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, Zap, Target, Hexagon, Terminal, 
@@ -6,7 +7,7 @@ import {
   Timer, Cpu as CpuChip, AlertCircle, AlertTriangle,
   ShieldCheck, KeyRound, Activity as ActivityIcon,
   Search, Brain, Eye, Waypoints, Info as InfoIcon, ExternalLink,
-  DollarSign
+  DollarSign, Settings, X, Plus, Trash2
 } from 'lucide-react';
 import { ScanLevel, LEVEL_COLORS } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -17,9 +18,10 @@ import { ApiKeyModal } from '../components/ApiKeyModal';
 import { SandboxVisualizer } from '../components/SandboxVisualizer';
 import { ScanningLine } from '../components/ScanningLine';
 import { validateUrlFormat, validateAndCheckUrl } from '../utils/urlValidation';
+import type { ExpertFetchOptions } from '../utils/masking';
 
 interface LandingPageProps {
-  onInitiate: (url: string, level: ScanLevel, lang: string) => void | Promise<void>;
+  onInitiate: (url: string, level: ScanLevel, lang: string, options?: ExpertFetchOptions) => void | Promise<void>;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
@@ -31,10 +33,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [urlValidation, setUrlValidation] = useState<{ isValid: boolean; error?: string; isChecking?: boolean }>({ isValid: false });
   const [isValidating, setIsValidating] = useState(false);
+  const [isExpertModalOpen, setIsExpertModalOpen] = useState(false);
+  const [expertHeaderPairs, setExpertHeaderPairs] = useState<{ key: string; value: string }[]>([{ key: '', value: '' }]);
+  const [expertCookies, setExpertCookies] = useState('');
   const inputRef = React.useRef<HTMLInputElement>(null);
   const inputContainerRef = React.useRef<HTMLDivElement>(null);
 
+  const addExpertHeaderRow = () => setExpertHeaderPairs((p) => [...p, { key: '', value: '' }]);
+  const removeExpertHeaderRow = (index: number) =>
+    setExpertHeaderPairs((p) => (p.length <= 1 ? [{ key: '', value: '' }] : p.filter((_, i) => i !== index)));
+  const updateExpertHeaderPair = (index: number, field: 'key' | 'value', value: string) =>
+    setExpertHeaderPairs((p) => p.map((pair, i) => (i === index ? { ...pair, [field]: value } : pair)));
+
+  const buildExpertOptions = (): ExpertFetchOptions | undefined => {
+    const headers: Record<string, string> = {};
+    expertHeaderPairs.forEach(({ key, value }) => {
+      const k = key.trim();
+      const v = value.trim();
+      if (k && v) headers[k] = v;
+    });
+    const cookies = expertCookies.trim() || undefined;
+    if (Object.keys(headers).length === 0 && !cookies) return undefined;
+    return { headers: Object.keys(headers).length > 0 ? headers : undefined, cookies };
+  };
+
   const themeColor = LEVEL_COLORS[level];
+
+  // Lock body scroll when Expert Mode modal is open so background doesn't scroll
+  useEffect(() => {
+    if (isExpertModalOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [isExpertModalOpen]);
 
   // Handle mobile keyboard with Visual Viewport API
   useEffect(() => {
@@ -83,38 +117,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
     return true;
   }, [url]);
 
-  // Real-time URL validation with debounce (checks if website exists)
+  // Clear stale reachability error when user edits URL and format is valid
   useEffect(() => {
-    if (!url.trim() || !isUrlFormatValid) {
-      setUrlValidation({ isValid: false });
-      return;
+    if (url.trim() && isUrlFormatValid) {
+      setUrlValidation(prev => (prev.error ? { ...prev, isValid: true, error: undefined } : prev));
     }
-
-    // Debounce validation check (wait 1.5 seconds after user stops typing)
-    const timeoutId = setTimeout(async () => {
-      setIsValidating(true);
-      setUrlValidation({ isValid: false, isChecking: true });
-      
-      try {
-        const validation = await validateAndCheckUrl(url.trim());
-        setUrlValidation({
-          isValid: validation.isValid && validation.isReachable,
-          error: validation.isValid && !validation.isReachable ? validation.error : undefined
-        });
-      } catch (error: any) {
-        setUrlValidation({
-          isValid: false,
-          error: error.message || 'Failed to validate URL'
-        });
-      } finally {
-        setIsValidating(false);
-      }
-    }, 1500); // 1.5 second debounce
-
-    return () => clearTimeout(timeoutId);
   }, [url, isUrlFormatValid]);
 
-  const isUrlValid = urlValidation.isValid && !isValidating;
+  // Enable scan button when URL format is valid; reachability is checked on Scan click
+  const isUrlValid = isUrlFormatValid && !isValidating;
 
   const levels = [
     { 
@@ -202,7 +213,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
       // All checks passed, initiate scan
       const finalUrl = formatCheck.normalizedUrl || (url.trim().startsWith('http') ? url.trim() : `https://${url.trim()}`);
       setIsValidating(false);
-      onInitiate(finalUrl, level, currentLanguageName);
+      onInitiate(finalUrl, level, currentLanguageName, buildExpertOptions());
     } catch (error: any) {
       setUrlValidation({ isValid: false, error: error.message || 'Failed to validate URL. Please check the URL and try again.' });
       setIsValidating(false);
@@ -278,6 +289,50 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
             </div>
           </motion.div>
         )}
+
+        {/* API Key Status - Above URL input */}
+        <div className="flex flex-col md:flex-row justify-center items-center gap-4 py-4 px-6 md:px-10">
+           {isEngineLinked && apiKeyStatus === 'testing' && (
+             <div className="flex flex-col items-center gap-2">
+                <p className="text-[10px] md:text-[12px] font-black text-[#00d4ff] uppercase tracking-widest animate-pulse flex items-center gap-2 bg-[#00d4ff]/5 px-6 py-2.5 rounded-full border border-[#00d4ff]/20">
+                   <ActivityIcon size={14} className="animate-spin"/> {t('apikey.testing_api_key')}
+                </p>
+                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.validating_connectivity')}</p>
+             </div>
+           )}
+           {isEngineLinked && (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
+             <div className="flex flex-col items-center gap-2">
+                <p className="text-[10px] md:text-[12px] font-black text-yellow-500 uppercase tracking-widest animate-pulse flex items-center gap-2 bg-yellow-500/5 px-6 py-2.5 rounded-full border border-yellow-500/20">
+                   <AlertTriangle size={14}/> API_KEY_INVALID
+                </p>
+                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.invalid_too_short')}</p>
+                <button 
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="mt-2 px-6 py-2.5 rounded-full bg-yellow-500 text-black font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 transition-colors shadow-[0_5px_15px_rgba(234,179,8,0.2)] flex items-center gap-2"
+                >
+                  <KeyRound size={14} />
+                  RECONFIGURE_KEY
+                </button>
+             </div>
+           )}
+           {isEngineLinked && activeKey && activeKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyStatus === 'valid' && (
+             <div className="px-6 py-3.5 rounded-2xl bg-[#00ff9d]/5 border border-[#00ff9d]/10 flex items-center gap-3 md:gap-5">
+                <ShieldCheck size={18} className="text-[#00ff9d]" />
+                <span className="text-[10px] md:text-[12px] font-black text-[#00ff9d] uppercase tracking-[0.3em] md:tracking-[0.4em]">SYSTEM_CORE_ENGAGED</span>
+             </div>
+           )}
+           {/* URL Validation Status - Only show if there's an error and URL is entered */}
+           {url.trim() && urlValidation.error && !isValidating && (
+             <div className="flex flex-col items-center gap-2">
+               <p className="text-[10px] md:text-[12px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2 bg-red-500/5 px-6 py-2.5 rounded-full border border-red-500/20">
+                 <AlertCircle size={14}/> {urlValidation.error.includes('DNS') || urlValidation.error.includes('not exist') ? 'WEBSITE_NOT_FOUND' : urlValidation.error.includes('timeout') ? 'CONNECTION_TIMEOUT' : 'INVALID_URL'}
+               </p>
+               <p className="text-[10px] md:text-[11px] text-white/40 uppercase text-center max-w-md leading-relaxed px-4">
+                 {urlValidation.error}
+               </p>
+             </div>
+           )}
+        </div>
         
         <div ref={inputContainerRef} className="relative glass-panel p-1.5 md:p-2 rounded-2xl md:rounded-3xl border bg-black/95 shadow-[0_24px_48px_rgba(0,0,0,0.6)] transition-all duration-500" style={{ borderColor: isFocused ? `${themeColor}4d` : (url.trim() ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.2)') }}>
           <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
@@ -310,6 +365,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
               />
             </div>
             
+            {/* Expert Mode icon: opens modal for headers/cookies */}
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setIsExpertModalOpen(true); }}
+              className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl md:rounded-2xl border border-white/10 bg-white/5 text-white/50 hover:text-white/80 hover:bg-white/10 hover:border-white/20 transition-all shrink-0 self-center sm:self-stretch"
+              title={t('expert_mode.toggle')}
+              aria-label={t('expert_mode.toggle')}
+            >
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            
             <button 
               type="button"
               disabled={!isUrlValid}
@@ -333,6 +399,133 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
             </button>
           </div>
         </div>
+
+        {/* Expert Mode Modal: render via Portal into body so it appears above crt-overlay (z-index 999) */}
+        {createPortal(
+          <AnimatePresence>
+            {isExpertModalOpen && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsExpertModalOpen(false)}
+                  onWheel={(e) => e.stopPropagation()}
+                  className="fixed inset-0 z-[1000] bg-black/70 backdrop-blur-sm touch-none"
+                  style={{ overscrollBehavior: 'contain' }}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ type: 'tween', duration: 0.2 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] w-full max-w-lg mx-4 rounded-2xl md:rounded-3xl border border-white/10 bg-black/95 shadow-2xl overflow-hidden"
+                style={{ borderColor: `${themeColor}40` }}
+              >
+                <div className="px-6 py-5 md:px-8 md:py-6 border-b border-white/5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl border border-white/10" style={{ color: themeColor }}>
+                      <Settings className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm md:text-base font-black uppercase tracking-wider text-white">{t('expert_mode.title')}</h3>
+                      <p className="text-[10px] md:text-[11px] text-white/50 font-mono mt-0.5">{t('expert_mode.description')}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsExpertModalOpen(false)}
+                    className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 md:p-8 space-y-4 max-h-[min(70vh,520px)] overflow-y-auto overflow-x-hidden">
+                  {/* What it's for & How to use */}
+                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3 shrink-0">
+                    <div>
+                      <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">{t('expert_mode.what_it_is')}</div>
+                      <p className="text-[10px] md:text-[11px] text-white/60 font-mono leading-relaxed">{t('expert_mode.what_it_is_desc')}</p>
+                    </div>
+                    <div>
+                      <div className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5">{t('expert_mode.how_to_use')}</div>
+                      <ul className="space-y-1 text-[10px] md:text-[11px] text-white/60 font-mono leading-relaxed list-disc list-inside">
+                        <li>{t('expert_mode.how_to_use_1')}</li>
+                        <li>{t('expert_mode.how_to_use_2')}</li>
+                        <li>{t('expert_mode.how_to_use_3')}</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40">Headers</label>
+                      <button
+                        type="button"
+                        onClick={addExpertHeaderRow}
+                        disabled={!expertHeaderPairs.every((p) => p.key.trim() && p.value.trim())}
+                        title={!expertHeaderPairs.every((p) => p.key.trim() && p.value.trim()) ? (t('expert_mode.fill_key_value_first') || 'Fill key and value first') : undefined}
+                        className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-mono uppercase tracking-wider border border-white/10 text-white/60 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-white/60"
+                      >
+                        <Plus size={12} /> {t('expert_mode.add_header')}
+                      </button>
+                    </div>
+                    <div className="space-y-2 max-h-[220px] overflow-y-auto overflow-x-hidden pr-3 rounded-lg border border-white/5 bg-black/30 py-2">
+                      {expertHeaderPairs.map((pair, index) => (
+                        <div key={index} className="flex gap-2 items-center min-w-0 pr-1">
+                          <input
+                            type="text"
+                            value={pair.key}
+                            onChange={(e) => updateExpertHeaderPair(index, 'key', e.target.value)}
+                            placeholder={t('expert_mode.key_placeholder')}
+                            className="flex-1 min-w-0 w-0 px-3 py-2 rounded-lg bg-black/60 border border-white/10 font-mono text-[10px] md:text-[11px] text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
+                          />
+                          <input
+                            type="text"
+                            value={pair.value}
+                            onChange={(e) => updateExpertHeaderPair(index, 'value', e.target.value)}
+                            placeholder={t('expert_mode.value_placeholder')}
+                            className="flex-1 min-w-0 w-0 px-3 py-2 rounded-lg bg-black/60 border border-white/10 font-mono text-[10px] md:text-[11px] text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeExpertHeaderRow(index)}
+                            className="p-2 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
+                            aria-label="Remove header"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5">Cookies</label>
+                    <textarea
+                      value={expertCookies}
+                      onChange={(e) => setExpertCookies(e.target.value)}
+                      placeholder={t('expert_mode.cookies_placeholder')}
+                      rows={1}
+                      className="w-full px-3 py-2 rounded-lg bg-black/60 border border-white/10 font-mono text-[10px] md:text-[11px] text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none resize-y"
+                    />
+                  </div>
+                </div>
+                <div className="px-6 py-4 md:px-8 md:py-5 border-t border-white/5 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsExpertModalOpen(false)}
+                    className="px-5 py-2.5 rounded-xl font-black uppercase tracking-wider text-[10px] md:text-[11px] border-2 transition-all text-black hover:brightness-110"
+                    style={{ backgroundColor: themeColor, borderColor: themeColor }}
+                  >
+                    {t('expert_mode.done')}
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+          </AnimatePresence>,
+          document.body
+        )}
         
         {/* Mission Intensity Selection */}
         <div className="w-full flex flex-col gap-6 md:gap-10 mt-6 md:mt-8">
@@ -482,55 +675,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
               </button>
             )})}
            </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row justify-center items-center gap-6 py-6 px-6 md:px-10">
-           {isEngineLinked && apiKeyStatus === 'testing' && (
-             <div className="flex flex-col items-center gap-2">
-                <p className="text-[10px] md:text-[12px] font-black text-[#00d4ff] uppercase tracking-widest animate-pulse flex items-center gap-2 bg-[#00d4ff]/5 px-6 py-2.5 rounded-full border border-[#00d4ff]/20">
-                   <ActivityIcon size={14} className="animate-spin"/> {t('apikey.testing_api_key')}
-                </p>
-                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.validating_connectivity')}</p>
-             </div>
-           )}
-           {isEngineLinked && (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
-             <div className="flex flex-col items-center gap-2">
-                <p className="text-[10px] md:text-[12px] font-black text-yellow-500 uppercase tracking-widest animate-pulse flex items-center gap-2 bg-yellow-500/5 px-6 py-2.5 rounded-full border border-yellow-500/20">
-                   <AlertTriangle size={14}/> API_KEY_INVALID
-                </p>
-                <p className="text-[10px] md:text-[11px] text-white/30 uppercase text-center max-w-xs leading-relaxed">{t('apikey.invalid_too_short')}</p>
-                <button 
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="mt-2 px-6 py-2.5 rounded-full bg-yellow-500 text-black font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 transition-colors shadow-[0_5px_15px_rgba(234,179,8,0.2)] flex items-center gap-2"
-                >
-                  <KeyRound size={14} />
-                  RECONFIGURE_KEY
-                </button>
-             </div>
-           )}
-           {isEngineLinked && activeKey && activeKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyStatus === 'valid' && (
-             <div className="px-6 py-3.5 rounded-2xl bg-[#00ff9d]/5 border border-[#00ff9d]/10 flex items-center gap-3 md:gap-5">
-                <ShieldCheck size={18} className="text-[#00ff9d]" />
-                <span className="text-[10px] md:text-[12px] font-black text-[#00ff9d] uppercase tracking-[0.3em] md:tracking-[0.4em]">SYSTEM_CORE_ENGAGED</span>
-             </div>
-           )}
-           {isEngineLinked && activeKey && activeKey.length >= API_KEY_CONSTANTS.MIN_KEY_LENGTH && apiKeyStatus !== 'valid' && apiKeyStatus !== 'invalid' && apiKeyStatus !== 'testing' && (
-             <div className="px-6 py-3.5 rounded-2xl bg-yellow-500/5 border border-yellow-500/10 flex items-center gap-3 md:gap-5">
-                <AlertTriangle size={18} className="text-yellow-500" />
-                <span className="text-[10px] md:text-[12px] font-black text-yellow-500 uppercase tracking-[0.3em] md:tracking-[0.4em]">KEY_STATUS_UNKNOWN</span>
-             </div>
-           )}
-           {/* URL Validation Status - Only show if there's an error and URL is entered */}
-           {url.trim() && urlValidation.error && !isValidating && (
-             <div className="flex flex-col items-center gap-2">
-               <p className="text-[10px] md:text-[12px] font-black text-red-500 uppercase tracking-widest flex items-center gap-2 bg-red-500/5 px-6 py-2.5 rounded-full border border-red-500/20">
-                 <AlertCircle size={14}/> {urlValidation.error.includes('DNS') || urlValidation.error.includes('not exist') ? 'WEBSITE_NOT_FOUND' : urlValidation.error.includes('timeout') ? 'CONNECTION_TIMEOUT' : 'INVALID_URL'}
-               </p>
-               <p className="text-[10px] md:text-[11px] text-white/40 uppercase text-center max-w-md leading-relaxed px-4">
-                 {urlValidation.error}
-               </p>
-             </div>
-           )}
         </div>
       </div>
 

@@ -188,7 +188,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.2.0";
+      const versionText = "v1.3.0";
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
@@ -1722,6 +1722,15 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                         <span className={`px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[11px] font-black uppercase border ${(f.confidence === 'High') ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
                           {(f.confidence === 'High') ? t('results.confidence_confirmed') : t('results.confidence_potential')}
                         </span>
+                        {f.verificationStatus && (
+                          <span className={`px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[11px] font-black uppercase border ${
+                            f.verificationStatus === 'High' ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/20' :
+                            f.verificationStatus === 'Potential' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
+                            'bg-white/5 text-white/40 border-white/10'
+                          }`}>
+                            {f.verificationStatus === 'High' ? t('results.verification_high') : f.verificationStatus === 'Potential' ? t('results.verification_potential') : t('results.verification_unknown')}
+                          </span>
+                        )}
                         <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-orange-500/10 text-orange-500 text-[9px] md:text-[11px] font-black uppercase border border-orange-500/20">{t('results.chain_high')}</span>
                       </div>
                     </div>
@@ -1731,6 +1740,17 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                   </div>
 
                   <p className="text-sm md:text-lg font-mono text-white/50 mb-8 md:mb-10 uppercase leading-relaxed max-w-4xl">{f.description}</p>
+
+                  {f.evidenceLinks && f.evidenceLinks.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      <span className="text-[9px] md:text-[11px] font-black uppercase text-white/40 tracking-widest mr-2">{t('results.evidence_links')}:</span>
+                      {f.evidenceLinks.map((link: string, j: number) => (
+                        <a key={j} href={link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] md:text-[11px] font-mono text-[#00ff9d]/90 hover:bg-[#00ff9d]/10 hover:border-[#00ff9d]/30 transition-colors">
+                          <ExternalLink size={12} /> NIST/MITRE
+                        </a>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="bg-black/95 rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 overflow-hidden mb-8 md:mb-12 shadow-4xl">
                     <div className="px-6 py-4 md:px-8 md:py-5 bg-white/5 border-b border-white/5 flex justify-between items-center">

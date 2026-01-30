@@ -58,12 +58,26 @@ const setCache = (key: string, data: any, ttlMs: number) => {
   cache.set(key, { data, expiry: Date.now() + ttlMs });
 };
 
+/** Expert mode: custom headers and cookies for authenticated targets. */
+export interface ExpertFetchOptions {
+  headers?: Record<string, string>;
+  cookies?: string;
+}
+
+function buildRequestHeaders(options?: ExpertFetchOptions): HeadersInit {
+  const h: Record<string, string> = {};
+  if (options?.headers) Object.assign(h, options.headers);
+  if (options?.cookies) h['Cookie'] = options.cookies;
+  return h;
+}
+
 export class FrontendNetworkAnalysis {
   /**
-   * Analyze HTTP headers from actual response
+   * Analyze HTTP headers from actual response.
+   * @param options - Optional expert headers/cookies for authenticated targets.
    */
-  async analyzeHeaders(targetUrl: string): Promise<HeaderAnalysis> {
-    const cacheKey = `headers_${targetUrl}`;
+  async analyzeHeaders(targetUrl: string, options?: ExpertFetchOptions): Promise<HeaderAnalysis> {
+    const cacheKey = `headers_${targetUrl}_${options?.cookies ? 'auth' : 'anon'}`;
     const cached = getCached(cacheKey);
     if (cached) return cached;
 
@@ -71,10 +85,12 @@ export class FrontendNetworkAnalysis {
     suppressor.start();
 
     try {
+      const requestHeaders = buildRequestHeaders(options);
       const response = await fetch(targetUrl, {
         method: 'HEAD',
         mode: 'cors',
         credentials: 'omit',
+        ...(Object.keys(requestHeaders).length > 0 ? { headers: requestHeaders } : {}),
       });
 
       const headers: HeaderAnalysis = {

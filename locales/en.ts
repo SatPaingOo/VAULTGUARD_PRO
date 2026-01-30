@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "NEURAL_SECURITY_OPS_v1.2.0",
+  "app_subtitle": "NEURAL_SECURITY_OPS_v1.3.0",
   "app_gemini_tagline": "Powered by Gemini 3 Pro & Flash • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Built for Gemini 3 Hackathon",
   "app_hybrid_tagline": "Hybrid: Deterministic Rules + AI Reasoning",
@@ -9,6 +9,24 @@ export default {
   "restart_mission": "RESTART_MISSION",
   "export_pdf": "EXPORT_PDF",
   "target_url_placeholder": "TARGET_URL...",
+  "expert_mode": {
+    "title": "Expert Mode",
+    "description": "Add custom headers or cookies so the scanner can access auth-protected or API-key–required targets.",
+    "what_it_is": "What it's for",
+    "what_it_is_desc": "Sends your headers and cookies with every request (DOM fetch, headers check, probes). Use when the target requires login, Bearer token, or API key.",
+    "how_to_use": "How to use",
+    "how_to_use_1": "Fill Key (e.g. Authorization) and Value (e.g. Bearer YOUR_TOKEN). Use \"Add header\" for more.",
+    "how_to_use_2": "Optionally add Cookies (e.g. session=abc123; token=xyz).",
+    "how_to_use_3": "Click Done, then run Scan. Your values are used for this scan only.",
+    "headers_placeholder": "Headers (one per line: Key: Value)\nExample:\nAuthorization: Bearer YOUR_TOKEN\nX-API-Key: key",
+    "add_header": "Add header",
+    "fill_key_value_first": "Fill key and value first",
+    "key_placeholder": "Key",
+    "value_placeholder": "Value",
+    "cookies_placeholder": "Cookie header value (e.g. session=abc123; auth=xyz)",
+    "toggle": "Headers & cookies for scan",
+    "done": "Done"
+  },
   "scanning_levels": {
     "fast": "FAST_HYGIENE",
     "standard": "STANDARD_AUDIT",
@@ -304,6 +322,10 @@ export default {
     "data_integrity_simulated": "Simulated (some data blocked by CORS)",
     "confidence_confirmed": "Confirmed",
     "confidence_potential": "Potential",
+    "verification_high": "Verified (200)",
+    "verification_potential": "Protected (403)",
+    "verification_unknown": "Unverified",
+    "evidence_links": "Evidence links",
     "limitations": "Limitations",
     "available": "Available",
     "blocked": "Blocked",
@@ -403,6 +425,9 @@ export default {
     "extension_not_detected": "Extension not detected",
     "validating_connectivity": "Validating API key connectivity...",
     "invalid_too_short": "API key appears to be invalid or too short. Please reconfigure.",
+    "status_unknown_label": "Key not verified",
+    "status_unknown_hint": "Test your API key in Settings to confirm it works before scanning.",
+    "test_key_btn": "Test key",
     "testing": "Testing",
     "apply": "Apply",
     "linking": "Linking",
@@ -460,7 +485,7 @@ export default {
     "error_unknown_suggestions": ["Check your internet connection", "Verify the API key is correct", "Try again in a few moments"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.2.0",
+    "version_badge": "VAULT_SOC_1.3.0",
     "evidence_based_badge": "EVIDENCE_BASED_FINDINGS",
     "neural_engine": "NEURAL_ENGINE",
     "frontend_only": "FRONTEND_ONLY",

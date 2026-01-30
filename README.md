@@ -4,7 +4,7 @@
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -56,6 +56,32 @@ Vault Academy showcases how AI can be leveraged in educational contexts, providi
 - **Confidence tier** – Findings show “Confirmed” (High confidence) or “Potential” (Medium/Low) in the UI and PDF
 
 These updates make Tech DNA and findings more reliable and easier to trust for users and testers.
+
+---
+
+## 🚀 New in v1.3.0: Multi-Step Verification, CVE Evidence Links & Expert Mode
+
+### Multi-Step Verification (Deterministic Trust)
+
+- **Verification labels** – Each finding that references an endpoint is tagged by actual HTTP response:
+  - **Verified (200)** – Endpoint returns 200 OK (green badge)
+  - **Protected (403)** – Endpoint returns 401/403 (orange badge)
+  - **Unverified** – Not probed or CORS blocked (gray badge)
+- **404/error endpoints** – Findings for endpoints that return 404 or error are removed from the report (discard)
+- **Implementation**: `utils/findingVerification.ts` – HEAD requests; `VulnerabilityFinding.verificationStatus`; UI badges on Results page
+
+### CVE Evidence Links (Trust Anchor)
+
+- **Version-specific CVE grounding** – Mission prompt instructs AI to use Search Grounding with queries like “Search latest CVEs for [technology] [version] as of [year]” for accurate results
+- **Evidence links** – Findings and Tech DNA can include **evidenceLinks** / **cveLinks** (NIST: `https://nvd.nist.gov/vuln/detail/CVE-XXXX`, MITRE) so users can verify in one click
+- **Implementation**: `services/geminiService.ts` – prompt instructions; `VulnerabilityFinding.evidenceLinks`, `TechItem.cveLinks`; Results page shows clickable NIST/MITRE links
+
+### Expert Mode (Headers & Cookies)
+
+- **Key–value header form** – Add custom HTTP headers via Key/Value pairs (e.g. `Authorization` / `Bearer YOUR_TOKEN`); “Add header” only enabled when current row has both key and value filled
+- **Cookies** – Optional cookie string (e.g. `session=abc123; token=xyz`) for authenticated targets
+- **Usage** – Click the gear icon next to the Scan button → fill Headers and/or Cookies → Done; then run Scan. Values are sent with DOM fetch, headers check, probes, and finding verification
+- **UX** – Modal includes “What it’s for” and “How to use”; rendered via React Portal so it appears above app header and CRT overlay; body scroll locked when modal is open; scrollable header list and modal content to avoid layout break with many headers
 
 ---
 
@@ -544,7 +570,13 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.2.0 (Current)
+### v1.3.0 (Current)
+
+- **Multi-Step Verification** – Findings tagged by endpoint response: Verified (200), Protected (403), Unverified; 404/error endpoints discarded
+- **CVE Evidence Links** – Version-specific CVE grounding; NIST/MITRE links in findings and Tech DNA; clickable in Results
+- **Expert Mode** – Key-value header form + cookies; gear icon opens modal (Portal, body scroll lock); "What it's for" / "How to use" in modal
+
+### v1.2.0
 
 - **Tech DNA Ground Truth** – Deterministic tech fingerprint (DOM + headers) before AI; expanded patterns (frameworks, CDNs, PaaS, CMS, **backend: Laravel, Django, Express, Rails, PHP**); report shows only detected tech
 - **Finding verification** – HEAD check on inferred API endpoints; **only 404/unreachable** removed (401/403 = endpoint exists, kept); fewer false removals

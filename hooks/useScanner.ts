@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { GeminiService, MissionReport, ScanLevel, VerificationPayload, VulnerabilityFinding } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
-import { extractSecuritySignals, extractTargetDOM } from '../utils/masking';
+import { extractSecuritySignals, extractTargetDOM, type ExpertFetchOptions } from '../utils/masking';
 import { FrontendNetworkAnalysis } from '../utils/networkAnalysis';
 import { detectTechFingerprint } from '../utils/techFingerprint';
 import { verifyFindings } from '../utils/findingVerification';
@@ -80,7 +80,7 @@ export const useScanner = () => {
     setTelemetry(prev => [...prev.slice(-49), { msg, type, timestamp: new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }), progressAtLog: currentProgress }]);
   }, []);
 
-  const runMission = async (url: string, level: ScanLevel, languageName: string = "English") => {
+  const runMission = async (url: string, level: ScanLevel, languageName: string = "English", expertOptions?: ExpertFetchOptions) => {
     // Validate API key before starting scan
     if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       addLog(`[FATAL] API_KEY_MISSING: Neural Engine Core not linked. Please configure API key to proceed.`, 'error', 0);
@@ -195,7 +195,7 @@ export const useScanner = () => {
         : Promise.resolve({ usage: { totalTokenCount: 0 }, sources: [] });
 
       const dataCollectionPromises = [
-        extractTargetDOM(target).catch(err => {
+        extractTargetDOM(target, expertOptions).catch(err => {
           if (err.message?.includes('CORS_BLOCKED') || err.message?.includes('CORS')) {
             corsStatus.domBlocked = true;
             corsStatus.directScanBlocked = true;
@@ -203,7 +203,7 @@ export const useScanner = () => {
           throw err;
         }),
         osintPromise,
-        networkAnalysis.analyzeHeaders(target),
+        networkAnalysis.analyzeHeaders(target, expertOptions),
         networkAnalysis.analyzeSSL(domain),
         networkAnalysis.checkDNS(domain),
       ];
@@ -478,13 +478,17 @@ export const useScanner = () => {
             let response: Response;
             let corsBlocked = false;
             
+            const probeHeaders: Record<string, string> = {
+              'Content-Type': 'application/json',
+              'User-Agent': 'VaultGuard-Pro/1.0',
+              ...expertOptions?.headers,
+            };
+            if (expertOptions?.cookies) probeHeaders['Cookie'] = expertOptions.cookies;
+
             try {
               response = await fetch(probeUrl, {
                 method: probe.method,
-                headers: {
-                  'Content-Type': 'application/json',
-                  'User-Agent': 'VaultGuard-Pro/1.0',
-                },
+                headers: probeHeaders,
                 body: probe.payload ? JSON.stringify(JSON.parse(probe.payload)) : undefined,
                 mode: 'cors', // Try CORS first
                 credentials: 'omit',
@@ -494,6 +498,7 @@ export const useScanner = () => {
               try {
                 await fetch(probeUrl, {
                   method: probe.method,
+                  headers: probeHeaders,
                   mode: 'no-cors',
                 });
                 // If no-cors succeeds, endpoint exists but we can't read response
@@ -724,7 +729,7 @@ export const useScanner = () => {
       };
 
       // Finding Verification (Check First): drop findings for endpoints that return 404
-      let finalReport = await verifyFindings(target, reportWithQuality);
+      let finalReport = await verifyFindings(target, reportWithQuality, expertOptions);
       if ((reportWithQuality.findings?.length || 0) !== (finalReport.findings?.length || 0)) {
         const removed = (reportWithQuality.findings?.length || 0) - (finalReport.findings?.length || 0);
         addLog(`[VERIFY] Removed ${removed} finding(s) for non-existent endpoints (404)`, 'info', 94);

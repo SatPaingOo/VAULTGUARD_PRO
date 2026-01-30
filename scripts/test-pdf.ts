@@ -250,7 +250,7 @@ const generateTestPDF = async (logoPath?: string): Promise<{ success: boolean; h
     doc.setFontSize(9); // Smaller font
     doc.setTextColor(150, 150, 150); // Gray color
     doc.setFont("courier", "normal");
-    const versionText = "v1.2.0";
+    const versionText = "v1.3.0";
     const versionX = titleX + titleWidth + 3; // Right after title
     doc.text(versionText, versionX, titleY);
     

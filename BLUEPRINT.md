@@ -2,7 +2,7 @@
   <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
-# VaultGuard Pro: Neural Mission Blueprints (v1.2.0)
+# VaultGuard Pro: Neural Mission Blueprints (v1.3.0)
 
 **Developer Documentation** - Technical architecture, implementation details, and "how it works"
 
@@ -132,6 +132,8 @@ To reduce AI hallucination (e.g. reporting Next.js when the site is Vite + React
 
 **Implementation**: `hooks/useScanner.ts` – `detectTechFingerprint()` before audit; tier-based `techFingerprint` for STANDARD/DEEP; post-audit filter on `technologyDNA` and `verifyFindings()`.
 
+**v1.3.0 – Multi-Step Verification labels**: `utils/findingVerification.ts` tags each finding with `verificationStatus`: **High** (200 OK), **Potential** (401/403), **Unknown**; findings for 404/error endpoints are discarded. Results page shows badges: Verified (200), Protected (403), Unverified. **CVE Evidence Links**: Mission prompt instructs AI to use version-specific CVE Search Grounding and to include `evidenceLinks` (NIST/MITRE) in findings and `cveLinks` in Tech DNA; Results page renders clickable links. **Expert Mode**: Optional headers (key-value pairs) and cookies; `pages/LandingPage.tsx` – gear icon opens modal (React Portal to `document.body`, body scroll lock); values passed to `runMission` and used in `extractTargetDOM`, `analyzeHeaders`, `verifyFindings`, and probe execution (`utils/masking.ts`, `utils/networkAnalysis.ts`, `utils/findingVerification.ts`, `hooks/useScanner.ts`).
+
 ## 3. Mission Intensity Tiers & Flow
 
 | Tier         | Focus                 | Engine | Thinking Budget | Logic Flow                                    |
@@ -167,8 +169,8 @@ The Results page displays comprehensive security intelligence with the following
 - **Business Logic**: Application purpose, business logic analysis, and attack surface summary
 - **Probe Execution Details**: HTTP probe execution results with methods, endpoints, response times, vulnerability status, and CORS blocking indicators
 - **Data Quality / Integrity**: Trust score (0–100%), data source status; **Data integrity label** (v1.2.0) – “Simulated” vs “Live” in report/PDF based on whether CORS blocked direct data
-- **Vulnerability Ledger**: Ranked findings with severity levels, CWE IDs, **confidence tier** (v1.2.0: “Confirmed” for High confidence, “Potential” for Medium/Low), evidence sources, proof-of-concept scripts, full remediation directives, and business impact assessment
-- **Technology DNA**: Ground Truth fingerprint (v1.2.0) – only technologies detected by deterministic scan (DOM/headers); versions, categories, security status, CVE information, and action plans
+- **Vulnerability Ledger**: Ranked findings with severity levels, CWE IDs, **confidence tier** (v1.2.0: “Confirmed” for High confidence, “Potential” for Medium/Low), evidence sources, **verification status** (v1.3.0: Verified (200), Protected (403), Unverified), **evidence links** (v1.3.0: NIST/MITRE CVE URLs), proof-of-concept scripts, full remediation directives, and business impact assessment
+- **Technology DNA**: Ground Truth fingerprint (v1.2.0) – only technologies detected by deterministic scan (DOM/headers); versions, categories, security status, CVE information, **cveLinks** (v1.3.0: NIST/MITRE URLs), and action plans
 
 **PDF Report Structure**: The PDF export includes all sections above in the same order, ensuring 100% consistency between UI and PDF reports. Level-based differences are automatically reflected in both UI and PDF based on the selected scan level.
 

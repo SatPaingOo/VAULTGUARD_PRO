@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.2.0",
+  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.3.0",
   "app_gemini_tagline": "Gemini 3 Pro & Flash ဖြင့် မောင်းနှင်သည် • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Gemini 3 Hackathon အတွက် တည်ဆောက်ထားသည်",
   "app_hybrid_tagline": "ပေါင်းစပ်: သတ်မှတ်ချက် စည်းမျဉ်းများ + AI ဆင်ခြင်ချက်",
@@ -9,6 +9,24 @@ export default {
   "restart_mission": "အသစ်ပြန်စရန်",
   "export_pdf": "PDF ထုတ်ယူရန်",
   "target_url_placeholder": "စစ်ဆေးမည့် URL...",
+  "expert_mode": {
+    "title": "Expert Mode",
+    "description": "Auth လိုတဲ့ သို့မဟုတ် API key လိုတဲ့ target ကို စစ်ဖတ်နိုင်အောင် Header / Cookie ထည့်ပါ။",
+    "what_it_is": "ဘာသုံးတာလဲ",
+    "what_it_is_desc": "Request တိုင်းမှာ သင့် headers နဲ့ cookies ကို ထည့်ပေးပါတယ်။ Login၊ Bearer token သို့မဟုတ် API key လိုတဲ့ site စစ်ဖတ်တဲ့အခါ သုံးပါ။",
+    "how_to_use": "ဘယ်လို သုံးရမလဲ",
+    "how_to_use_1": "Key (ဥပမာ Authorization) နဲ့ Value (ဥပမာ Bearer YOUR_TOKEN) ထည့်ပါ။ ထပ်လိုရင် \"Add header\" နှိပ်ပါ။",
+    "how_to_use_2": "လိုရင် Cookies ထည့်ပါ (ဥပမာ session=abc123; token=xyz)။",
+    "how_to_use_3": "Done နှိပ်ပြီး Scan လုပ်ပါ။ ဒီ scan တစ်ခါအတွက်ပဲ သုံးပါမယ်။",
+    "headers_placeholder": "Headers (တစ်ကြောင်းချင်း: Key: Value)\nဥပမာ:\nAuthorization: Bearer YOUR_TOKEN\nX-API-Key: key",
+    "add_header": "Header ထပ်ထည့်ရန်",
+    "fill_key_value_first": "Key နဲ့ Value ထည့်ပြီးမှ ထပ်ထည့်ပါ",
+    "key_placeholder": "Key",
+    "value_placeholder": "Value",
+    "cookies_placeholder": "Cookie များ (ဥပမာ session=abc123; auth=xyz)",
+    "toggle": "Headers & cookies for scan",
+    "done": "ပြီး"
+  },
   "scanning_levels": {
     "fast": "အခြေခံ စစ်ဆေးမှု",
     "standard": "ပုံမှန် စစ်ဆေးမှု",
@@ -285,6 +303,10 @@ export default {
     "data_integrity_simulated": "Simulated (CORS ကြောင့် ဒေတာ တစ်စိတ်တစ်ပိုင်း ပိတ်ထား)",
     "confidence_confirmed": "အတည်ပြု",
     "confidence_potential": "ဖြစ်နိုင်ခြေ",
+    "verification_high": "အတည်ပြု (200)",
+    "verification_potential": "ကာကွယ်ထား (403)",
+    "verification_unknown": "မစစ်ဆေးရသေး",
+    "evidence_links": "သက်သေခံလင့်များ",
     "limitations": "ကန့်သတ်ချက်များ",
     "available": "ရရှိနိုင်သည်",
     "blocked": "ပိတ်ဆို့ထားသည်",
@@ -383,6 +405,9 @@ export default {
     "extension_not_detected": "Extension ကို မတွေ့ရှိပါ",
     "validating_connectivity": "API key ချိတ်ဆက်မှု စစ်ဆေးနေသည်...",
     "invalid_too_short": "API key သည် မမှန်ကန်ပါ သို့မဟုတ် တိုတောင်းလွန်းပါသည်။ ပြန်လည် ပြင်ဆင်ပါ။",
+    "status_unknown_label": "Key မစစ်ဆေးရသေး",
+    "status_unknown_hint": "စစ်ဆေးမှု မလုပ်ခင် Settings မှ API key ကို စစ်ဆေးပြီး အလုပ်လုပ်မလုပ် အတည်ပြုပါ။",
+    "test_key_btn": "Key စစ်ဆေးရန်",
     "testing": "စစ်ဆေးနေသည်",
     "apply": "အသုံးပြုမည်",
     "linking": "ချိတ်ဆက်နေသည်",
@@ -440,7 +465,7 @@ export default {
     "error_unknown_suggestions": ["အင်တာနက် ချိတ်ဆက်မှု စစ်ပါ", "API key မှန်ကန်မှု စစ်ပါ", "ခဏအကြာ ပြန်ကြိုးစားပါ"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.2.0",
+    "version_badge": "VAULT_SOC_1.3.0",
     "evidence_based_badge": "သက်သေအခြေပြု တွေ့ရှိချက်များ",
     "neural_engine": "နျူရယ် အင်ဂျင်",
     "frontend_only": "ဖရန့်တင့်သာ",

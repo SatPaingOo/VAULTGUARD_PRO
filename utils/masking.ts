@@ -45,16 +45,36 @@ export const extractSecuritySignals = (dom: string): string => {
   return JSON.stringify(signals);
 };
 
+/** Expert mode: custom headers and cookies for authenticated / deep scans. */
+export interface ExpertFetchOptions {
+  headers?: Record<string, string>;
+  cookies?: string;
+}
+
+function buildHeaders(options?: ExpertFetchOptions): HeadersInit {
+  const h: Record<string, string> = {};
+  if (options?.headers) Object.assign(h, options.headers);
+  if (options?.cookies) h['Cookie'] = options.cookies;
+  return h;
+}
+
 /**
  * Extract DOM from target URL.
  * 1. Tries fetch() first so "Allow CORS" extension can make cross-origin HTML readable.
  * 2. Falls back to iframe (same-origin only; cross-origin iframe content is never readable by JS).
+ * @param options - Optional expert headers/cookies for authenticated targets.
  */
-export const extractTargetDOM = async (targetUrl: string): Promise<string> => {
+export const extractTargetDOM = async (targetUrl: string, options?: ExpertFetchOptions): Promise<string> => {
   // 1. Try fetch first – when user has "Allow CORS: Access-Control-Allow-Origin" extension,
   //    the extension injects CORS headers so we can read the response body from another origin.
   try {
-    const res = await fetch(targetUrl, { mode: 'cors', credentials: 'omit', redirect: 'follow' });
+    const headers = buildHeaders(options);
+    const res = await fetch(targetUrl, {
+      mode: 'cors',
+      credentials: 'omit',
+      redirect: 'follow',
+      ...(Object.keys(headers).length > 0 ? { headers } : {}),
+    });
     if (res.ok) {
       const html = await res.text();
       if (html && html.length > 0) {

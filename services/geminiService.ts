@@ -9,6 +9,8 @@ export interface TechItem {
   category: 'Frontend' | 'Backend' | 'Library' | 'Server' | 'Database';
   status: 'Stable' | 'Outdated' | 'Legacy' | 'End of Life';
   cves?: string[];
+  /** Official NIST/MITRE links for each CVE (e.g. https://nvd.nist.gov/vuln/detail/CVE-2024-12345). */
+  cveLinks?: string[];
   advisory?: string;
   actionPlan: string;
 }
@@ -21,6 +23,9 @@ export interface VerificationPayload {
   expectedBehavior: string;
 }
 
+/** Verification status from multi-step check: 200 = High, 403/401 = Potential, 404 = discarded (not shown). */
+export type VerificationStatus = 'High' | 'Potential' | 'Unknown';
+
 export interface VulnerabilityFinding {
   title: string;
   description: string;
@@ -32,6 +37,10 @@ export interface VulnerabilityFinding {
   poc: string;
   confidence?: 'High' | 'Medium' | 'Low';
   evidence?: string[];
+  /** Set by backend verification: 200 OK = High, 403/401 = Potential, unverified = Unknown */
+  verificationStatus?: VerificationStatus;
+  /** Official CVE/NIST/MITRE links for evidence (trust anchor). */
+  evidenceLinks?: string[];
 }
 
 export interface DigitalFootprint {
@@ -273,6 +282,7 @@ export class GeminiService {
             ? f.confidence as 'High' | 'Medium' | 'Low'
             : 'Medium' as const,
           evidence: Array.isArray(f.evidence) ? f.evidence.filter((e): e is string => typeof e === 'string') : [],
+          evidenceLinks: Array.isArray(f.evidenceLinks) ? f.evidenceLinks.filter((e): e is string => typeof e === 'string') : undefined,
         };
       }).filter((f): f is NonNullable<typeof f> => f !== null) as VulnerabilityFinding[]; // Remove null entries
 
@@ -300,6 +310,7 @@ export class GeminiService {
           : 'Stable' as const,
         actionPlan: typeof t.actionPlan === 'string' ? t.actionPlan : 'No action plan provided.',
         cves: Array.isArray(t.cves) ? t.cves.filter((cve): cve is string => typeof cve === 'string') : [],
+        cveLinks: Array.isArray(t.cveLinks) ? t.cveLinks.filter((l): l is string => typeof l === 'string') : undefined,
         advisory: typeof t.advisory === 'string' ? t.advisory : undefined,
       };
     });
@@ -594,7 +605,8 @@ CRITICAL ACCURACY REQUIREMENTS:
 - CROSS-VALIDATE FINDINGS: Verify each vulnerability with multiple data sources before reporting.
 - EVIDENCE-BASED ANALYSIS: Only report vulnerabilities with clear evidence from the provided data.
 - PREVENT FALSE POSITIVES: Do not report potential vulnerabilities without concrete evidence. Only confirmed issues.
-- TECHNOLOGY DNA (when TECH_FINGERPRINT is provided): Base technologyDNA ONLY on the TECH_FINGERPRINT list above. Do not add frameworks or libraries not in that list (e.g. do not assume Next.js if only React/Vite is listed). You may add status, actionPlan, and CVE cross-reference for each item in the list.
+- TECHNOLOGY DNA (when TECH_FINGERPRINT is provided): Base technologyDNA ONLY on the TECH_FINGERPRINT list above. Do not add frameworks or libraries not in that list (e.g. do not assume Next.js if only React/Vite is listed). You may add status, actionPlan, cves, and cveLinks for each item.
+- CVE GROUNDING: When cross-referencing CVEs, use Search Grounding with precise version-specific queries, e.g. "Search latest CVEs for [technology name] [version] as of 2026" to get accurate, up-to-date results. Do not guess CVE version numbers.
 - DETAILED REMEDIATION: Provide specific, actionable remediation steps with code examples where applicable.
 - CONFIDENCE RATING: Rate your confidence level for each finding (High/Medium/Low) based on evidence quality.
 - DATA SOURCE ATTRIBUTION: Note which data source (headers, DOM, SSL, DNS, probes) led to each finding.
@@ -603,7 +615,8 @@ CRITICAL ACCURACY REQUIREMENTS:
 OUTPUT REQUIREMENTS:
 - Output strict JSON according to the schema
 - All findings must include: title, description, severity, remediation, businessImpact, cwe, origin, poc
-- Technology DNA must include: name, version, category, status, actionPlan (when TECH_FINGERPRINT is provided, only list technologies from that list)
+- For each finding that references a CVE, include evidenceLinks: array of official URLs (NIST: https://nvd.nist.gov/vuln/detail/CVE-XXXX, MITRE: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-XXXX) so users can verify. Use exact CVE IDs from Search Grounding.
+- Technology DNA must include: name, version, category, status, actionPlan (when TECH_FINGERPRINT is provided, only list technologies from that list). For each tech with CVEs, include cveLinks: array of official NIST or MITRE URLs for each CVE ID.
 - Security score must be calculated based on actual findings (0-100)
 - Confidence score must reflect overall analysis quality (0-100)
 - PDF_EXPORT: Write ALL report text fields in English only (purpose, businessLogic, attackSurfaceSummary, forensicAnalysis, technology actionPlan, probe description, finding title/description/remediation/businessImpact/poc) so the PDF debrief displays correctly. Use English regardless of UI language.
