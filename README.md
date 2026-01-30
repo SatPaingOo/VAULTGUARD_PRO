@@ -249,6 +249,29 @@ npm run preview  # Preview production build locally
 - 📊 **SOC-Grade Reports**: Executive intel, forensic analysis, and PDF export
 - 🌍 **Multi-Language**: English and Myanmar (Burmese) support
 
+### Trust Model & When to Trust What
+
+VaultGuard Pro is a **Hybrid Tool**: deterministic rules + AI reasoning. Use this scale to interpret results:
+
+| Confidence | Range | What It Covers | When to Trust |
+| ---------- | ----- | -------------- | ------------- |
+| **High** | 90–100% | Security headers (HSTS, CSP, X-Frame-Options), Tech DNA (Ground Truth from DOM/headers), verified endpoints | **Fully reliable** – based on direct evidence |
+| **Medium** | 60–80% | OSINT (IP, hosting, location), CVE mapping from detected tech | **Use with care** – cross-check critical items |
+| **Contextual** | 40–50% | Business logic, inferred vulnerabilities | **Potential only** – treat as leads, verify manually |
+
+- **Evidence-based** (High confidence): Finding is backed by headers, DOM, or probe response.
+- **AI-Inference** (Medium/Low): Finding is from AI reasoning; double-check before action.
+
+Each finding in the UI and PDF shows **Confirmed** (Evidence-based) or **Potential** (AI-Inference).
+
+### Use Cases by Role
+
+| Role | Best Use | What You Get |
+| ---- | -------- | ------------ |
+| **Developers** | Configuration auditor | Check headers, assets, tech stack; confirm your site matches expectations |
+| **Bug bounty / Pentesters** | Initial reconnaissance | Fast tech fingerprint, OSINT, surface map; use as starting point for deeper testing |
+| **Security reviewers** | Quick triage | Trust score, data quality, and confidence per finding to prioritize follow-up |
+
 ## 📁 Project Structure
 
 ```
@@ -523,10 +546,11 @@ Open browser DevTools (F12) to see:
 
 ### v1.2.0 (Current)
 
-- **Tech DNA Ground Truth** – Deterministic tech fingerprint (DOM + headers) before AI; expanded patterns (frameworks, CDNs, PaaS, CMS); report shows only detected tech
-- **Finding verification** – HEAD check on inferred API endpoints; 404 endpoints removed from findings
+- **Tech DNA Ground Truth** – Deterministic tech fingerprint (DOM + headers) before AI; expanded patterns (frameworks, CDNs, PaaS, CMS, **backend: Laravel, Django, Express, Rails, PHP**); report shows only detected tech
+- **Finding verification** – HEAD check on inferred API endpoints; **only 404/unreachable** removed (401/403 = endpoint exists, kept); fewer false removals
 - **Data integrity label** – “Simulated” vs “Live” in report/PDF based on CORS
-- **Confidence tier** – “Confirmed” vs “Potential” per finding in UI and PDF
+- **Confidence tier** – “Confirmed” vs “Potential” per finding in UI and PDF; PDF per-finding Trust: Evidence-based / AI-Inference
+- **Trust model & use cases** – README/BLUEPRINT document confidence scale and use cases by role (Developers, Bug bounty, Security reviewers)
 - **Accuracy** – Fewer false tech detections and invalid endpoint findings
 
 ### v1.1.1

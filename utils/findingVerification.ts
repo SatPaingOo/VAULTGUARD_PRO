@@ -41,9 +41,12 @@ function findingReferencesEndpoint(finding: VulnerabilityFinding, path: string):
 }
 
 /**
- * HEAD request to endpoint; returns true if endpoint exists (2xx), false if 404/unreachable.
+ * HEAD request to endpoint.
+ * Returns: 'exists' (2xx), 'protected' (401/403 - endpoint exists but auth required), 'not_found' (404), 'error' (5xx/timeout/network).
  */
-async function endpointExists(fullUrl: string): Promise<boolean> {
+async function endpointStatus(
+  fullUrl: string
+): Promise<'exists' | 'protected' | 'not_found' | 'error'> {
   try {
     const ctrl = new AbortController();
     const timeout = setTimeout(() => ctrl.abort(), VERIFY_TIMEOUT_MS);
@@ -54,9 +57,12 @@ async function endpointExists(fullUrl: string): Promise<boolean> {
       signal: ctrl.signal,
     });
     clearTimeout(timeout);
-    return res.ok;
+    if (res.ok) return 'exists';
+    if (res.status === 401 || res.status === 403) return 'protected';
+    if (res.status === 404) return 'not_found';
+    return 'error';
   } catch {
-    return false;
+    return 'error';
   }
 }
 
@@ -79,8 +85,9 @@ export async function verifyFindings(targetUrl: string, report: MissionReport): 
   const nonexistent = new Set<string>();
   for (const path of endpointsToCheck) {
     const fullUrl = path.startsWith('http') ? path : `${base}${path}`;
-    const exists = await endpointExists(fullUrl);
-    if (!exists) nonexistent.add(normalizePath(path));
+    const status = await endpointStatus(fullUrl);
+    if (status === 'not_found' || status === 'error') nonexistent.add(normalizePath(path));
+    // 401/403 = endpoint exists (protected); do not remove findings
   }
 
   if (nonexistent.size === 0) return report;

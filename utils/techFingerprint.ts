@@ -109,6 +109,7 @@ const RULES: PatternRule[] = [
       /tw-|class="[^"]*\b(flex|grid|p-|m-|text-|bg-|rounded|shadow|w-|h-)/i,
       /"tailwindcss"/i,
     ],
+    versionPattern: /tailwindcss[@/-]([\d.]+)|"tailwindcss"\s*:\s*["']([\d.]+)["']/i,
   },
   {
     name: 'Bootstrap',
@@ -248,6 +249,57 @@ const RULES: PatternRule[] = [
     name: 'Joomla',
     category: 'Backend',
     patterns: [/joomla|com_content|Joomla\./i],
+    versionPattern: /Joomla!?\s*([\d.]+)|joomla[@/-]([\d.]+)/i,
+  },
+  // --- Backend frameworks (passive fingerprinting) ---
+  {
+    name: 'Laravel',
+    category: 'Backend',
+    patterns: [
+      /csrf-token|laravel|livewire/i,
+      /mix-manifest\.json|vite\.config.*laravel/i,
+      /@vite\(|Route::|config\('app\.name'\)/i,
+    ],
+    versionPattern: /laravel[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Django',
+    category: 'Backend',
+    patterns: [
+      /csrfmiddlewaretoken|csrftoken|django/i,
+      /STATIC_URL|__admin_media_prefix__|get_media_prefix/i,
+      /formaction.*django|data-django/i,
+    ],
+    versionPattern: /django[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Express',
+    category: 'Backend',
+    patterns: [
+      /"express"|'express'|require\s*\(\s*['"]express['"]\)/i,
+      /express\.Router|app\.use\(|__dirname/i,
+      /X-Powered-By:\s*Express/i,
+    ],
+    versionPattern: /express[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Rails',
+    category: 'Backend',
+    patterns: [
+      /rails|csrf_meta_tag|data-turbo|turbo-frame/i,
+      /action_cable|rails-ujs|rails\/ujs/i,
+      /content-for|yield.*stylesheet_link_tag/i,
+    ],
+    versionPattern: /rails[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'PHP',
+    category: 'Backend',
+    patterns: [
+      /\.php\b|\.php\?|PHPSESSID|session\.save_path/i,
+      /PHP_SELF|phpinfo|php_version/i,
+      /X-Powered-By:\s*PHP/i,
+    ],
   },
   // --- Security / headers handled in detectFromHeaders ---
 ];

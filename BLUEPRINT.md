@@ -600,15 +600,15 @@ vaultguard_pro/
 #### **utils/techFingerprint.ts** (✅ v1.2.0 - Ground Truth Tech DNA)
 
 - **Deterministic fingerprinting**: Wappalyzer-style pattern matching on DOM content and HTTP headers before AI
-- **RULES**: Pattern rules for frameworks (React, Vite, Next.js, Vue, Nuxt, Angular, Svelte, Remix), UI (Tailwind, Bootstrap, Framer Motion, Lucide, Font Awesome, Material UI, Chakra UI, Radix UI), routing (React Router), maps (Leaflet, Mapbox, Google Maps), CDN (Unpkg, jsDelivr, cdnjs), fonts (Google Fonts), CMS (WordPress, Drupal, Joomla), analytics (Google Analytics, GTM)
+- **RULES**: Pattern rules for frameworks (React, Vite, Next.js, Vue, Nuxt, Angular, Svelte, Remix), UI (Tailwind, Bootstrap, Framer Motion, Lucide, Font Awesome, Material UI, Chakra UI, Radix UI), routing (React Router), maps (Leaflet, Mapbox, Google Maps), CDN (Unpkg, jsDelivr, cdnjs), fonts (Google Fonts), CMS (WordPress, Drupal, Joomla), analytics (Google Analytics, GTM), **backend frameworks (Laravel, Django, Express, Rails, PHP)** – passive fingerprinting via DOM/script patterns (e.g. csrf-token, mix-manifest, csrfmiddlewaretoken, express, rails, PHPSESSID)
 - **Header-based detection**: Server, X-Powered-By, X-Vercel-Id, X-Netlify-Id, X-Amz-Cf-Id, Nginx, Apache, IIS, HSTS, ASP.NET, X-Generator (WordPress/Drupal)
-- **Version extraction**: Optional versionPattern per rule; first non-null capture group used
+- **Version extraction**: Optional versionPattern per rule; first non-null capture group used (Tailwind, Joomla, Laravel, Django, Express, Rails where applicable)
 - **Output**: `TechFingerprintItem[]` (name, version?, category, evidence) passed to AI as TECH_FINGERPRINT; AI uses only this list for technologyDNA (post-filter in useScanner enforces)
 
 #### **utils/findingVerification.ts** (✅ v1.2.0 - Finding Verification)
 
-- **HEAD check**: For each inferred API endpoint in report (targetIntelligence.apis), performs HEAD request; if 404, findings that reference that endpoint are removed
-- **Integration**: Called in useScanner after audit, before setting mission report; reduces false positives from non-existent endpoints
+- **HEAD check**: For each inferred API endpoint in report (targetIntelligence.apis), performs HEAD request; **only 404 or error (timeout/network)** cause removal; **401/403** mean endpoint exists (protected), so findings are kept
+- **Integration**: Called in useScanner after audit, before setting mission report; reduces false positives from non-existent endpoints without removing valid protected endpoints
 
 #### **components/VirtualHUD.tsx**
 
@@ -747,6 +747,27 @@ The system now includes comprehensive data quality tracking:
 - **Quality Indicators**: Visual badges in results showing data reliability
 
 All reports include data quality metrics to help users understand what data is reliable.
+
+### Trust Model & Confidence Scale
+
+VaultGuard Pro is a **Hybrid Tool** (Deterministic Rules + AI Reasoning). Confidence is tiered as follows:
+
+| Level | Range | Data Source | Reliability |
+| ----- | ----- | ----------- | ----------- |
+| **High** | 90–100% | Security headers (deterministic), Tech DNA Ground Truth (DOM/headers), verified endpoints (HEAD 2xx/401/403) | Fully reliable |
+| **Medium** | 60–80% | OSINT (Gemini + Search Grounding), CVE mapping from detected tech | Cross-check critical items |
+| **Contextual** | 40–50% | Business logic, inferred vulnerabilities (AI reasoning) | Potential only; verify manually |
+
+- **Evidence-based** (High): Finding backed by headers, DOM, or probe response. Shown as "Confirmed" in UI/PDF.
+- **AI-Inference** (Medium/Low): Finding from AI reasoning. Shown as "Potential" in UI/PDF; PDF also shows "Trust: Evidence-based" or "Trust: AI-Inference" per finding.
+
+### Use Cases by Role
+
+| Role | Primary Use | Outcome |
+| ---- | ----------- | ------- |
+| **Developers** | Configuration auditor | Validate headers, assets, tech stack against expectations |
+| **Bug bounty / Pentesters** | Initial reconnaissance | Tech fingerprint, OSINT, surface map as starting point |
+| **Security reviewers** | Quick triage | Trust score, data quality, confidence per finding for prioritization |
 
 ### ✅ Code Quality Improvements (Completed)
 

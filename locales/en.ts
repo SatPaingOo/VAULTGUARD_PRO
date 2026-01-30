@@ -4,6 +4,7 @@ export default {
   "app_subtitle": "NEURAL_SECURITY_OPS_v1.2.0",
   "app_gemini_tagline": "Powered by Gemini 3 Pro & Flash • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Built for Gemini 3 Hackathon",
+  "app_hybrid_tagline": "Hybrid: Deterministic Rules + AI Reasoning",
   "initiate_scan": "INITIATE_SCAN",
   "restart_mission": "RESTART_MISSION",
   "export_pdf": "EXPORT_PDF",
@@ -184,7 +185,7 @@ export default {
     "security_headers": "Security Headers - X-Frame-Options, CSP, HSTS (95% accuracy)",
     "ssl_tls": "SSL/TLS - Certificate validity, SSL grade (90% accuracy)",
     "client_vulns": "Client-Side Vulnerabilities - XSS, CSRF, DOM flaws (85% accuracy)",
-    "tech_stack": "Tech Stack - Technology detection (85% accuracy)",
+    "tech_stack": "Tech Stack – Ground Truth detection (Wappalyzer-style), frontend & backend",
     "dns_info": "DNS Information - IP addresses, DNS records (90% accuracy)"
   },
   "limitations": {
@@ -243,6 +244,8 @@ export default {
     "severity": "Severity",
     "cwe": "CWE",
     "confidence": "Confidence",
+    "trust_evidence_based": "Evidence-based",
+    "trust_ai_inference": "AI-Inference",
     "evidence_sources": "Evidence Sources",
     "grounding_sources": "Search Grounding Sources",
     "grounding_sources_subtitle": "Live sources from Google Search Grounding",
@@ -458,6 +461,7 @@ export default {
   },
   "footer": {
     "version_badge": "VAULT_SOC_1.2.0",
+    "evidence_based_badge": "EVIDENCE_BASED_FINDINGS",
     "neural_engine": "NEURAL_ENGINE",
     "frontend_only": "FRONTEND_ONLY",
     "real_time_ai": "REAL_TIME_AI",

@@ -4,6 +4,7 @@ export default {
   "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.2.0",
   "app_gemini_tagline": "Gemini 3 Pro & Flash ဖြင့် မောင်းနှင်သည် • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Gemini 3 Hackathon အတွက် တည်ဆောက်ထားသည်",
+  "app_hybrid_tagline": "ပေါင်းစပ်: သတ်မှတ်ချက် စည်းမျဉ်းများ + AI ဆင်ခြင်ချက်",
   "initiate_scan": "စစ်ဆေးမှု စတင်ရန်",
   "restart_mission": "အသစ်ပြန်စရန်",
   "export_pdf": "PDF ထုတ်ယူရန်",
@@ -184,7 +185,7 @@ export default {
     "security_headers": "လုံခြုံရေး Headers - X-Frame-Options, CSP, HSTS (၉၅% တိကျမှု)",
     "ssl_tls": "SSL/TLS - Certificate မှန်ကန်မှု, SSL အဆင့် (၉၀% တိကျမှု)",
     "client_vulns": "Client-Side အားနည်းချက်များ - XSS, CSRF, DOM အားနည်းချက်များ (၈၅% တိကျမှု)",
-    "tech_stack": "နည်းပညာ Stack - နည်းပညာ ရှာဖွေမှု (၈၅% တိကျမှု)",
+    "tech_stack": "နည်းပညာ Stack – Ground Truth ရှာဖွေမှု (Wappalyzer-style), frontend နှင့် backend",
     "dns_info": "DNS အချက်အလက် - IP addresses, DNS records (၉၀% တိကျမှု)"
   },
   "limitations": {
@@ -243,6 +244,8 @@ export default {
     "severity": "ပြင်းထန်မှု",
     "cwe": "CWE",
     "confidence": "ယုံကြည်မှု",
+    "trust_evidence_based": "သက်သေအခြေပြု",
+    "trust_ai_inference": "AI ခန့်မှန်းချက်",
     "evidence_sources": "သက်သေအထောက်အထား အရင်းအမြစ်များ",
     "grounding_sources": "Search Grounding Sources",
     "grounding_sources_subtitle": "Google Search Grounding မှ live sources များ",
@@ -438,6 +441,7 @@ export default {
   },
   "footer": {
     "version_badge": "VAULT_SOC_1.2.0",
+    "evidence_based_badge": "သက်သေအခြေပြု တွေ့ရှိချက်များ",
     "neural_engine": "နျူရယ် အင်ဂျင်",
     "frontend_only": "ဖရန့်တင့်သာ",
     "real_time_ai": "တိုက်ရိုက် AI",

@@ -694,12 +694,17 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
           });
           yPos += 2;
 
-          // Severity, CWE, and Confidence
+          // Severity, CWE, Confidence, and Trust (Evidence-based vs AI-Inference)
           doc.setFontSize(8);
           doc.setTextColor(60, 60, 60); // Darker gray for better readability
           doc.setFont("courier", "normal");
           const confidenceText = f.confidence ? ` | ${tEn('pdf.confidence')}: ${f.confidence.toUpperCase()}` : '';
           doc.text(`${tEn('pdf.severity')}: ${f.severity.toUpperCase()} | ${tEn('pdf.cwe')}: ${f.cwe || 'N/A'}${confidenceText}`, 15, yPos);
+          yPos += 4;
+          const trustLabel = f.confidence === 'High' ? tEn('pdf.trust_evidence_based') : tEn('pdf.trust_ai_inference');
+          doc.setFontSize(7);
+          doc.setTextColor(f.confidence === 'High' ? 0 : 120, f.confidence === 'High' ? 150 : 80, f.confidence === 'High' ? 100 : 80);
+          doc.text(`Trust: ${trustLabel}`, 15, yPos);
           yPos += 5;
 
           // Evidence Sources (if available)

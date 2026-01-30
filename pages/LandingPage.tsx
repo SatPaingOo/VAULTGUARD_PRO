@@ -238,6 +238,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         <p className="text-[9px] sm:text-[10px] md:text-[11px] font-mono tracking-widest uppercase max-w-3xl text-center px-4 text-white/40 mt-2">
           {t('app_gemini_tagline')}
         </p>
+        <span className="inline-block mt-2 px-2.5 py-1 rounded-full text-[8px] sm:text-[9px] font-mono uppercase tracking-wider bg-white/5 border border-white/10 text-white/60">
+          {t('app_hybrid_tagline')}
+        </span>
         <span className="inline-block mt-3 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/50">
           {t('app_hackathon_badge')}
         </span>
@@ -914,6 +917,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
            <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-mono text-white/60 uppercase tracking-wider">
                <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.version_badge')}</span>
+               <span className="text-white/40 hidden sm:inline">|</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.evidence_based_badge')}</span>
                <span className="text-white/40 hidden sm:inline">|</span>
                <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.neural_engine')}</span>
                <span className="text-white/40 hidden sm:inline">|</span>
