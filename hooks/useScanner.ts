@@ -738,12 +738,15 @@ export const useScanner = () => {
       // Tech DNA filter: when we have Ground Truth fingerprint, only keep tech from that list
       if (techFingerprint.length > 0 && finalReport.technologyDNA?.length) {
         const allowedNames = new Set(techFingerprint.map((f) => f.name.toLowerCase()));
-        finalReport = {
-          ...finalReport,
-          technologyDNA: finalReport.technologyDNA.filter((t) =>
-            allowedNames.has((t.name || '').toLowerCase())
-          ),
-        };
+        let filteredDNA = finalReport.technologyDNA.filter((t) =>
+          allowedNames.has((t.name || '').toLowerCase())
+        );
+        // Safeguard: if Vite is detected, exclude Next.js (Vite+React sites are often misreported as Next.js)
+        const hasVite = allowedNames.has('vite');
+        if (hasVite) {
+          filteredDNA = filteredDNA.filter((t) => (t.name || '').toLowerCase() !== 'next.js');
+        }
+        finalReport = { ...finalReport, technologyDNA: filteredDNA };
       }
 
       setMissionReport(finalReport);

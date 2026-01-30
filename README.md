@@ -4,7 +4,7 @@
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.3.0  
+**Version:** 1.4.0  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -82,6 +82,27 @@ These updates make Tech DNA and findings more reliable and easier to trust for u
 - **Cookies** – Optional cookie string (e.g. `session=abc123; token=xyz`) for authenticated targets
 - **Usage** – Click the gear icon next to the Scan button → fill Headers and/or Cookies → Done; then run Scan. Values are sent with DOM fetch, headers check, probes, and finding verification
 - **UX** – Modal includes “What it’s for” and “How to use”; rendered via React Portal so it appears above app header and CRT overlay; body scroll locked when modal is open; scrollable header list and modal content to avoid layout break with many headers
+
+---
+
+## 🚀 New in v1.4.0: Security Headers, Wappalyzer-Style Tech Display & PDF Consistency
+
+### Security Headers (Deployment)
+
+- **vercel.json** – Security headers added for the deployed app: `X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy`, and `Content-Security-Policy` so scans of the live site report fewer "missing headers" findings.
+
+### Technology DNA (Wappalyzer-Style)
+
+- **Grouped by category** – Results page and PDF show tech stack grouped under Wappalyzer-style categories: JavaScript frameworks, UI frameworks, Maps, Security, JavaScript libraries, PaaS, Font scripts, CDN, Backend, Server, Database, Libraries.
+- **Category labels** – Locale keys for category titles (EN/MM); same grouping logic in UI and PDF for consistency.
+- **Next.js safeguard** – When Vite is in the Ground Truth fingerprint, Next.js is excluded from Technology DNA to avoid false positives on Vite+React sites.
+
+### PDF Report Consistency
+
+- **Scan ID** – PDF uses the **scan start time** to generate `VG-YYYYMMDD-HHMMSS`, so the Scan ID in the PDF matches the mission (same ID as the scan run), not the export time.
+- **Technology DNA in PDF** – PDF Technology DNA section now uses the same category headers and grouping as the Results UI (JavaScript frameworks, Maps, Security, etc.).
+
+These updates improve report trust, deployment security, and alignment between UI and PDF.
 
 ---
 
@@ -570,7 +591,15 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.3.0 (Current)
+### v1.4.0 (Current)
+
+- **Security headers** – `vercel.json` adds X-Frame-Options, CSP, HSTS, Referrer-Policy, Permissions-Policy, X-Content-Type-Options, X-XSS-Protection for deployed app
+- **Technology DNA (Wappalyzer-style)** – Results and PDF group tech by category (JavaScript frameworks, UI frameworks, Maps, Security, PaaS, Font scripts, CDN, etc.); locale keys for category titles (EN/MM)
+- **Next.js safeguard** – When Vite is in Ground Truth fingerprint, Next.js excluded from Technology DNA (avoids false positive on Vite+React sites)
+- **PDF Scan ID** – PDF uses scan start time for `VG-YYYYMMDD-HHMMSS` so Scan ID matches the mission, not export time
+- **PDF Technology DNA** – PDF Technology DNA section uses same category headers and grouping as Results UI
+
+### v1.3.0
 
 - **Multi-Step Verification** – Findings tagged by endpoint response: Verified (200), Protected (403), Unverified; 404/error endpoints discarded
 - **CVE Evidence Links** – Version-specific CVE grounding; NIST/MITRE links in findings and Tech DNA; clickable in Results

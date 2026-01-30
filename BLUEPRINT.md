@@ -2,7 +2,7 @@
   <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
-# VaultGuard Pro: Neural Mission Blueprints (v1.3.0)
+# VaultGuard Pro: Neural Mission Blueprints (v1.4.0)
 
 **Developer Documentation** - Technical architecture, implementation details, and "how it works"
 
@@ -134,6 +134,8 @@ To reduce AI hallucination (e.g. reporting Next.js when the site is Vite + React
 
 **v1.3.0 – Multi-Step Verification labels**: `utils/findingVerification.ts` tags each finding with `verificationStatus`: **High** (200 OK), **Potential** (401/403), **Unknown**; findings for 404/error endpoints are discarded. Results page shows badges: Verified (200), Protected (403), Unverified. **CVE Evidence Links**: Mission prompt instructs AI to use version-specific CVE Search Grounding and to include `evidenceLinks` (NIST/MITRE) in findings and `cveLinks` in Tech DNA; Results page renders clickable links. **Expert Mode**: Optional headers (key-value pairs) and cookies; `pages/LandingPage.tsx` – gear icon opens modal (React Portal to `document.body`, body scroll lock); values passed to `runMission` and used in `extractTargetDOM`, `analyzeHeaders`, `verifyFindings`, and probe execution (`utils/masking.ts`, `utils/networkAnalysis.ts`, `utils/findingVerification.ts`, `hooks/useScanner.ts`).
 
+**v1.4.0 – Security headers, Wappalyzer-style Tech DNA, PDF consistency**: **Security headers**: `vercel.json` adds `X-Frame-Options`, `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy`, and `Content-Security-Policy` for the deployed app. **Technology DNA (Wappalyzer-style)**: `pages/Results.tsx` groups `technologyDNA` by display category (JavaScript frameworks, UI frameworks, Maps, Security, JavaScript libraries, PaaS, Font scripts, CDN, Backend, Server, Database, Libraries) via `getTechDisplayCategoryKey()` and `technologyDNAByCategory`; locale keys `results.tech_category_*` (EN/MM). **Next.js safeguard**: `hooks/useScanner.ts` – when Ground Truth fingerprint contains Vite, Technology DNA excludes "Next.js" to avoid false positives on Vite+React sites. **PDF Scan ID**: PDF uses `missionDuration.startTime` to generate `VG-YYYYMMDD-HHMMSS` so the Scan ID matches the scan run, not export time. **PDF Technology DNA**: PDF export uses `technologyDNAByCategory` and outputs category headers (same as UI) before each group of tech items.
+
 ## 3. Mission Intensity Tiers & Flow
 
 | Tier         | Focus                 | Engine | Thinking Budget | Logic Flow                                    |
@@ -170,9 +172,9 @@ The Results page displays comprehensive security intelligence with the following
 - **Probe Execution Details**: HTTP probe execution results with methods, endpoints, response times, vulnerability status, and CORS blocking indicators
 - **Data Quality / Integrity**: Trust score (0–100%), data source status; **Data integrity label** (v1.2.0) – “Simulated” vs “Live” in report/PDF based on whether CORS blocked direct data
 - **Vulnerability Ledger**: Ranked findings with severity levels, CWE IDs, **confidence tier** (v1.2.0: “Confirmed” for High confidence, “Potential” for Medium/Low), evidence sources, **verification status** (v1.3.0: Verified (200), Protected (403), Unverified), **evidence links** (v1.3.0: NIST/MITRE CVE URLs), proof-of-concept scripts, full remediation directives, and business impact assessment
-- **Technology DNA**: Ground Truth fingerprint (v1.2.0) – only technologies detected by deterministic scan (DOM/headers); versions, categories, security status, CVE information, **cveLinks** (v1.3.0: NIST/MITRE URLs), and action plans
+- **Technology DNA**: Ground Truth fingerprint (v1.2.0) – only technologies detected by deterministic scan (DOM/headers); versions, categories, security status, CVE information, **cveLinks** (v1.3.0: NIST/MITRE URLs), and action plans. **v1.4.0**: Grouped by Wappalyzer-style categories (JavaScript frameworks, UI frameworks, Maps, Security, etc.) in UI and PDF; same category headers in both.
 
-**PDF Report Structure**: The PDF export includes all sections above in the same order, ensuring 100% consistency between UI and PDF reports. Level-based differences are automatically reflected in both UI and PDF based on the selected scan level.
+**PDF Report Structure**: The PDF export includes all sections above in the same order, ensuring 100% consistency between UI and PDF reports. Level-based differences are automatically reflected in both UI and PDF based on the selected scan level. **v1.4.0**: Scan ID in PDF is generated from scan start time (`missionDuration.startTime`) so it matches the mission; Technology DNA in PDF uses the same category grouping and headers as the UI.
 
 ## 5. Security & Safety Sandbox
 

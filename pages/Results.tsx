@@ -55,11 +55,62 @@ interface ResultsPageProps {
   missionDuration?: { startTime: Date; endTime: Date; durationMs: number; formatted: string; formattedFull: string } | null;
 }
 
+/** Wappalyzer-style display category for Technology DNA grouping */
+const TECH_DISPLAY_CATEGORY_ORDER = [
+  'tech_category_js_frameworks',
+  'tech_category_ui_frameworks',
+  'tech_category_maps',
+  'tech_category_security',
+  'tech_category_js_libraries',
+  'tech_category_paas',
+  'tech_category_font_scripts',
+  'tech_category_cdn',
+  'tech_category_backend',
+  'tech_category_server',
+  'tech_category_database',
+  'tech_category_library',
+] as const;
+
+function getTechDisplayCategoryKey(tech: TechItem): string {
+  const n = (tech.name || '').toLowerCase();
+  if (['react', 'react router', 'vite', 'next.js', 'vue', 'nuxt', 'angular', 'svelte', 'remix'].some((x) => n.includes(x))) return 'tech_category_js_frameworks';
+  if (['tailwind css', 'bootstrap', 'chakra ui', 'material ui', 'radix ui'].some((x) => n.includes(x))) return 'tech_category_ui_frameworks';
+  if (['leaflet', 'mapbox', 'google maps'].some((x) => n.includes(x))) return 'tech_category_maps';
+  if (n === 'hsts') return 'tech_category_security';
+  if (['framer motion', 'jquery'].some((x) => n.includes(x))) return 'tech_category_js_libraries';
+  if (['vercel', 'netlify'].some((x) => n.includes(x))) return 'tech_category_paas';
+  if (['lucide', 'google fonts', 'google font api'].some((x) => n.includes(x))) return 'tech_category_font_scripts';
+  if (['unpkg', 'jsdelivr', 'cdnjs'].some((x) => n.includes(x))) return 'tech_category_cdn';
+  if (tech.category === 'Backend') return 'tech_category_backend';
+  if (tech.category === 'Server') return 'tech_category_server';
+  if (tech.category === 'Database') return 'tech_category_database';
+  return 'tech_category_library';
+}
+
 export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, telemetry = [], dispatchedProbes = [], missionDuration }: ResultsPageProps) => {
   const { t } = useLanguage();
   const { targetIntelligence, technologyDNA = [], findings = [], activeProbes = [], securityScore = 0, dataQuality } = missionReport;
 
   const themeColor = useMemo(() => LEVEL_COLORS[level as ScanLevel] || '#00d4ff', [level]);
+
+  const technologyDNAByCategory = useMemo(() => {
+    const map = new Map<string, TechItem[]>();
+    for (const tech of technologyDNA) {
+      const key = getTechDisplayCategoryKey(tech);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(tech);
+    }
+    const ordered: { categoryKey: string; items: TechItem[] }[] = [];
+    for (const key of TECH_DISPLAY_CATEGORY_ORDER) {
+      const items = map.get(key);
+      if (items?.length) ordered.push({ categoryKey: key, items });
+    }
+    const restKey = 'tech_category_library';
+    for (const [key, items] of map) {
+      if (!TECH_DISPLAY_CATEGORY_ORDER.includes(key as any)) ordered.push({ categoryKey: key, items });
+    }
+    return ordered;
+  }, [technologyDNA]);
 
   const hexToRgb = (hex: string): [number, number, number] => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -113,10 +164,10 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       const doc = new jsPDF();
       const timestamp = new Date().toLocaleString();
 
-      // Generate Scan ID: VG-YYYYMMDD-HHMMSS
-      const now = new Date();
-      const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-      const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '');
+      // Scan ID: use scan start time so UI and PDF show the same ID (VG-YYYYMMDD-HHMMSS)
+      const scanIdRef = missionDuration?.startTime ?? new Date();
+      const dateStr = scanIdRef.toISOString().slice(0, 10).replace(/-/g, '');
+      const timeStr = scanIdRef.toTimeString().slice(0, 8).replace(/:/g, '');
       const scanId = `VG-${dateStr}-${timeStr}`;
 
       // Operator Name (default to VaultGuard Neural Agent)
@@ -188,7 +239,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.3.0";
+      const versionText = "v1.4.0";
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
@@ -580,34 +631,57 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.text(`${tEn('results.config_dna')}: ${topologyCounts.config}`, 15, yPos);
       yPos += 10;
 
-      // Technology DNA Section
-      if (technologyDNA && technologyDNA.length > 0) {
+      // Technology DNA Section (grouped by category like UI / Wappalyzer)
+      if (technologyDNAByCategory.length > 0) {
         doc.setFontSize(12);
         doc.setTextColor(0, 0, 0);
+        doc.setFont("courier", "bold");
         doc.text(tEn('pdf.technology_dna'), 15, yPos);
         yPos += 8;
 
+        doc.setFont("courier", "normal");
         doc.setFontSize(8);
-        technologyDNA.forEach((tech: TechItem) => {
+        for (const { categoryKey, items } of technologyDNAByCategory) {
           if (yPos > 280) {
             doc.addPage();
             yPos = 20;
+            doc.setTextColor(0, 0, 0);
           }
-          doc.setTextColor(0, 0, 0);
           doc.setFont("courier", "bold");
-          doc.text(`${sanitizeForPdf(tech.name)} ${sanitizeForPdf(tech.version)}`, 15, yPos);
-          yPos += 5;
+          doc.setTextColor(0, 0, 0);
+          doc.text(tEn(`results.${categoryKey}`), 15, yPos);
+          yPos += 6;
           doc.setFont("courier", "normal");
-          doc.setTextColor(60, 60, 60); // Darker gray for better readability
-          doc.text(`${tEn('pdf.category')}: ${sanitizeForPdf(tech.category)} | ${tEn('pdf.status')}: ${sanitizeForPdf(tech.status)}`, 15, yPos);
-          yPos += 5;
-          const actionPlan = doc.splitTextToSize(`${tEn('pdf.action')}: ${sanitizeForPdf(tech.actionPlan)}`, 180);
-          actionPlan.forEach((line: string) => {
-            doc.text(line, 20, yPos);
-            yPos += 4;
-          });
-          yPos += 5;
-        });
+          for (const tech of items) {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+              doc.setTextColor(0, 0, 0);
+            }
+            doc.setTextColor(0, 0, 0);
+            doc.setFont("courier", "bold");
+            doc.text(`${sanitizeForPdf(tech.name)}${tech.version ? ` ${sanitizeForPdf(tech.version)}` : ''}`, 15, yPos);
+            yPos += 5;
+            doc.setFont("courier", "normal");
+            doc.setTextColor(60, 60, 60);
+            doc.text(`${tEn('pdf.category')}: ${sanitizeForPdf(tech.category)} | ${tEn('pdf.status')}: ${sanitizeForPdf(tech.status)}`, 15, yPos);
+            yPos += 5;
+            if (tech.actionPlan) {
+              const actionPlan = doc.splitTextToSize(`${tEn('pdf.action')}: ${sanitizeForPdf(tech.actionPlan)}`, 180);
+              actionPlan.forEach((line: string) => {
+                if (yPos > 280) {
+                  doc.addPage();
+                  yPos = 20;
+                  doc.setTextColor(0, 0, 0);
+                }
+                doc.text(line, 20, yPos);
+                yPos += 4;
+              });
+              yPos += 3;
+            }
+          }
+          yPos += 4;
+        }
         yPos += 5;
       }
 
@@ -1792,27 +1866,41 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         )}
 
         <SectionCard title={t('results.technology_dna')} subtitle={t('results.detected_tech_stack')} icon={Fingerprint} themeColor={LEVEL_COLORS.STANDARD}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-            {technologyDNA.map((tech: TechItem, i: number) => (
-              <div key={i} className="p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border border-white/5 bg-black/40 flex flex-col group hover:bg-white/[0.02] transition-all">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="space-y-1">
-                    <h5 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">{tech.name}</h5>
-                    <div className="text-[9px] md:text-[11px] font-black uppercase tracking-widest" style={{ color: themeColor }}>{tech.category}</div>
-                  </div>
-                  <span className="text-[9px] md:text-[11px] font-mono px-3 md:px-4 py-1 rounded-xl bg-white/5 border border-white/10 text-white/40 group-hover:text-[#00ff9d] transition-colors">{tech.version}</span>
-                </div>
-                <div className="p-5 md:p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col gap-3 md:gap-4 mt-auto">
-                  <div className="text-[8px] md:text-[9px] text-white/20 font-black uppercase tracking-[0.2em]">Neural_Security_Status</div>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${tech.status === 'Stable' ? 'bg-[#00ff9d]' : 'bg-orange-500'} animate-pulse`} />
-                    <span className={`text-[10px] md:text-[11px] font-black uppercase ${tech.status === 'Stable' ? 'text-[#00ff9d]' : 'text-orange-500'}`}>{tech.status}</span>
-                  </div>
-                  <p className="text-[10px] md:text-[12px] font-mono text-white/60 uppercase leading-relaxed">{tech.actionPlan}</p>
+          {technologyDNAByCategory.length === 0 ? (
+            <p className="text-sm md:text-base font-mono text-white/50 uppercase">No technologies detected (e.g. DOM/headers blocked by CORS).</p>
+          ) : (
+          <div className="space-y-8 md:space-y-10">
+            {technologyDNAByCategory.map(({ categoryKey, items }) => (
+              <div key={categoryKey}>
+                <h4 className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] mb-4 md:mb-6" style={{ color: themeColor }}>
+                  {t(`results.${categoryKey}`)}
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  {items.map((tech: TechItem, i: number) => (
+                    <div key={`${categoryKey}-${i}`} className="p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 bg-black/40 flex flex-col group hover:bg-white/[0.02] transition-all">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="space-y-1 min-w-0">
+                          <h5 className="text-base md:text-lg font-black text-white uppercase tracking-tight truncate">{tech.name}</h5>
+                          {tech.version ? (
+                            <span className="text-[9px] md:text-[10px] font-mono text-white/50">{tech.version}</span>
+                          ) : null}
+                        </div>
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${tech.status === 'Stable' ? 'bg-[#00ff9d]' : 'bg-orange-500'} animate-pulse`} title={tech.status} />
+                      </div>
+                      <div className="p-4 md:p-5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-2 mt-auto">
+                        <div className="text-[8px] md:text-[9px] text-white/20 font-black uppercase tracking-[0.15em]">Neural_Security_Status</div>
+                        <span className={`text-[9px] md:text-[10px] font-black uppercase ${tech.status === 'Stable' ? 'text-[#00ff9d]' : 'text-orange-500'}`}>{tech.status}</span>
+                        {tech.actionPlan ? (
+                          <p className="text-[9px] md:text-[10px] font-mono text-white/50 uppercase leading-relaxed line-clamp-2">{tech.actionPlan}</p>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
           </div>
+          )}
         </SectionCard>
       </main>
 
