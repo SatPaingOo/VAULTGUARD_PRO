@@ -55,10 +55,16 @@ interface ResultsPageProps {
   missionDuration?: { startTime: Date; endTime: Date; durationMs: number; formatted: string; formattedFull: string } | null;
 }
 
-/** Wappalyzer-style display category for Technology DNA grouping */
+/** Wappalyzer-style display category for Technology DNA grouping (order matches report/PDF) */
 const TECH_DISPLAY_CATEGORY_ORDER = [
   'tech_category_js_frameworks',
   'tech_category_ui_frameworks',
+  'tech_category_programming_languages',
+  'tech_category_web_servers',
+  'tech_category_ssg',
+  'tech_category_build_tools',
+  'tech_category_package_managers',
+  'tech_category_analytics',
   'tech_category_maps',
   'tech_category_security',
   'tech_category_js_libraries',
@@ -75,11 +81,17 @@ function getTechDisplayCategoryKey(tech: TechItem): string {
   const n = (tech.name || '').toLowerCase();
   if (['react', 'react router', 'vite', 'next.js', 'vue', 'nuxt', 'angular', 'svelte', 'remix'].some((x) => n.includes(x))) return 'tech_category_js_frameworks';
   if (['tailwind css', 'bootstrap', 'chakra ui', 'material ui', 'radix ui'].some((x) => n.includes(x))) return 'tech_category_ui_frameworks';
+  if (['javascript', 'typescript'].some((x) => n.includes(x))) return 'tech_category_programming_languages';
+  if (['node.js', 'node', 'nginx', 'apache', 'iis'].some((x) => n.includes(x))) return 'tech_category_web_servers';
+  if (['vite', 'next.js', 'nuxt', 'gatsby', 'hugo', 'jekyll', 'eleventy', 'astro'].some((x) => n.includes(x))) return 'tech_category_ssg';
+  if (['vite', 'webpack', 'parcel', 'rollup', 'esbuild'].some((x) => n.includes(x))) return 'tech_category_build_tools';
+  if (['npm', 'yarn', 'pnpm', 'bun'].some((x) => n.includes(x))) return 'tech_category_package_managers';
+  if (['google analytics', 'gtm', 'google tag manager', 'matomo', 'plausible'].some((x) => n.includes(x))) return 'tech_category_analytics';
   if (['leaflet', 'mapbox', 'google maps'].some((x) => n.includes(x))) return 'tech_category_maps';
   if (n === 'hsts') return 'tech_category_security';
   if (['framer motion', 'jquery'].some((x) => n.includes(x))) return 'tech_category_js_libraries';
   if (['vercel', 'netlify'].some((x) => n.includes(x))) return 'tech_category_paas';
-  if (['lucide', 'google fonts', 'google font api'].some((x) => n.includes(x))) return 'tech_category_font_scripts';
+  if (['lucide', 'google fonts', 'google font api', 'font awesome'].some((x) => n.includes(x))) return 'tech_category_font_scripts';
   if (['unpkg', 'jsdelivr', 'cdnjs'].some((x) => n.includes(x))) return 'tech_category_cdn';
   if (tech.category === 'Backend') return 'tech_category_backend';
   if (tech.category === 'Server') return 'tech_category_server';

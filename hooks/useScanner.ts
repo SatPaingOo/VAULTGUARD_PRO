@@ -42,6 +42,18 @@ const INITIAL_REPORT: MissionReport = {
   usage: { totalTokenCount: 0 }
 };
 
+/** Format raw API rate-limit message for modal: extract retry seconds, short summary, and correct docs link */
+function formatRateLimitMessage(raw: string): string {
+  const retryMatch = raw.match(/retry\s+in\s+([\d.]+)/i) || raw.match(/retry\s+after\s+([\d.]+)/i);
+  const seconds = retryMatch ? Math.max(1, Math.ceil(parseFloat(retryMatch[1]))) : null;
+  const lines: string[] = [
+    'You have exceeded the API rate limit (too many requests).',
+    seconds ? `Please retry in ${seconds} second${seconds !== 1 ? 's' : ''}.` : 'Please wait 1–2 minutes before scanning again.',
+    'For more information: https://ai.google.dev/gemini-api/docs/rate-limits'
+  ];
+  return lines.join('\n');
+}
+
 export const useScanner = () => {
   const { currentLanguageName } = useLanguage();
   const { activeKey, isEngineLinked, apiKeyStatus, setApiKeyStatus } = useSecurity();
@@ -735,18 +747,15 @@ export const useScanner = () => {
         addLog(`[VERIFY] Removed ${removed} finding(s) for non-existent endpoints (404)`, 'info', 94);
       }
 
-      // Tech DNA filter: when we have Ground Truth fingerprint, only keep tech from that list
-      if (techFingerprint.length > 0 && finalReport.technologyDNA?.length) {
-        const allowedNames = new Set(techFingerprint.map((f) => f.name.toLowerCase()));
-        let filteredDNA = finalReport.technologyDNA.filter((t) =>
-          allowedNames.has((t.name || '').toLowerCase())
-        );
-        // Safeguard: if Vite is detected, exclude Next.js (Vite+React sites are often misreported as Next.js)
-        const hasVite = allowedNames.has('vite');
-        if (hasVite) {
-          filteredDNA = filteredDNA.filter((t) => (t.name || '').toLowerCase() !== 'next.js');
+      // Tech DNA: keep all AI-reported tech for Wappalyzer-style completeness; only remove false positives
+      if (finalReport.technologyDNA?.length) {
+        const groundNames = new Set(techFingerprint.map((f) => f.name.toLowerCase()));
+        let dna = finalReport.technologyDNA;
+        // Safeguard: if Vite is in ground truth, exclude Next.js (Vite+React often misreported as Next.js)
+        if (groundNames.has('vite')) {
+          dna = dna.filter((t) => (t.name || '').toLowerCase() !== 'next.js');
         }
-        finalReport = { ...finalReport, technologyDNA: filteredDNA };
+        finalReport = { ...finalReport, technologyDNA: dna };
       }
 
       setMissionReport(finalReport);
@@ -801,7 +810,7 @@ export const useScanner = () => {
             userMessage = msg || 'The AI service is temporarily busy. Please try again in 1–2 minutes.';
           } else if (code === 429 || (msg && msg.toLowerCase().includes('too many requests'))) {
             errorType = 'rate_limit';
-            userMessage = msg || 'Too many requests. Please wait 1–2 minutes and try again.';
+            userMessage = formatRateLimitMessage(msg || 'Too many requests. Please wait 1–2 minutes and try again.');
           }
         } catch {
           // Not JSON; check raw message for 503/429/overloaded
@@ -810,7 +819,7 @@ export const useScanner = () => {
             userMessage = 'The AI service is temporarily busy. Please try again in 1–2 minutes.';
           } else if (errorMsg.includes('429') || errorMsg.includes('too many requests') || errorMsg.includes('quota')) {
             errorType = 'rate_limit';
-            userMessage = 'Too many requests. Please wait 1–2 minutes and try again.';
+            userMessage = formatRateLimitMessage(errorMsg);
           }
         }
 
@@ -869,25 +878,33 @@ export const useScanner = () => {
     setProgress(0);
   };
 
-  // Calculate mission duration
+  // Mission duration: show real elapsed time; sub-second completed scans show "< 1s"
   const missionDuration = useMemo(() => {
     if (!scanStartTime) return null;
     const endTime = scanEndTime || new Date();
-    const durationMs = endTime.getTime() - scanStartTime.getTime();
-    const seconds = Math.floor(durationMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    const durationMs = Math.max(0, endTime.getTime() - scanStartTime.getTime());
+    const rawSeconds = Math.floor(durationMs / 1000);
+    const subSecond = rawSeconds < 1 && scanEndTime;
+    const minutes = Math.floor(rawSeconds / 60);
+    const remainingSeconds = rawSeconds % 60;
+    
+    const formatted = subSecond
+      ? '< 1s'
+      : minutes > 0
+        ? `${minutes}m ${remainingSeconds}s`
+        : `${rawSeconds}s`;
+    const formattedFull = subSecond
+      ? 'less than 1 second'
+      : minutes > 0
+        ? `${minutes} minute${minutes !== 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`
+        : `${rawSeconds} second${rawSeconds !== 1 ? 's' : ''}`;
     
     return {
       startTime: scanStartTime,
       endTime: scanEndTime || endTime,
       durationMs,
-      formatted: minutes > 0 
-        ? `${minutes}m ${remainingSeconds}s`
-        : `${remainingSeconds}s`,
-      formattedFull: minutes > 0
-        ? `${minutes} minute${minutes !== 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`
-        : `${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`
+      formatted,
+      formattedFull,
     };
   }, [scanStartTime, scanEndTime]);
 
