@@ -510,6 +510,10 @@ DOM_SIGNALS: ${maskData(tierBasedData.signals || signals)}`;
 DOM_SIGNALS: ${maskData(tierBasedData.signals || signals)}
 FULL_DOM: ${tierBasedData.dom ? maskData(tierBasedData.dom.substring(0, NETWORK_CONSTANTS.MAX_DOM_CHARS)) : 'N/A'}`;
         }
+        // Ground Truth: inject tech fingerprint for STANDARD/DEEP so AI uses only these
+        if (tierBasedData?.techFingerprint && Array.isArray(tierBasedData.techFingerprint) && tierBasedData.techFingerprint.length > 0) {
+          promptData += `\n\nTECH_FINGERPRINT (Ground Truth - confirmed by deterministic scan. Use ONLY these for technologyDNA; do not add frameworks/libraries not in this list):\n${JSON.stringify(tierBasedData.techFingerprint)}`;
+        }
       } else {
         // Fallback: Use original method
         promptData = `DOM_SIGNALS: ${maskData(signals)}`;
@@ -590,6 +594,7 @@ CRITICAL ACCURACY REQUIREMENTS:
 - CROSS-VALIDATE FINDINGS: Verify each vulnerability with multiple data sources before reporting.
 - EVIDENCE-BASED ANALYSIS: Only report vulnerabilities with clear evidence from the provided data.
 - PREVENT FALSE POSITIVES: Do not report potential vulnerabilities without concrete evidence. Only confirmed issues.
+- TECHNOLOGY DNA (when TECH_FINGERPRINT is provided): Base technologyDNA ONLY on the TECH_FINGERPRINT list above. Do not add frameworks or libraries not in that list (e.g. do not assume Next.js if only React/Vite is listed). You may add status, actionPlan, and CVE cross-reference for each item in the list.
 - DETAILED REMEDIATION: Provide specific, actionable remediation steps with code examples where applicable.
 - CONFIDENCE RATING: Rate your confidence level for each finding (High/Medium/Low) based on evidence quality.
 - DATA SOURCE ATTRIBUTION: Note which data source (headers, DOM, SSL, DNS, probes) led to each finding.
@@ -598,7 +603,7 @@ CRITICAL ACCURACY REQUIREMENTS:
 OUTPUT REQUIREMENTS:
 - Output strict JSON according to the schema
 - All findings must include: title, description, severity, remediation, businessImpact, cwe, origin, poc
-- Technology DNA must include: name, version, category, status, actionPlan
+- Technology DNA must include: name, version, category, status, actionPlan (when TECH_FINGERPRINT is provided, only list technologies from that list)
 - Security score must be calculated based on actual findings (0-100)
 - Confidence score must reflect overall analysis quality (0-100)
 - PDF_EXPORT: Write ALL report text fields in English only (purpose, businessLogic, attackSurfaceSummary, forensicAnalysis, technology actionPlan, probe description, finding title/description/remediation/businessImpact/poc) so the PDF debrief displays correctly. Use English regardless of UI language.

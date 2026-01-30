@@ -4,7 +4,7 @@
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.1.1  
+**Version:** 1.2.0  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -37,6 +37,25 @@ VaultGuard Pro is an autonomous Security Operations Center (SOC) that transforms
 - **Related topics** cross-linking for comprehensive learning
 
 Vault Academy showcases how AI can be leveraged in educational contexts, providing users with comprehensive security knowledge compiled with assistance from Gemini 3.
+
+---
+
+## 🚀 New in v1.2.0: Ground Truth Tech DNA & Accuracy
+
+### Technology DNA (Ground Truth)
+
+- **Deterministic tech fingerprinting** (Wappalyzer-style) – DOM + HTTP headers are scanned with regex patterns before AI; only detected technologies are reported
+- **Expanded detection** – React, Vite, Next.js, Vue, Nuxt, Angular, Svelte, Remix, Tailwind, Bootstrap, Framer Motion, Lucide, Leaflet, React Router, Google Fonts, Unpkg, jsDelivr, Vercel, Netlify, Nginx, HSTS, WordPress, Drupal, and more
+- **Post-filter** – AI `technologyDNA` is filtered to match the Ground Truth list only (reduces hallucination, e.g. no “Next.js” when the site is Vite + React)
+- **Version extraction** – Versions for React Router, Leaflet, and other libs when present in DOM/headers
+
+### Finding Verification & Report Trust
+
+- **Finding verification** – Inferred API endpoints (e.g. `/api/auth/login`) are checked with HEAD requests; findings for endpoints that return 404 are removed from the report
+- **Data integrity label** – Report and PDF show “Simulated” vs “Live” based on whether CORS blocked direct data
+- **Confidence tier** – Findings show “Confirmed” (High confidence) or “Potential” (Medium/Low) in the UI and PDF
+
+These updates make Tech DNA and findings more reliable and easier to trust for users and testers.
 
 ---
 
@@ -263,8 +282,10 @@ vaultguard_pro/
 │   └── aistudio.d.ts      # AI Studio extension types
 ├── utils/              # Utilities
 │   ├── errorSuppression.ts # Error handling utilities
+│   ├── findingVerification.ts # HEAD check for inferred endpoints (404 filter)
 │   ├── masking.ts          # PII masking
 │   ├── networkAnalysis.ts  # Network analysis service
+│   ├── techFingerprint.ts  # Ground Truth tech DNA (Wappalyzer-style)
 │   └── urlValidation.ts    # URL validation utilities
 └── index.tsx           # App entry point
 ```
@@ -500,7 +521,15 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.1.1 (Current)
+### v1.2.0 (Current)
+
+- **Tech DNA Ground Truth** – Deterministic tech fingerprint (DOM + headers) before AI; expanded patterns (frameworks, CDNs, PaaS, CMS); report shows only detected tech
+- **Finding verification** – HEAD check on inferred API endpoints; 404 endpoints removed from findings
+- **Data integrity label** – “Simulated” vs “Live” in report/PDF based on CORS
+- **Confidence tier** – “Confirmed” vs “Potential” per finding in UI and PDF
+- **Accuracy** – Fewer false tech detections and invalid endpoint findings
+
+### v1.1.1
 
 - **PDF debrief fix** – Sanitize text for jsPDF so Unicode bullets, emojis, and AI-generated content render correctly (no more garbled symbols)
 - Language data and input improvements

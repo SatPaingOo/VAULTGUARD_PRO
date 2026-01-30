@@ -5,6 +5,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
 import { extractSecuritySignals, extractTargetDOM } from '../utils/masking';
 import { FrontendNetworkAnalysis } from '../utils/networkAnalysis';
+import { detectTechFingerprint } from '../utils/techFingerprint';
+import { verifyFindings } from '../utils/findingVerification';
 import { validateAndCheckUrl } from '../utils/urlValidation';
 import { AI_CONSTANTS, NETWORK_CONSTANTS, PROBE_CONSTANTS, API_KEY_CONSTANTS } from '../constants';
 
@@ -302,6 +304,14 @@ export const useScanner = () => {
         },
         corsStatus: corsStatus,
       });
+
+      // Ground Truth: deterministic tech fingerprint (Wappalyzer-style) before AI
+      const techFingerprint = detectTechFingerprint(rawDom || signals, headers?.securityHeaders);
+      if (level === 'STANDARD' || level === 'DEEP') {
+        if (techFingerprint.length > 0) {
+          addLog(`[TECH] Ground Truth: ${techFingerprint.map(t => t.name).join(', ')}`, 'success', 28);
+        }
+      }
       
       // Helper function to extract token count from usageMetadata (handles both formats)
       const getTokenCount = (usage: any): number => {
@@ -380,22 +390,24 @@ export const useScanner = () => {
           sslInfo: sslInfo,
           dnsInfo: dnsInfo,
           corsStatus: corsStatus,
-          // Skip DOM for FAST tier (saves ~12K tokens)
+          techFingerprint: [], // FAST: no DOM, no fingerprint
         },
         STANDARD: {
           headers: headers?.securityHeaders,
           sslInfo: sslInfo,
           dnsInfo: dnsInfo,
-          signals: signals, // Lightweight signals only (saves ~37K tokens vs full DOM)
+          signals: signals,
           corsStatus: corsStatus,
+          techFingerprint, // Ground Truth for AI (Wappalyzer-style)
         },
         DEEP: {
           headers: headers?.securityHeaders,
           sslInfo: sslInfo,
           dnsInfo: dnsInfo,
           signals: signals,
-          dom: rawDom, // Full DOM for deep analysis
+          dom: rawDom,
           corsStatus: corsStatus,
+          techFingerprint, // Ground Truth for AI
         },
       };
       
@@ -710,8 +722,26 @@ export const useScanner = () => {
           groundingSources: groundingSources && groundingSources.length > 0 ? groundingSources : undefined,
         },
       };
-      
-      setMissionReport(reportWithQuality);
+
+      // Finding Verification (Check First): drop findings for endpoints that return 404
+      let finalReport = await verifyFindings(target, reportWithQuality);
+      if ((reportWithQuality.findings?.length || 0) !== (finalReport.findings?.length || 0)) {
+        const removed = (reportWithQuality.findings?.length || 0) - (finalReport.findings?.length || 0);
+        addLog(`[VERIFY] Removed ${removed} finding(s) for non-existent endpoints (404)`, 'info', 94);
+      }
+
+      // Tech DNA filter: when we have Ground Truth fingerprint, only keep tech from that list
+      if (techFingerprint.length > 0 && finalReport.technologyDNA?.length) {
+        const allowedNames = new Set(techFingerprint.map((f) => f.name.toLowerCase()));
+        finalReport = {
+          ...finalReport,
+          technologyDNA: finalReport.technologyDNA.filter((t) =>
+            allowedNames.has((t.name || '').toLowerCase())
+          ),
+        };
+      }
+
+      setMissionReport(finalReport);
       addLog(`[DATA_QUALITY] Trust score: ${trustScore}%`, trustScore >= 80 ? 'success' : trustScore >= 60 ? 'warn' : 'error', 95);
       if (dataQuality.limitations.length > 0) {
         addLog(`[DATA_QUALITY] Limitations: ${dataQuality.limitations.join(', ')}`, 'warn', 96);

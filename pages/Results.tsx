@@ -184,11 +184,11 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       const titleX = (pageWidth - titleWidth) / 2; // Center
       doc.text(titleText, titleX, titleY);
 
-      // Version "v1.1.1" - smaller, inline with title
+      // Version "v1.2.0" - smaller, inline with title
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.1.1";
+      const versionText = "v1.2.0";
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
@@ -526,6 +526,10 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         yPos += 8;
         const trustLevel = dataQuality.trustScore >= 80 ? tEn('pdf.trust_high') : dataQuality.trustScore >= 60 ? tEn('pdf.trust_medium') : dataQuality.trustScore >= 40 ? tEn('pdf.trust_low') : tEn('pdf.trust_very_low');
         doc.text(`${tEn('pdf.trust_level')}: ${trustLevel}`, 15, yPos);
+        yPos += 6;
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        doc.text(dataQuality.corsCompensation ? tEn('pdf.data_integrity_simulated') : tEn('pdf.data_integrity_live'), 15, yPos);
         yPos += 10;
 
         if (dataQuality.limitations.length > 0) {
@@ -1303,6 +1307,9 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                   <div className="text-xs md:text-sm text-white/40 mt-1">
                     {t('results.data_reliability_score')}
                   </div>
+                  <div className="text-[10px] md:text-xs text-white/30 mt-0.5">
+                    {dataQuality.corsCompensation ? t('results.data_integrity_simulated') : t('results.data_integrity_live')}
+                  </div>
                 </div>
               </div>
 
@@ -1707,6 +1714,9 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                       <div className="flex flex-wrap gap-2 md:gap-4 items-center">
                         <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-red-500/10 text-red-500 text-[10px] md:text-[12px] font-black uppercase border border-red-500/20">{f.severity}{t('results.severity_severity')}</span>
                         <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-white/5 text-white/40 text-[10px] md:text-[12px] font-mono uppercase border border-white/10">{f.cwe}</span>
+                        <span className={`px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[11px] font-black uppercase border ${(f.confidence === 'High') ? 'bg-[#00ff9d]/10 text-[#00ff9d] border-[#00ff9d]/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
+                          {(f.confidence === 'High') ? t('results.confidence_confirmed') : t('results.confidence_potential')}
+                        </span>
                         <span className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-orange-500/10 text-orange-500 text-[9px] md:text-[11px] font-black uppercase border border-orange-500/20">{t('results.chain_high')}</span>
                       </div>
                     </div>

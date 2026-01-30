@@ -26,98 +26,81 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
   // OPTIMIZATION: Debounce timer for API key validation
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Only reset state when modal opens; do NOT depend on activeKey so Test success is not wiped
   useEffect(() => {
     if (isOpen) {
-      setInputKey('');
+      setInputKey(activeKey || '');
       setShowKey(false);
       setTestResult(null);
       setIsTesting(false);
-      // Clear debounce timer when modal closes
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
         debounceTimerRef.current = null;
       }
     }
-    
-    // Cleanup debounce timer on unmount
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
   }, [isOpen]);
 
-  // OPTIMIZED: Debounced test function to reduce API calls
+  // Test key directly (pass key to avoid state-timing issues)
   const handleTestKey = async () => {
     if (!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setTestResult('error');
       return;
     }
 
-    // Clear previous debounce timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
     }
 
     setIsTesting(true);
     setTestResult(null);
-    
-    // OPTIMIZATION: Debounce validation - wait 1 second after user stops typing
-    debounceTimerRef.current = setTimeout(async () => {
-      const originalKey = activeKey;
-      updateManualKey(inputKey);
-      
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const isValid = await testApiKey();
-      
-      if (isValid) {
-        setTestResult('success');
-      } else {
-        setTestResult('error');
-        if (originalKey) {
-          updateManualKey(originalKey);
-        }
-      }
-      
-      setIsTesting(false);
-      debounceTimerRef.current = null;
-    }, 1000); // 1 second debounce
+
+    const keyToTest = inputKey.trim();
+    const isValid = await testApiKey(keyToTest);
+
+    if (isValid) {
+      updateManualKey(keyToTest);
+      setTestResult('success');
+    } else {
+      setTestResult('error');
+    }
+    setIsTesting(false);
   };
 
-  // OPTIMIZED: Conditional validation - skip test if key unchanged and already valid
+  // Save key: validate the key in input directly, then update context.
+  // Skip re-validation if key already validated (Test success) or same key already valid in context.
   const handleManualSave = async () => {
     if (!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setTestResult('error');
       return;
     }
 
-    // OPTIMIZATION: Skip validation if key unchanged and already valid
-    if (inputKey === activeKey && apiKeyStatus === 'valid') {
-      // Key unchanged and already valid - skip test to save API quota
+    const keyToTest = inputKey.trim();
+    const alreadyValidInContext = keyToTest === activeKey && apiKeyStatus === 'valid';
+    const alreadyValidatedByTest = testResult === 'success';
+
+    if (alreadyValidInContext || alreadyValidatedByTest) {
+      updateManualKey(keyToTest);
       setTestResult('success');
-      setTimeout(() => {
-        onClose();
-      }, 1000);
+      setTimeout(() => onClose(), 1000);
       return;
     }
 
-    // Clear any pending debounce timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
     }
 
     setIsTesting(true);
-    updateManualKey(inputKey);
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const isValid = await testApiKey();
-    
+    const isValid = await testApiKey(keyToTest);
+
     if (isValid) {
+      updateManualKey(keyToTest);
       setTestResult('success');
-      setTimeout(() => {
-        onClose();
-      }, 1000);
+      setTimeout(() => onClose(), 1000);
     } else {
       setTestResult('error');
       setApiKeyStatus('invalid');
@@ -393,7 +376,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                 </button>
                 <button 
                   onClick={handleManualSave}
-                  disabled={!inputKey.trim() || inputKey.length < 20 || isTesting || testResult === 'error'}
+                  disabled={!inputKey.trim() || inputKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH || isTesting || testResult === 'error'}
                   className="py-4 md:py-5 rounded-xl md:rounded-2xl bg-gradient-to-r from-white via-white/95 to-white text-black font-black uppercase tracking-[0.2em] text-[10px] md:text-xs hover:from-white/95 hover:via-white/90 hover:to-white/95 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 col-span-1 sm:col-span-1"
                 >
                   <KeyRound size={14} className="md:w-4 md:h-4" />
@@ -512,7 +495,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                         </div>
                       </div>
                       
-                      {/* Search Grounding */}
+                      {/* Search Grounding – uses same AI Studio key & Generative Language API/Gemini API, no Vertex AI */}
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#00ff9d] mt-1.5 shrink-0" />
                         <div className="flex-1">
@@ -520,30 +503,16 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                           <p className="text-white/50 leading-relaxed mb-1">
                             {t('apikey.step3_desc')}
                           </p>
-                          <div className="mt-2 space-y-1.5">
-                            <p className="text-white/50 leading-relaxed text-[10px]">
-                              <strong className="text-white/70">{t('apikey.also_enable')}</strong>
-                            </p>
-                            <ul className="list-none text-white/40 ml-2 space-y-1.5">
-                              <li className="flex items-start gap-2">
-                                <span className="text-[#00d4ff] mt-0.5">•</span>
-                                <div className="flex-1">
-                                  <span className="text-white/60 font-semibold">{t('apikey.vertex_ai_api')}</span>
-                                  <span className="text-white/30 text-[10px] ml-1">{t('apikey.required_advanced')}</span>
-                                  <p className="text-white/40 text-[9px] mt-0.5">
-                                    {t('apikey.go_enable_vertex')}
-                                  </p>
-                                </div>
-                              </li>
-                            </ul>
-                          </div>
+                          <p className="text-white/40 text-[10px] mt-1.5 leading-relaxed">
+                            {t('apikey.step3_same_api')}
+                          </p>
                           <a 
-                            href="https://console.cloud.google.com/apis/library" 
+                            href="https://ai.google.dev/gemini-api/docs/grounding" 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-[#00d4ff] hover:text-[#00ff9d] text-[8px] underline inline-flex items-center gap-1 mt-2"
                           >
-                            {t('apikey.enable_search_grounding')}
+                            {t('apikey.learn_search_grounding')}
                             <ExternalLink size={9} />
                           </a>
                         </div>

@@ -2,7 +2,7 @@
   <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
-# VaultGuard Pro: Neural Mission Blueprints (v1.1.0)
+# VaultGuard Pro: Neural Mission Blueprints (v1.2.0)
 
 **Developer Documentation** - Technical architecture, implementation details, and "how it works"
 
@@ -120,6 +120,18 @@ When Deep Scan detects a vulnerability, Gemini 3 Pro uses its 32K thinking budge
 - STANDARD: Logic-based deduction
 - DEEP: Recursive reasoning with thinking budget
 
+#### **Tech DNA Ground Truth (v1.2.0)**
+
+To reduce AI hallucination (e.g. reporting Next.js when the site is Vite + React), technology detection is now **deterministic first**:
+
+1. **Pre-AI fingerprint**: `utils/techFingerprint.ts` runs on DOM content and HTTP headers (regex patterns) and produces a Ground Truth list (name, version?, category, evidence).
+2. **AI input**: This list is passed to Gemini as `TECH_FINGERPRINT` with instructions to use **only** these technologies for `technologyDNA` (AI may add status, actionPlan, CVE cross-reference).
+3. **Post-filter**: After the audit, `technologyDNA` in the report is filtered so only technologies present in the Ground Truth list remain.
+
+**Result**: Technology DNA in the report reflects only what was actually detected (DOM/headers), not AI inference. Finding verification (`utils/findingVerification.ts`) similarly removes findings that reference API endpoints that return 404 when probed with HEAD.
+
+**Implementation**: `hooks/useScanner.ts` – `detectTechFingerprint()` before audit; tier-based `techFingerprint` for STANDARD/DEEP; post-audit filter on `technologyDNA` and `verifyFindings()`.
+
 ## 3. Mission Intensity Tiers & Flow
 
 | Tier         | Focus                 | Engine | Thinking Budget | Logic Flow                                    |
@@ -154,8 +166,9 @@ The Results page displays comprehensive security intelligence with the following
 - **Executive Intelligence**: Security score (0-100), mission intensity, neural load, forensic analysis summary, and telemetry logs
 - **Business Logic**: Application purpose, business logic analysis, and attack surface summary
 - **Probe Execution Details**: HTTP probe execution results with methods, endpoints, response times, vulnerability status, and CORS blocking indicators
-- **Vulnerability Ledger**: Ranked findings with severity levels, CWE IDs, confidence levels, evidence sources, proof-of-concept scripts, full remediation directives, and business impact assessment
-- **Technology DNA**: Fingerprinted tech stack with versions, categories, security status, CVE information, and action plans
+- **Data Quality / Integrity**: Trust score (0–100%), data source status; **Data integrity label** (v1.2.0) – “Simulated” vs “Live” in report/PDF based on whether CORS blocked direct data
+- **Vulnerability Ledger**: Ranked findings with severity levels, CWE IDs, **confidence tier** (v1.2.0: “Confirmed” for High confidence, “Potential” for Medium/Low), evidence sources, proof-of-concept scripts, full remediation directives, and business impact assessment
+- **Technology DNA**: Ground Truth fingerprint (v1.2.0) – only technologies detected by deterministic scan (DOM/headers); versions, categories, security status, CVE information, and action plans
 
 **PDF Report Structure**: The PDF export includes all sections above in the same order, ensuring 100% consistency between UI and PDF reports. Level-based differences are automatically reflected in both UI and PDF based on the selected scan level.
 
@@ -536,8 +549,12 @@ vaultguard_pro/
 ├── services/            # Business logic & API services
 │   └── geminiService.ts   # Gemini API integration with retry logic
 ├── utils/               # Utility functions
-│   ├── masking.ts         # PII/data masking for security
-│   └── networkAnalysis.ts # Network analysis service (headers, SSL, DNS)
+│   ├── errorSuppression.ts   # Error handling utilities
+│   ├── findingVerification.ts # HEAD check for inferred endpoints (404 filter)
+│   ├── masking.ts            # PII/data masking for security
+│   ├── networkAnalysis.ts    # Network analysis service (headers, SSL, DNS)
+│   ├── techFingerprint.ts    # Ground Truth tech DNA (Wappalyzer-style)
+│   └── urlValidation.ts      # URL validation utilities
 ├── index.tsx            # Application entry point & landing page
 ├── index.html           # HTML template
 ├── vite.config.ts       # Vite build configuration
@@ -572,13 +589,26 @@ vaultguard_pro/
 - **Tier-Based Data**: ✅ OPTIMIZED - Sends only relevant data per scan level
 - **Response Validation**: ✅ OPTIMIZED - Validates AI responses, prevents silent failures
 
-#### **utils/networkAnalysis.ts** (✅ NEW - Efficiency Improvement)
+#### **utils/networkAnalysis.ts** (✅ Efficiency Improvement)
 
 - **Header Analysis**: Real HTTP header inspection with security header scoring
 - **SSL/TLS Analysis**: SSL Labs API integration for certificate grading
 - **DNS Lookup**: Google DNS API for IP resolution and DNS records
 - **Response Caching**: ✅ OPTIMIZED - Caches results with TTL (24h SSL, 1h DNS/Headers)
 - **Security Header Testing**: Automated scoring of missing/weak security headers
+
+#### **utils/techFingerprint.ts** (✅ v1.2.0 - Ground Truth Tech DNA)
+
+- **Deterministic fingerprinting**: Wappalyzer-style pattern matching on DOM content and HTTP headers before AI
+- **RULES**: Pattern rules for frameworks (React, Vite, Next.js, Vue, Nuxt, Angular, Svelte, Remix), UI (Tailwind, Bootstrap, Framer Motion, Lucide, Font Awesome, Material UI, Chakra UI, Radix UI), routing (React Router), maps (Leaflet, Mapbox, Google Maps), CDN (Unpkg, jsDelivr, cdnjs), fonts (Google Fonts), CMS (WordPress, Drupal, Joomla), analytics (Google Analytics, GTM)
+- **Header-based detection**: Server, X-Powered-By, X-Vercel-Id, X-Netlify-Id, X-Amz-Cf-Id, Nginx, Apache, IIS, HSTS, ASP.NET, X-Generator (WordPress/Drupal)
+- **Version extraction**: Optional versionPattern per rule; first non-null capture group used
+- **Output**: `TechFingerprintItem[]` (name, version?, category, evidence) passed to AI as TECH_FINGERPRINT; AI uses only this list for technologyDNA (post-filter in useScanner enforces)
+
+#### **utils/findingVerification.ts** (✅ v1.2.0 - Finding Verification)
+
+- **HEAD check**: For each inferred API endpoint in report (targetIntelligence.apis), performs HEAD request; if 404, findings that reference that endpoint are removed
+- **Integration**: Called in useScanner after audit, before setting mission report; reduces false positives from non-existent endpoints
 
 #### **components/VirtualHUD.tsx**
 

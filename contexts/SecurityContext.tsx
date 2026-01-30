@@ -16,7 +16,7 @@ interface SecurityContextType {
   apiKeyError?: ApiKeyErrorDetails;
   updateManualKey: (key: string) => void;
   refreshSecurity: () => void;
-  testApiKey: () => Promise<boolean>;
+  testApiKey: (keyOverride?: string) => Promise<boolean>;
   setApiKeyStatus: (status: 'none' | 'valid' | 'invalid' | 'testing') => void;
 }
 
@@ -70,8 +70,10 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
 
   // OPTIMIZED: Test API key with caching and reduced API calls
   // Only uses 1 API call (list models) instead of 2 (list + generateContent test)
-  const testApiKey = useCallback(async (): Promise<boolean> => {
-    if (!activeKey || activeKey.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
+  // When keyOverride is provided, validates that key directly (avoids state-timing issues in modal).
+  const testApiKey = useCallback(async (keyOverride?: string): Promise<boolean> => {
+    const keyToValidate = (keyOverride !== undefined && keyOverride !== '' ? keyOverride.trim() : activeKey) || '';
+    if (!keyToValidate || keyToValidate.length < API_KEY_CONSTANTS.MIN_KEY_LENGTH) {
       setApiKeyStatus('invalid');
       setApiKeyError({
         type: 'format_error',
@@ -86,7 +88,7 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
     }
 
     // Check format
-    if (!activeKey.startsWith('AIzaSy')) {
+    if (!keyToValidate.startsWith('AIzaSy')) {
       setApiKeyStatus('invalid');
       setApiKeyError({
         type: 'format_error',
@@ -101,7 +103,7 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
     }
 
     // OPTIMIZATION: Check cache first
-    const cacheKey = activeKey.substring(0, 20); // Use first 20 chars as cache key
+    const cacheKey = keyToValidate.substring(0, 20); // Use first 20 chars as cache key
     const cached = validationCache.current.get(cacheKey);
     
     if (cached && (Date.now() - cached.timestamp) < cached.ttl) {
@@ -118,7 +120,7 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
       // OPTIMIZED: Only check models list (1 API call instead of 2)
       // Skip generateContent test to save API quota
       const modelsResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models?key=${activeKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${keyToValidate}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -205,10 +207,10 @@ export const SecurityProvider = ({ children }: { children?: ReactNode }) => {
           message: `Required models are not available: ${missingModels.join(', ')}`,
           missingModels,
           suggestions: [
-            'Enable Generative Language API in Google Cloud Console',
+            'Enable Generative Language API/Gemini API in Google Cloud Console',
             `Enable these models: ${missingModels.join(', ')}`,
             'Go to: https://console.cloud.google.com/apis/library',
-            'Search for "Generative Language API" and enable it'
+            'Search for "Generative Language API/Gemini API" and enable it'
           ]
         };
         
