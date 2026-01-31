@@ -371,6 +371,7 @@ function detectFromHeaders(headers: Record<string, string | null> | undefined): 
   // PaaS / Hosting
   if ((server && /vercel/i.test(server)) || xVercelId || xVercelForwardedFor) {
     add('Vercel', 'Server', server ? `Server: ${server}` : 'X-Vercel-* header');
+    add('Node.js', 'Server', 'Inferred from Vercel hosting (typical runtime)');
   }
   if (server && /cloudflare/i.test(server)) {
     add('Cloudflare', 'Server', `Server header: ${server}`);

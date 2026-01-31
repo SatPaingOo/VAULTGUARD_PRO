@@ -4,7 +4,7 @@
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.4.1  
+**Version:** 1.4.2  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -122,6 +122,25 @@ These updates improve report trust, deployment security, and alignment between U
 ### Scan Duration
 
 - **Sub-second display** – When scan completes in under 1 second, report shows "< 1s" and "less than 1 second" instead of "0 seconds".
+
+---
+
+## 🚀 New in v1.4.2: Probe Filter, Trust UI & Console Logs in Dev Only
+
+### Probe & Report
+
+- **Probe filter** – Only probes under the target domain are executed; localhost and non-target URLs are skipped to avoid false positives (e.g. "Development Resource Leak" from localhost).
+- **AI prompt** – activeProbes must be under target domain only; TECH_FINGERPRINT instructs AI to MUST add JavaScript/TypeScript and npm or Node.js when frontend detected; no React/Vue/Svelte without evidence.
+
+### Technology DNA
+
+- **Vercel hostname** – When target host is `*.vercel.app`, Vercel and Node.js are added to Ground Truth (so they appear even when CORS hides headers).
+- **SSL limitation message** – Updated to "SSL grade unavailable (SSL Labs API not accessible from browser)".
+
+### UX
+
+- **Why is trust low?** – When trust score &lt; 80%, the limitations section title shows "Why is trust low?" so users see why the score is lower.
+- **Console logs in dev only** – [VG] logs are printed to the browser console only in development; production deploy no longer shows scan logs in the console.
 
 ---
 
@@ -610,7 +629,15 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.4.1 (Current)
+### v1.4.2 (Current)
+
+- **Probe filter** – Only target-domain probes executed; localhost/non-target skipped; AI prompt: activeProbes under target domain only
+- **Tech DNA** – Vercel hostname (*.vercel.app) adds Vercel + Node.js to Ground Truth; AI MUST add JS/TS and npm/Node when frontend in fingerprint
+- **SSL limitation** – Message updated to "SSL grade unavailable (SSL Labs API not accessible from browser)"
+- **Trust UI** – When trust &lt; 80%, limitations section title shows "Why is trust low?"
+- **Console logs** – [VG] logs only in development; no scan logs in production deploy
+
+### v1.4.1
 
 - **Finding origin accuracy** – AI prompt forbids invented file paths; origin/description use only URL path or data source; UI/PDF disclaimer for inferred locations
 - **Technology DNA merge** – Ground truth (techFingerprint) merged into technologyDNA so detected tech always appears in report

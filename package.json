@@ -1,7 +1,7 @@
 {
   "name": "vaultguard_pro",
   "private": true,
-  "version": "1.4.1",
+  "version": "1.4.2",
   "type": "module",
   "author": "Sat Paing Oo",
   "description": "AI-Powered Security Operations Center using Gemini 3 Pro/Flash for neural vulnerability scanning",
@@ -25,7 +25,8 @@
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "lint": "echo 'Linting not configured. Install ESLint for full linting support.'",
-    "test-pdf": "tsx scripts/test-pdf.ts"
+    "test-pdf": "tsx scripts/test-pdf.ts",
+    "scan-cli": "tsx scripts/scan-cli.ts"
   },
   "dependencies": {
     "@google/genai": "^1.35.0",

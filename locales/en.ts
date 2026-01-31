@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "NEURAL_SECURITY_OPS_v1.4.1",
+  "app_subtitle": "NEURAL_SECURITY_OPS_v1.4.2",
   "app_gemini_tagline": "Powered by Gemini 3 Pro & Flash • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Built for Gemini 3 Hackathon",
   "app_hybrid_tagline": "Hybrid: Deterministic Rules + AI Reasoning",
@@ -327,6 +327,7 @@ export default {
     "verification_unknown": "Unverified",
     "evidence_links": "Evidence links",
     "limitations": "Limitations",
+    "why_trust_low": "Why is trust low?",
     "available": "Available",
     "blocked": "Blocked",
     "limited": "Limited",
@@ -508,7 +509,7 @@ export default {
     "error_unknown_suggestions": ["Check your internet connection", "Verify the API key is correct", "Try again in a few moments"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.4.1",
+    "version_badge": "VAULT_SOC_1.4.2",
     "evidence_based_badge": "EVIDENCE_BASED_FINDINGS",
     "neural_engine": "NEURAL_ENGINE",
     "frontend_only": "FRONTEND_ONLY",

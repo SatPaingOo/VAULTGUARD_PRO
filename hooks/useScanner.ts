@@ -42,6 +42,28 @@ const INITIAL_REPORT: MissionReport = {
   usage: { totalTokenCount: 0 }
 };
 
+/** Keep only probes whose endpoint is under the target domain (same host). Skip localhost, 127.0.0.1, and non-target hosts to avoid false positives. */
+function filterProbesByTargetDomain(target: string, probes: VerificationPayload[]): VerificationPayload[] {
+  if (!probes?.length) return [];
+  let targetHost: string;
+  try {
+    targetHost = new URL(target.replace(/\/$/, '') || 'https://example.com').hostname.toLowerCase();
+  } catch {
+    return probes;
+  }
+  const isLocal = (h: string) => h === 'localhost' || h.startsWith('127.') || h.startsWith('192.168.') || h.startsWith('10.');
+  return probes.filter((p) => {
+    const full = p.endpoint.startsWith('http') ? p.endpoint : `${target.replace(/\/$/, '')}${p.endpoint.startsWith('/') ? '' : '/'}${p.endpoint}`;
+    try {
+      const host = new URL(full).hostname.toLowerCase();
+      if (isLocal(host)) return false;
+      return host === targetHost;
+    } catch {
+      return false;
+    }
+  });
+}
+
 /** Format raw API rate-limit message for modal: extract retry seconds, short summary, and correct docs link */
 function formatRateLimitMessage(raw: string): string {
   const retryMatch = raw.match(/retry\s+in\s+([\d.]+)/i) || raw.match(/retry\s+after\s+([\d.]+)/i);
@@ -90,6 +112,14 @@ export const useScanner = () => {
     setCurrentAction(msg.replace(/\[.*?\]\s*/, ''));
     setProgress(currentProgress); // Sync progress with log entry
     setTelemetry(prev => [...prev.slice(-49), { msg, type, timestamp: new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }), progressAtLog: currentProgress }]);
+    // Mirror to browser console only in development (no [VG] logs in production deploy)
+    const isDev = import.meta.env?.DEV === true || import.meta.env?.MODE === 'development';
+    if (isDev) {
+      const prefix = '[VG]';
+      if (type === 'error') console.error(prefix, msg);
+      else if (type === 'warn') console.warn(prefix, msg);
+      else console.log(prefix, msg);
+    }
   }, []);
 
   const runMission = async (url: string, level: ScanLevel, languageName: string = "English", expertOptions?: ExpertFetchOptions) => {
@@ -319,6 +349,17 @@ export const useScanner = () => {
 
       // Ground Truth: deterministic tech fingerprint (Wappalyzer-style) before AI
       const techFingerprint = detectTechFingerprint(rawDom || signals, headers?.securityHeaders);
+      // When target host is *.vercel.app, add Vercel + Node.js if not already detected (headers may be hidden by CORS)
+      try {
+        const targetHost = new URL(target.replace(/\/$/, '') || 'https://example.com').hostname.toLowerCase();
+        if (targetHost.endsWith('.vercel.app') || targetHost === 'vercel.app') {
+          const names = new Set(techFingerprint.map((t) => t.name.toLowerCase()));
+          if (!names.has('vercel')) techFingerprint.push({ name: 'Vercel', category: 'Server', evidence: 'Inferred from hostname (*.vercel.app)' });
+          if (!names.has('node.js')) techFingerprint.push({ name: 'Node.js', category: 'Server', evidence: 'Inferred from Vercel hosting' });
+        }
+      } catch {
+        /* ignore URL parse */
+      }
       if (level === 'STANDARD' || level === 'DEEP') {
         if (techFingerprint.length > 0) {
           addLog(`[TECH] Ground Truth: ${techFingerprint.map(t => t.name).join(', ')}`, 'success', 28);
@@ -470,9 +511,14 @@ export const useScanner = () => {
       let probesExecuted = 0;
       let probesSuccessful = 0;
       
-      // Real HTTP Probes with batch execution (OPTIMIZED: Process 3 at a time for 2-3x speed)
-      if (audit.activeProbes && audit.activeProbes.length > 0) {
-        addLog(`[PROBE] Executing ${audit.activeProbes.length} real HTTP probes in batches...`, 'info', 50);
+      // Real HTTP Probes: only run probes under target domain (skip localhost / non-target to avoid false positives)
+      const probesToRun = filterProbesByTargetDomain(target, audit.activeProbes || []);
+      const skippedCount = (audit.activeProbes?.length || 0) - probesToRun.length;
+      if (skippedCount > 0) {
+        addLog(`[PROBE] Skipped ${skippedCount} probe(s) not under target domain (localhost/non-target)`, 'warn', 50);
+      }
+      if (probesToRun.length > 0) {
+        addLog(`[PROBE] Executing ${probesToRun.length} real HTTP probes in batches...`, 'info', 50);
         
         const batchSize = PROBE_CONSTANTS.PROBE_BATCH_SIZE;
         const executeProbe = async (probe: VerificationPayload, index: number) => {
@@ -577,12 +623,12 @@ export const useScanner = () => {
         };
         
         // Execute probes in batches (OPTIMIZED: 3 at a time for 2-3x speed)
-        for (let i = 0; i < audit.activeProbes.length; i += batchSize) {
-          const batch = audit.activeProbes.slice(i, i + batchSize);
+        for (let i = 0; i < probesToRun.length; i += batchSize) {
+          const batch = probesToRun.slice(i, i + batchSize);
           await Promise.all(batch.map((probe, batchIndex) => executeProbe(probe, i + batchIndex)));
           
           // Rate limiting between batches (not between individual probes)
-          if (i + batchSize < audit.activeProbes.length) {
+          if (i + batchSize < probesToRun.length) {
             await new Promise(r => setTimeout(r, PROBE_CONSTANTS.PROBE_BATCH_DELAY_MS));
           }
         }
@@ -676,7 +722,7 @@ export const useScanner = () => {
           limitations.push('Security headers analysis blocked by CORS');
         }
         if (!sslInfo?.valid || sslInfo.grade === 'Unknown') {
-          limitations.push('SSL analysis limited (SSL Labs API CORS blocked)');
+          limitations.push('SSL grade unavailable (SSL Labs API not accessible from browser)');
         }
         if (!dnsInfo?.ip) {
           limitations.push('DNS resolution unavailable');
@@ -770,6 +816,8 @@ export const useScanner = () => {
         }
       }
       finalReport = { ...finalReport, technologyDNA: dnaList };
+      // Only show probes under target domain in report (exclude localhost/non-target)
+      finalReport = { ...finalReport, activeProbes: filterProbesByTargetDomain(target, finalReport.activeProbes || []) };
 
       setMissionReport(finalReport);
       addLog(`[DATA_QUALITY] Trust score: ${trustScore}%`, trustScore >= 80 ? 'success' : trustScore >= 60 ? 'warn' : 'error', 95);

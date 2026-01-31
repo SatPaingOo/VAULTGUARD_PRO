@@ -251,7 +251,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.4.1";
+      const versionText = "v1.4.2";
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
@@ -1418,7 +1418,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                 <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
                   <div className="text-xs md:text-sm font-black text-yellow-500 uppercase mb-3 flex items-center gap-2">
                     <AlertTriangle size={16} />
-                    {t('results.limitations')}
+                    {dataQuality.trustScore < 80 ? t('results.why_trust_low') : t('results.limitations')}
                   </div>
                   <ul className="text-xs md:text-sm text-white/60 space-y-2">
                     {dataQuality.limitations.map((lim: string, i: number) => (

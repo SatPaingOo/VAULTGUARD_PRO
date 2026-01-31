@@ -521,9 +521,9 @@ DOM_SIGNALS: ${maskData(tierBasedData.signals || signals)}`;
 DOM_SIGNALS: ${maskData(tierBasedData.signals || signals)}
 FULL_DOM: ${tierBasedData.dom ? maskData(tierBasedData.dom.substring(0, NETWORK_CONSTANTS.MAX_DOM_CHARS)) : 'N/A'}`;
         }
-        // Ground Truth: inject tech fingerprint for STANDARD/DEEP so AI uses only these
+        // Ground Truth: inject tech fingerprint for STANDARD/DEEP; AI must include ALL and MUST add language/runtime when frontend detected
         if (tierBasedData?.techFingerprint && Array.isArray(tierBasedData.techFingerprint) && tierBasedData.techFingerprint.length > 0) {
-          promptData += `\n\nTECH_FINGERPRINT (Ground Truth - confirmed by deterministic scan. Use ONLY these for technologyDNA; do not add frameworks/libraries not in this list):\n${JSON.stringify(tierBasedData.techFingerprint)}`;
+          promptData += `\n\nTECH_FINGERPRINT (Ground Truth - confirmed by deterministic scan. Include ALL items from this list in technologyDNA with name, version, category, status, actionPlan. When this list contains a frontend (e.g. Vite, React, Vue, Svelte), you MUST also add to technologyDNA: JavaScript or TypeScript (as appropriate), and npm or Node.js when hosting suggests it. Do NOT add React, Vue, or Svelte unless you see evidence in DOM/signals (e.g. data-v- for Vue). Do not add Next.js when only Vite is in this list.):\n${JSON.stringify(tierBasedData.techFingerprint)}`;
         }
       } else {
         // Fallback: Use original method
@@ -605,7 +605,7 @@ CRITICAL ACCURACY REQUIREMENTS:
 - CROSS-VALIDATE FINDINGS: Verify each vulnerability with multiple data sources before reporting.
 - EVIDENCE-BASED ANALYSIS: Only report vulnerabilities with clear evidence from the provided data.
 - PREVENT FALSE POSITIVES: Do not report potential vulnerabilities without concrete evidence. Only confirmed issues.
-- TECHNOLOGY DNA (when TECH_FINGERPRINT is provided): Base technologyDNA ONLY on the TECH_FINGERPRINT list above. Do not add frameworks or libraries not in that list (e.g. do not assume Next.js if only React/Vite is listed). You may add status, actionPlan, cves, and cveLinks for each item.
+- TECHNOLOGY DNA (when TECH_FINGERPRINT is provided): Include ALL items from the TECH_FINGERPRINT list in technologyDNA with name, version, category, status, actionPlan (and cves/cveLinks where applicable). When the fingerprint contains a frontend (e.g. Vite, React, Vue), you MUST add JavaScript or TypeScript and npm or Node.js as appropriate. Do NOT add React/Vue/Svelte unless you see evidence in DOM/signals. Do not add Next.js when only Vite is in the list.
 - CVE GROUNDING: When cross-referencing CVEs, use Search Grounding with precise version-specific queries, e.g. "Search latest CVEs for [technology name] [version] as of 2026" to get accurate, up-to-date results. Do not guess CVE version numbers.
 - DETAILED REMEDIATION: Provide specific, actionable remediation steps with code examples where applicable.
 - CONFIDENCE RATING: Rate your confidence level for each finding (High/Medium/Low) based on evidence quality.
@@ -615,10 +615,11 @@ CRITICAL ACCURACY REQUIREMENTS:
 
 OUTPUT REQUIREMENTS:
 - Output strict JSON according to the schema
+- activeProbes: each endpoint must be under the TARGET domain (same host only). Do NOT use localhost, 127.0.0.1, or file paths. Use only the target host and paths (e.g. https://target.example.com/ or /path).
 - All findings must include: title, description, severity, remediation, businessImpact, cwe, origin, poc
 - For each finding, "origin" must be only: target URL/path (e.g. target host + path) or data source (e.g. "Security headers", "DOM"). Never output local or repository file paths.
 - For each finding that references a CVE, include evidenceLinks: array of official URLs (NIST: https://nvd.nist.gov/vuln/detail/CVE-XXXX, MITRE: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-XXXX) so users can verify. Use exact CVE IDs from Search Grounding.
-- Technology DNA must include: name, version, category, status, actionPlan (when TECH_FINGERPRINT is provided, only list technologies from that list). For each tech with CVEs, include cveLinks: array of official NIST or MITRE URLs for each CVE ID.
+- Technology DNA must include ALL items from TECH_FINGERPRINT plus JavaScript or TypeScript and npm or Node.js when the fingerprint contains a frontend. Do NOT add React/Vue/Svelte without evidence in DOM/signals. Each tech: name, version, category, status, actionPlan. For each tech with CVEs, include cveLinks: array of official NIST or MITRE URLs for each CVE ID.
 - Security score must be calculated based on actual findings (0-100)
 - Confidence score must reflect overall analysis quality (0-100)
 - PDF_EXPORT: Write ALL report text fields in English only (purpose, businessLogic, attackSurfaceSummary, forensicAnalysis, technology actionPlan, probe description, finding title/description/remediation/businessImpact/poc) so the PDF debrief displays correctly. Use English regardless of UI language.
