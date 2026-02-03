@@ -4,7 +4,7 @@
 
 # VaultGuard Pro - Neural Security Operations Center
 
-**Version:** 1.4.2  
+**Version:** 1.4.3  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -629,7 +629,12 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.4.2 (Current)
+### v1.4.3 (Current)
+
+- **URL validation** – Removed browser connectivity check (CORS); scan uses format + DNS only so any reachable site can be scanned
+- **Scan button** – Disabled when URL format is invalid (empty or bad format)
+
+### v1.4.2
 
 - **Probe filter** – Only target-domain probes executed; localhost/non-target skipped; AI prompt: activeProbes under target domain only
 - **Tech DNA** – Vercel hostname (*.vercel.app) adds Vercel + Node.js to Ground Truth; AI MUST add JS/TS and npm/Node when frontend in fingerprint

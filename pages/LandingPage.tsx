@@ -103,29 +103,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
     };
   }, [isFocused]);
 
-  // Basic format validation (synchronous)
-  const isUrlFormatValid = useMemo(() => {
+  // Basic format validation (synchronous) – no side effects so button disable is reliable
+  const urlFormatCheck = useMemo(() => validateUrlFormat(url.trim()), [url]);
+  const isUrlFormatValid = !!url.trim() && urlFormatCheck.isValid;
+
+  // Keep urlValidation in sync for error display; clear reachability error when format becomes valid
+  useEffect(() => {
     if (!url.trim()) {
       setUrlValidation({ isValid: false });
-      return false;
+      return;
     }
-    const formatCheck = validateUrlFormat(url.trim());
-    if (!formatCheck.isValid) {
-      setUrlValidation({ isValid: false, error: formatCheck.error });
-      return false;
+    if (!urlFormatCheck.isValid) {
+      setUrlValidation({ isValid: false, error: urlFormatCheck.error });
+      return;
     }
-    return true;
-  }, [url]);
+    setUrlValidation(prev => (prev.error ? { ...prev, isValid: true, error: undefined } : prev));
+  }, [url, urlFormatCheck.isValid, urlFormatCheck.error]);
 
-  // Clear stale reachability error when user edits URL and format is valid
-  useEffect(() => {
-    if (url.trim() && isUrlFormatValid) {
-      setUrlValidation(prev => (prev.error ? { ...prev, isValid: true, error: undefined } : prev));
-    }
-  }, [url, isUrlFormatValid]);
-
-  // Enable scan button when URL format is valid; reachability is checked on Scan click
-  const isUrlValid = isUrlFormatValid && !isValidating;
+  // Scan button disabled when URL is empty, format invalid, or validation in progress
+  const isScanButtonEnabled = isUrlFormatValid && !isValidating;
 
   const levels = [
     { 
@@ -378,24 +374,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
             
             <button 
               type="button"
-              disabled={!isUrlValid}
+              disabled={!isScanButtonEnabled}
               onClick={handleInitiate}
               className={`relative overflow-hidden px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2 text-[10px] sm:text-xs md:text-sm border-2 min-h-[44px] sm:min-h-[48px] self-center sm:self-stretch shrink-0
-                ${!isUrlValid 
+                ${!isScanButtonEnabled 
                   ? 'border-white/10 bg-white/5 text-white/30 cursor-not-allowed' 
                   : isEngineLinked 
                     ? 'border-transparent text-black hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] cursor-pointer' 
                     : 'border-red-500/80 bg-red-500 text-black hover:bg-red-400 hover:border-red-400 hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
                 }`}
               style={{ 
-                backgroundColor: !isUrlValid ? undefined : (isEngineLinked ? themeColor : undefined),
-                boxShadow: isUrlValid && isEngineLinked ? `0 0 24px ${themeColor}40, 0 4px 14px rgba(0,0,0,0.3)` : (!isUrlValid ? undefined : '0 4px 14px rgba(0,0,0,0.25)'),
-                opacity: isUrlValid ? 1 : 0.6
+                backgroundColor: !isScanButtonEnabled ? undefined : (isEngineLinked ? themeColor : undefined),
+                boxShadow: isScanButtonEnabled && isEngineLinked ? `0 0 24px ${themeColor}40, 0 4px 14px rgba(0,0,0,0.3)` : (!isScanButtonEnabled ? undefined : '0 4px 14px rgba(0,0,0,0.25)'),
+                opacity: isScanButtonEnabled ? 1 : 0.6
               }}
             >
-              {!isEngineLinked && isUrlValid ? <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 shrink-0" /> : <ZapIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 shrink-0" />}
-              <span className="hidden sm:inline">{!isEngineLinked && isUrlValid ? t('apikey.init_core') : t('initiate_scan')}</span>
-              <span className="sm:hidden">{!isEngineLinked && isUrlValid ? t('apikey.init_short') : t('apikey.scan_short')}</span>
+              {!isEngineLinked && isScanButtonEnabled ? <ShieldAlert className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 shrink-0" /> : <ZapIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5 shrink-0" />}
+              <span className="hidden sm:inline">{!isEngineLinked && isScanButtonEnabled ? t('apikey.init_core') : t('initiate_scan')}</span>
+              <span className="sm:hidden">{!isEngineLinked && isScanButtonEnabled ? t('apikey.init_short') : t('apikey.scan_short')}</span>
             </button>
           </div>
         </div>

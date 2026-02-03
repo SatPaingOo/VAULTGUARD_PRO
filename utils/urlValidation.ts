@@ -1,6 +1,7 @@
 /**
  * URL Validation and Pre-flight Checks
- * Validates URLs and checks if websites are reachable before scanning
+ * Validates URL format and checks DNS resolution. Does not fetch the target from the
+ * browser (avoids CORS blocking). Non-existent domains are still caught via DNS.
  */
 
 export interface ValidationResult {
@@ -86,8 +87,7 @@ export const validateAndCheckUrl = async (url: string): Promise<ValidationResult
       }
     }
   } catch (error: any) {
-    // DNS check failed - might be CORS or network issue
-    // Continue to connectivity check
+    // DNS check failed - might be CORS or network issue; treat as unreachable
   }
 
   if (!dnsResolved && !ip) {
@@ -100,56 +100,15 @@ export const validateAndCheckUrl = async (url: string): Promise<ValidationResult
     };
   }
 
-  // Step 3: Connectivity Check (try to fetch the URL)
-  try {
-    const response = await fetch(targetUrl, {
-      method: 'HEAD',
-      mode: 'no-cors', // Use no-cors to avoid CORS errors
-      signal: AbortSignal.timeout(8000), // 8 second timeout
-      cache: 'no-store'
-    });
-
-    // With no-cors mode, we can't read status, but if it doesn't throw, connection succeeded
-    return {
-      isValid: true,
-      isReachable: true,
-      details: {
-        domain,
-        ip
-      }
-    };
-  } catch (error: any) {
-    // Check if it's a timeout
-    if (error.name === 'AbortError' || error.message?.includes('timeout')) {
-      return {
-        isValid: true,
-        isReachable: false,
-        error: `Connection timeout. The website "${domain}" did not respond within 8 seconds. It may be down or unreachable.`,
-        errorType: 'timeout',
-        details: { domain, ip }
-      };
+  // DNS resolved: consider reachable so scan can proceed (no browser fetch to target = no CORS block)
+  return {
+    isValid: true,
+    isReachable: true,
+    details: {
+      domain,
+      ip
     }
-
-    // Check if it's a network error
-    if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-      return {
-        isValid: true,
-        isReachable: false,
-        error: `Cannot connect to "${domain}". The website may be down, unreachable, or blocking connections.`,
-        errorType: 'connection_failed',
-        details: { domain, ip }
-      };
-    }
-
-    // Unknown error
-    return {
-      isValid: true,
-      isReachable: false,
-      error: `Unable to verify connectivity to "${domain}". The website may not be accessible.`,
-      errorType: 'unknown',
-      details: { domain, ip }
-    };
-  }
+  };
 };
 
 /**

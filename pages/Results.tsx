@@ -251,7 +251,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.4.2";
+      const versionText = "v1.4.3";
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
