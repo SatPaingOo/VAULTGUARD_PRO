@@ -13,6 +13,7 @@ import { ScanLevel, LEVEL_COLORS } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSecurity } from '../contexts/SecurityContext';
 import { API_KEY_CONSTANTS } from '../constants';
+import { APP_VERSION } from '../constants/version';
 import { GlobalHeader } from '../components/GlobalHeader';
 import { ApiKeyModal } from '../components/ApiKeyModal';
 import { SandboxVisualizer } from '../components/SandboxVisualizer';
@@ -240,7 +241,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
           </div>
         </div>
         <p className="text-[10px] sm:text-[11px] md:text-[12px] lg:text-sm font-mono tracking-[0.3em] sm:tracking-[0.4em] md:tracking-[0.6em] uppercase max-w-4xl text-center px-4 sm:px-6 break-words transition-colors duration-500" style={{ color: `${themeColor}99` }}>
-          {t('app_subtitle')}
+          {t('app_subtitle')}{APP_VERSION}
         </p>
         <p className="text-[9px] sm:text-[10px] md:text-[11px] font-mono tracking-widest uppercase max-w-3xl text-center px-4 text-white/40 mt-2">
           {t('app_gemini_tagline')}
@@ -1056,7 +1057,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
            <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-[11px] md:text-[12px] lg:text-xs font-mono text-white/60 uppercase tracking-wider">
-               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.version_badge')}</span>
+               <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.version_badge')}{APP_VERSION}</span>
                <span className="text-white/40 hidden sm:inline">|</span>
                <span className="px-2 sm:px-3 py-1 rounded border border-white/20 bg-white/10 text-white/70 whitespace-nowrap">{t('footer.evidence_based_badge')}</span>
                <span className="text-white/40 hidden sm:inline">|</span>

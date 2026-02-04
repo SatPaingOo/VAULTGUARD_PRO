@@ -1,7 +1,7 @@
 {
   "name": "vaultguard_pro",
   "private": true,
-  "version": "1.4.3",
+  "version": "1.5.0",
   "type": "module",
   "author": "Sat Paing Oo",
   "description": "AI-Powered Security Operations Center using Gemini 3 Pro/Flash for neural vulnerability scanning",

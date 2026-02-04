@@ -523,7 +523,7 @@ FULL_DOM: ${tierBasedData.dom ? maskData(tierBasedData.dom.substring(0, NETWORK_
         }
         // Ground Truth: inject tech fingerprint for STANDARD/DEEP; AI must include ALL and MUST add language/runtime when frontend detected
         if (tierBasedData?.techFingerprint && Array.isArray(tierBasedData.techFingerprint) && tierBasedData.techFingerprint.length > 0) {
-          promptData += `\n\nTECH_FINGERPRINT (Ground Truth - confirmed by deterministic scan. Include ALL items from this list in technologyDNA with name, version, category, status, actionPlan. When this list contains a frontend (e.g. Vite, React, Vue, Svelte), you MUST also add to technologyDNA: JavaScript or TypeScript (as appropriate), and npm or Node.js when hosting suggests it. Do NOT add React, Vue, or Svelte unless you see evidence in DOM/signals (e.g. data-v- for Vue). Do not add Next.js when only Vite is in this list.):\n${JSON.stringify(tierBasedData.techFingerprint)}`;
+          promptData += `\n\nTECH_FINGERPRINT (Ground Truth - confirmed by deterministic scan. You MUST include EVERY item from this list in technologyDNA. Do not omit any. Each entry: name (use exact name from list, e.g. React, Vue, Angular, Next.js, Nuxt, Svelte, Tailwind CSS, Bootstrap, Vite, etc.), version (if present), category (Frontend|Backend|Library|Server|Database), status, actionPlan. When the list contains a frontend framework (React, Vue, Vite, Svelte, Angular, etc.), also add JavaScript or TypeScript and npm or Node.js as appropriate. Do NOT add frameworks not in the list (e.g. do not add Next.js when only Vite is present).):\n${JSON.stringify(tierBasedData.techFingerprint)}`;
         }
       } else {
         // Fallback: Use original method

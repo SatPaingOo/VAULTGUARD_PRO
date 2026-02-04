@@ -8,7 +8,7 @@ import { FrontendNetworkAnalysis } from '../utils/networkAnalysis';
 import { detectTechFingerprint } from '../utils/techFingerprint';
 import { verifyFindings } from '../utils/findingVerification';
 import { validateAndCheckUrl } from '../utils/urlValidation';
-import { AI_CONSTANTS, NETWORK_CONSTANTS, PROBE_CONSTANTS, API_KEY_CONSTANTS } from '../constants';
+import { AI_CONSTANTS, NETWORK_CONSTANTS, PROBE_CONSTANTS, API_KEY_CONSTANTS, SENSITIVE_PROBE_PATHS } from '../constants';
 
 export type MissionPhase = 'Briefing' | 'Simulation' | 'Debriefing';
 export type ScanStatus = 'Idle' | 'Recon' | 'Discovery' | 'Probing' | 'Fuzzing' | 'Triage' | 'Finalizing';
@@ -511,9 +511,17 @@ export const useScanner = () => {
       let probesExecuted = 0;
       let probesSuccessful = 0;
       
-      // Real HTTP Probes: only run probes under target domain (skip localhost / non-target to avoid false positives)
-      const probesToRun = filterProbesByTargetDomain(target, audit.activeProbes || []);
-      const skippedCount = (audit.activeProbes?.length || 0) - probesToRun.length;
+      // Merge AI-suggested probes with sensitive path probes (no duplicates), then filter by target domain
+      const aiProbes = audit.activeProbes || [];
+      const norm = (ep: string) => {
+        if (!ep.startsWith('http')) return ep;
+        try { return new URL(ep).pathname; } catch { return ep; }
+      };
+      const existingPaths = new Set(aiProbes.map((p) => norm(p.endpoint)));
+      const sensitiveProbes: VerificationPayload[] = SENSITIVE_PROBE_PATHS.filter((p) => !existingPaths.has(p.endpoint)).map((p) => ({ ...p }));
+      const allProbes = [...aiProbes, ...sensitiveProbes];
+      const probesToRun = filterProbesByTargetDomain(target, allProbes);
+      const skippedCount = allProbes.length - probesToRun.length;
       if (skippedCount > 0) {
         addLog(`[PROBE] Skipped ${skippedCount} probe(s) not under target domain (localhost/non-target)`, 'warn', 50);
       }
@@ -816,8 +824,8 @@ export const useScanner = () => {
         }
       }
       finalReport = { ...finalReport, technologyDNA: dnaList };
-      // Only show probes under target domain in report (exclude localhost/non-target)
-      finalReport = { ...finalReport, activeProbes: filterProbesByTargetDomain(target, finalReport.activeProbes || []) };
+      // Report includes AI probes + sensitive path probes (already filtered by target domain)
+      finalReport = { ...finalReport, activeProbes: probesToRun };
 
       setMissionReport(finalReport);
       addLog(`[DATA_QUALITY] Trust score: ${trustScore}%`, trustScore >= 80 ? 'success' : trustScore >= 60 ? 'warn' : 'error', 95);

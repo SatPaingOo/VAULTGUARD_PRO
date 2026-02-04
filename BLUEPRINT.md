@@ -2,7 +2,7 @@
   <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
-# VaultGuard Pro: Neural Mission Blueprints (v1.4.3)
+# VaultGuard Pro: Neural Mission Blueprints (v1.5.0)
 
 **Developer Documentation** - Technical architecture, implementation details, and "how it works"
 
@@ -24,6 +24,7 @@ VaultGuard Pro is an autonomous **Security Operations Center (SOC)** designed to
 **Thinking Budget**: **32,768 tokens** (Extended Internal Reasoning)
 
 **Internal Reasoning**: Uses 32K token budget to:
+
 - Chain vulnerabilities recursively: "If XSS exists, can it be chained with CSRF to escalate privileges?"
 - Simulate attack paths: "What happens if I combine missing security headers with weak CORS policy?"
 - Perform forensic deduction: Deep reasoning about attack surface and logic flows
@@ -86,9 +87,10 @@ When Deep Scan detects a vulnerability, Gemini 3 Pro uses its 32K thinking budge
 **Problem with Static Databases**: Traditional scanners use outdated CVE databases that may be months or years old.
 
 **Solution: Google Search Grounding**
+
 - **STANDARD & DEEP scans** use Google Search Grounding to query live CVE databases
 - **Real-time Data**: Checks NVD, GitHub Security Advisories, and security research databases in real-time
-- **Accuracy Impact**: 
+- **Accuracy Impact**:
   - Static DB: "React 18.0.0 has no known vulnerabilities" (outdated)
   - Search Grounding: "React 18.0.0 - CVE-2024-XXXX discovered today" (current)
 - **Example Flow**:
@@ -103,10 +105,12 @@ When Deep Scan detects a vulnerability, Gemini 3 Pro uses its 32K thinking budge
 #### **Heuristic Logic Probing: Beyond Pattern Matching**
 
 **Traditional Scanners**: Use regex patterns and static signatures
+
 - Example: "If response contains 'X-Frame-Options: DENY', mark as secure"
 - Problem: Misses logic flaws, business logic errors, and complex attack chains
 
 **VaultGuard Neural Approach**: Heuristic Logic Probing
+
 - **FAST Level**: Basic pattern detection (headers, SSL)
 - **STANDARD Level**: Deductive neural logic - AI reasons about code logic, not just patterns
   - Example: "This form has CSRF token, but the token validation happens client-side → Logic flaw detected"
@@ -116,6 +120,7 @@ When Deep Scan detects a vulnerability, Gemini 3 Pro uses its 32K thinking budge
   - Provides forensic reasoning: Detailed explanation of why each vulnerability matters and how it can be exploited
 
 **Implementation**: `services/geminiService.ts` - Level-specific prompts that guide AI to:
+
 - FAST: Pattern-based detection
 - STANDARD: Logic-based deduction
 - DEEP: Recursive reasoning with thinking budget
@@ -422,10 +427,10 @@ Browser Same-Origin Policy blocks cross-origin requests when:
 4. **Browser Extension** (Recommended for Expert Users)
    - **Extension**: "Allow CORS: Access-Control-Allow-Origin"
    - **Stats**: 800,000+ users • 3.4/5 rating • Chrome & Firefox
-   - **Links**: 
+   - **Links**:
      - [Chrome Web Store](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
      - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
-   - **Benefits**: 
+   - **Benefits**:
      - Complete DOM access (full website structure)
      - All security headers visible
      - ~95-100% scan accuracy (vs ~60-70% without)
@@ -728,7 +733,7 @@ All previously identified critical issues have been resolved:
 1. **CORS Restrictions**: Many targets block cross-origin requests
 
    - **Impact**: Header analysis may return null values when CORS blocks access
-   - **Workaround**: 
+   - **Workaround**:
      - **Recommended**: Install "Allow CORS: Access-Control-Allow-Origin" browser extension for full access
      - **Alternative**: System uses AI compensation mode with available metadata (SSL, DNS, OSINT)
    - **Status**: ⚠️ **Expected behavior** (browser security restriction)
@@ -760,22 +765,22 @@ All reports include data quality metrics to help users understand what data is r
 
 VaultGuard Pro is a **Hybrid Tool** (Deterministic Rules + AI Reasoning). Confidence is tiered as follows:
 
-| Level | Range | Data Source | Reliability |
-| ----- | ----- | ----------- | ----------- |
-| **High** | 90–100% | Security headers (deterministic), Tech DNA Ground Truth (DOM/headers), verified endpoints (HEAD 2xx/401/403) | Fully reliable |
-| **Medium** | 60–80% | OSINT (Gemini + Search Grounding), CVE mapping from detected tech | Cross-check critical items |
-| **Contextual** | 40–50% | Business logic, inferred vulnerabilities (AI reasoning) | Potential only; verify manually |
+| Level          | Range   | Data Source                                                                                                  | Reliability                     |
+| -------------- | ------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| **High**       | 90–100% | Security headers (deterministic), Tech DNA Ground Truth (DOM/headers), verified endpoints (HEAD 2xx/401/403) | Fully reliable                  |
+| **Medium**     | 60–80%  | OSINT (Gemini + Search Grounding), CVE mapping from detected tech                                            | Cross-check critical items      |
+| **Contextual** | 40–50%  | Business logic, inferred vulnerabilities (AI reasoning)                                                      | Potential only; verify manually |
 
 - **Evidence-based** (High): Finding backed by headers, DOM, or probe response. Shown as "Confirmed" in UI/PDF.
 - **AI-Inference** (Medium/Low): Finding from AI reasoning. Shown as "Potential" in UI/PDF; PDF also shows "Trust: Evidence-based" or "Trust: AI-Inference" per finding.
 
 ### Use Cases by Role
 
-| Role | Primary Use | Outcome |
-| ---- | ----------- | ------- |
-| **Developers** | Configuration auditor | Validate headers, assets, tech stack against expectations |
-| **Bug bounty / Pentesters** | Initial reconnaissance | Tech fingerprint, OSINT, surface map as starting point |
-| **Security reviewers** | Quick triage | Trust score, data quality, confidence per finding for prioritization |
+| Role                        | Primary Use            | Outcome                                                              |
+| --------------------------- | ---------------------- | -------------------------------------------------------------------- |
+| **Developers**              | Configuration auditor  | Validate headers, assets, tech stack against expectations            |
+| **Bug bounty / Pentesters** | Initial reconnaissance | Tech fingerprint, OSINT, surface map as starting point               |
+| **Security reviewers**      | Quick triage           | Trust score, data quality, confidence per finding for prioritization |
 
 ### ✅ Code Quality Improvements (Completed)
 
@@ -968,24 +973,28 @@ cache.set(key, result);
 ### Cost Estimates (✅ OPTIMIZED - Now Implemented)
 
 **Pricing Model:**
+
 - **Flash Model**: $0.00000035 per token (used for OSINT discovery, FAST, and STANDARD scans)
 - **Pro Model**: $0.0000035 per token (used for DEEP scans - 10x more expensive)
 
 **Model Breakdown by Scan Component:**
 
 1. **OSINT Discovery** (All scan levels):
+
    - Model: Flash (`gemini-3-flash-preview`)
    - Token usage: ~2K tokens per scan
    - Cost: ~$0.0007 per scan (2,000 × $0.00000035)
    - Implementation: `hooks/useScanner.ts` line 279 - `osintTokens * 0.00000035`
 
 2. **FAST Scan Audit**:
+
    - Model: Flash (`gemini-3-flash-preview`)
    - Token usage: ~8K-10K tokens
    - Cost: ~$0.0028-0.0035 per scan
    - Implementation: `hooks/useScanner.ts` line 380 - `level === 'DEEP' ? 0.0000035 : 0.00000035`
 
 3. **STANDARD Scan Audit**:
+
    - Model: Flash (`gemini-3-flash-preview`)
    - Token usage: ~25K-35K tokens
    - Cost: ~$0.0088-0.0123 per scan
@@ -1000,9 +1009,11 @@ cache.set(key, result);
 **Example Cost Calculations:**
 
 - **FAST Scan**: 2K (OSINT) + 10K (Audit) = 12K tokens
+
   - Cost: (2K × $0.00000035) + (10K × $0.00000035) = $0.0007 + $0.0035 = **$0.0042**
 
 - **STANDARD Scan**: 2K (OSINT) + 35K (Audit) = 37K tokens
+
   - Cost: (2K × $0.00000035) + (35K × $0.00000035) = $0.0007 + $0.0123 = **$0.0130**
 
 - **DEEP Scan**: 2K (OSINT) + 200K (Audit) = 202K tokens
@@ -1015,6 +1026,7 @@ cache.set(key, result);
 - DEEP: $2.10 → $0.70 per scan (**67% cheaper**)
 
 **Code Reference:**
+
 - Cost calculation logic: `hooks/useScanner.ts` lines 277-280 (OSINT) and 378-384 (Audit)
 - Model selection: `services/geminiService.ts` - Model selection based on scan level
 
@@ -1152,6 +1164,7 @@ Vault Academy is an integrated knowledge base system that provides comprehensive
 ### Architecture
 
 **File Structure:**
+
 ```
 public/assets/data/knowledge/
 ├── index.json                    # Topic metadata & listing
@@ -1214,6 +1227,7 @@ While comprehensive unit tests are not yet implemented, the project follows a ma
 ### Current Testing Approach
 
 **Manual Testing Checklist:**
+
 - URL validation works correctly
 - API key authentication flow
 - Scan levels (FAST/STANDARD/DEEP) execute properly
@@ -1227,10 +1241,12 @@ While comprehensive unit tests are not yet implemented, the project follows a ma
 ### Future Testing Enhancements (Optional)
 
 **Potential Unit Testing Framework:**
+
 - **Vitest**: Fast Vite-native testing framework, ideal for React + TypeScript projects
 - **Jest**: Industry-standard testing framework with React Testing Library
 
 **Test Coverage Areas:**
+
 - URL validation utilities (`utils/urlValidation.ts`)
 - Network analysis functions (`utils/networkAnalysis.ts`)
 - PII masking logic (`utils/masking.ts`)
@@ -1239,6 +1255,7 @@ While comprehensive unit tests are not yet implemented, the project follows a ma
 - Knowledge base JSON loading and parsing
 
 **Integration Testing:**
+
 - API key authentication flow
 - Gemini API integration
 - Scan execution end-to-end
@@ -1321,7 +1338,7 @@ While comprehensive unit tests are not yet implemented, the project follows a ma
   4. **Browser Extension** (Recommended Solution)
      - **Extension**: "Allow CORS: Access-Control-Allow-Origin"
      - **Stats**: 800,000+ users • 3.4/5 rating • Chrome & Firefox
-     - **Install**: 
+     - **Install**:
        - [Chrome Web Store](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
        - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
      - **Detailed How to Use**:
@@ -1330,7 +1347,7 @@ While comprehensive unit tests are not yet implemented, the project follows a ma
        3. **Toggle On**: In the popup, click the toggle button on the left. The icon will turn orange when active
        4. **Run Scan**: Refresh VaultGuard Pro page and initiate scan. Full DOM access will be enabled.
        5. **Disable After Scan**: ⚠️ **IMPORTANT**: Toggle the extension OFF immediately after your scan is complete for security.
-     - **Benefits**: 
+     - **Benefits**:
        - Complete scan results, ~95-100% accuracy (vs ~60-70% without)
        - Complete DOM access (full website structure)
        - All security headers visible
@@ -1392,6 +1409,7 @@ See the [LICENSE](../LICENSE) file in the repository root for the full license t
 **Repository:** [GitHub](https://github.com/SatPaingOo/VAULTGUARD_PRO.git)
 
 **Development Stack:**
+
 - 🧠 **Google Gemini 3 Pro/Flash** - Core AI reasoning engine with 32K thinking budget
 - 🎨 **Google AI Studio** - Development environment, API key management, and model access
 - 💻 **Cursor AI** - AI-powered code editor for enhanced development workflow
@@ -1403,11 +1421,13 @@ See the [LICENSE](../LICENSE) file in the repository root for the full license t
 
 **Development Process:**
 This project was developed using AI-assisted development tools:
+
 - **Gemini 3** for architectural decisions, code review, and technical guidance
 - **AI Studio** for API testing, model selection, and prompt engineering
 - **Cursor AI** for code generation, refactoring, and development assistance
 
 **Credits:**
+
 - Google Gemini 3 team for the revolutionary thinking budget and extended reasoning capabilities
 - Google AI Studio for providing seamless API access and development tools
 - Cursor AI for enhancing productivity through AI-powered code assistance

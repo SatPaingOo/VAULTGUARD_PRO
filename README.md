@@ -8,7 +8,7 @@
 
 **🏆 Built for Gemini 3 Hackathon**
 
-**Version:** 1.4.3  
+**Version:** 1.5.0  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -145,6 +145,37 @@ These updates improve report trust, deployment security, and alignment between U
 
 - **Why is trust low?** – When trust score &lt; 80%, the limitations section title shows "Why is trust low?" so users see why the score is lower.
 - **Console logs in dev only** – [VG] logs are printed to the browser console only in development; production deploy no longer shows scan logs in the console.
+
+---
+
+## 🚀 New in v1.5.0: Extended Headers, Cookie Security, DNS AAAA/TXT & Sensitive Path Probes
+
+_All improvements are client-side only; no backend required._
+
+### Security Headers (Extended)
+
+- **Permissions-Policy** – Checked and included in header score (missing = -10).
+- **Feature-Policy** – Read and reported (legacy).
+- **Cross-Origin-Embedder-Policy** (COEP) & **Cross-Origin-Opener-Policy** (COOP) – Checked and included in score (missing = -5 each).
+- Header test score and missing list now cover these; same `analyzeHeaders()` fetch.
+
+### Cookie Security
+
+- **Parsed Set-Cookie** – `HeaderAnalysis.cookieDetails` array with per-cookie flags: `httpOnly`, `secure`, `sameSite`.
+- Parser runs in the browser on the first `Set-Cookie` header; no server required.
+
+### DNS (Extended)
+
+- **AAAA** – IPv6 addresses fetched in parallel with A (Google DNS over HTTPS); exposed as `DNSInfo.aaaa`.
+- **TXT** – TXT records fetched in parallel; exposed as `DNSInfo.txt`.
+- Same cache and domain; backward compatible (`ip` and `records` unchanged).
+
+### Sensitive Path Probes
+
+- **Fixed probe list** – Merged with AI-suggested probes: `/admin`, `/wp-admin`, `/.env`, `/api/debug`, `/config`, `/backup`, `/phpinfo.php`, `/.git/config`.
+- No duplicate paths; only under target domain; same batch execution and report as other probes.
+
+See "New in v1.5.0" above for full details.
 
 ---
 
@@ -645,7 +676,15 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.4.3 (Current)
+### v1.5.0 (Current)
+
+- **Security headers (extended)** – Permissions-Policy, Feature-Policy, COEP, COOP checked and included in header score
+- **Cookie security** – Parsed Set-Cookie with HttpOnly, Secure, SameSite in `HeaderAnalysis.cookieDetails`
+- **DNS (extended)** – AAAA and TXT records in parallel with A; `DNSInfo.aaaa` and `DNSInfo.txt`
+- **Sensitive path probes** – Fixed list (/admin, /wp-admin, /.env, etc.) merged with AI probes; report shows all under target domain
+- See "New in v1.5.0" above for full details
+
+### v1.4.3
 
 - **URL validation** – Removed browser connectivity check (CORS); scan uses format + DNS only so any reachable site can be scanned
 - **Scan button** – Disabled when URL format is invalid (empty or bad format)

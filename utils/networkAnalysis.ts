@@ -5,6 +5,14 @@
 
 import { createErrorSuppressor } from './errorSuppression';
 
+/** Parsed cookie flags from Set-Cookie (HttpOnly, Secure, SameSite). */
+export interface CookieDetail {
+  name: string;
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: string | null;
+}
+
 export interface HeaderAnalysis {
   securityHeaders: {
     'X-Frame-Options': string | null;
@@ -13,10 +21,16 @@ export interface HeaderAnalysis {
     'Content-Security-Policy': string | null;
     'X-XSS-Protection': string | null;
     'Referrer-Policy': string | null;
+    'Permissions-Policy': string | null;
+    'Feature-Policy': string | null;
+    'Cross-Origin-Embedder-Policy': string | null;
+    'Cross-Origin-Opener-Policy': string | null;
   };
   server: string | null;
   poweredBy: string | null;
   cookies: string[];
+  /** Parsed cookie security flags (HttpOnly, Secure, SameSite) when Set-Cookie is available. */
+  cookieDetails: CookieDetail[];
   cors: {
     allowed: boolean;
     credentials: boolean;
@@ -34,6 +48,10 @@ export interface SSLInfo {
 export interface DNSInfo {
   ip: string | null;
   records: any[];
+  /** IPv6 addresses from AAAA lookup (when available). */
+  aaaa?: string[];
+  /** TXT record values (when available). */
+  txt?: string[];
 }
 
 export interface SecurityHeaderTest {
@@ -71,6 +89,30 @@ function buildRequestHeaders(options?: ExpertFetchOptions): HeadersInit {
   return h;
 }
 
+/** Parse Set-Cookie header value(s) for security flags (HttpOnly, Secure, SameSite). */
+function parseSetCookieHeader(headerValue: string | null): CookieDetail[] {
+  if (!headerValue || typeof headerValue !== 'string') return [];
+  const results: CookieDetail[] = [];
+  try {
+    const parts = headerValue.split(/;\s*/);
+    const namePart = parts[0]?.trim();
+    if (!namePart) return [];
+    const eq = namePart.indexOf('=');
+    const name = eq >= 0 ? namePart.slice(0, eq).trim() : namePart;
+    const detail: CookieDetail = { name: name || 'unknown' };
+    for (let i = 1; i < parts.length; i++) {
+      const p = parts[i].trim().toLowerCase();
+      if (p === 'httponly') detail.httpOnly = true;
+      else if (p === 'secure') detail.secure = true;
+      else if (p.startsWith('samesite=')) detail.sameSite = parts[i].split('=')[1]?.trim() || null;
+    }
+    results.push(detail);
+  } catch {
+    // ignore parse errors
+  }
+  return results;
+}
+
 export class FrontendNetworkAnalysis {
   /**
    * Analyze HTTP headers from actual response.
@@ -93,6 +135,7 @@ export class FrontendNetworkAnalysis {
         ...(Object.keys(requestHeaders).length > 0 ? { headers: requestHeaders } : {}),
       });
 
+      const setCookie = response.headers.get('Set-Cookie');
       const headers: HeaderAnalysis = {
         securityHeaders: {
           'X-Frame-Options': response.headers.get('X-Frame-Options'),
@@ -101,10 +144,15 @@ export class FrontendNetworkAnalysis {
           'Content-Security-Policy': response.headers.get('Content-Security-Policy'),
           'X-XSS-Protection': response.headers.get('X-XSS-Protection'),
           'Referrer-Policy': response.headers.get('Referrer-Policy'),
+          'Permissions-Policy': response.headers.get('Permissions-Policy'),
+          'Feature-Policy': response.headers.get('Feature-Policy'),
+          'Cross-Origin-Embedder-Policy': response.headers.get('Cross-Origin-Embedder-Policy'),
+          'Cross-Origin-Opener-Policy': response.headers.get('Cross-Origin-Opener-Policy'),
         },
         server: response.headers.get('Server'),
         poweredBy: response.headers.get('X-Powered-By'),
-        cookies: response.headers.get('Set-Cookie')?.split(',') || [],
+        cookies: setCookie ? [setCookie] : [],
+        cookieDetails: parseSetCookieHeader(setCookie),
         cors: {
           allowed: true,
           credentials: response.headers.get('Access-Control-Allow-Credentials') === 'true',
@@ -126,16 +174,21 @@ export class FrontendNetworkAnalysis {
           'Content-Security-Policy': null,
           'X-XSS-Protection': null,
           'Referrer-Policy': null,
+          'Permissions-Policy': null,
+          'Feature-Policy': null,
+          'Cross-Origin-Embedder-Policy': null,
+          'Cross-Origin-Opener-Policy': null,
         },
         server: null,
         poweredBy: null,
         cookies: [],
+        cookieDetails: [],
         cors: {
           allowed: false,
           credentials: false,
         },
       };
-      setCache(cacheKey, headers, 300000); // Cache error for 5 minutes
+      setCache(cacheKey, headers, 60000); // Cache CORS failure only 1 min so re-scan with extension can succeed
       return headers;
     }
   }
@@ -216,7 +269,7 @@ export class FrontendNetworkAnalysis {
   }
 
   /**
-   * Check DNS records using public DNS API
+   * Check DNS records (A, AAAA, TXT) using Google DNS over HTTPS.
    */
   async checkDNS(domain: string): Promise<DNSInfo> {
     const cacheKey = `dns_${domain}`;
@@ -226,35 +279,68 @@ export class FrontendNetworkAnalysis {
     const suppressor = createErrorSuppressor();
     suppressor.start();
 
-    try {
-      // Use Google DNS over HTTPS (free, no backend)
-      const response = await fetch(`https://dns.google/resolve?name=${domain}&type=A`, {
-        mode: 'cors',
-      });
+    let ip: string | null = null;
+    let records: any[] = [];
+    const aaaaList: string[] = [];
+    const txtList: string[] = [];
 
-      if (response.ok) {
-        const data = await response.json();
-        const dnsInfo: DNSInfo = {
-          ip: data.Answer?.[0]?.data || null,
-          records: data.Answer || [],
-        };
-        setCache(cacheKey, dnsInfo, 3600000); // Cache for 1 hour
-        suppressor.stop();
-        return dnsInfo;
+    try {
+      const [resA, resAAAA, resTXT] = await Promise.all([
+        fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=A`, { mode: 'cors' }),
+        fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=AAAA`, { mode: 'cors' }),
+        fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=TXT`, { mode: 'cors' }),
+      ]);
+
+      if (resA.ok) {
+        const data = await resA.json();
+        records = data.Answer || [];
+        ip = records[0]?.data || null;
       }
-    } catch (error: any) {
+      if (resAAAA.ok) {
+        try {
+          const data = await resAAAA.json();
+          const ans = data.Answer || [];
+          for (const r of ans) {
+            if (r.data) aaaaList.push(r.data);
+          }
+        } catch {
+          // ignore
+        }
+      }
+      if (resTXT.ok) {
+        try {
+          const data = await resTXT.json();
+          const ans = data.Answer || [];
+          for (const r of ans) {
+            if (r.data) txtList.push(r.data.replace(/^"|"$/g, ''));
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      const dnsInfo: DNSInfo = {
+        ip,
+        records,
+        ...(aaaaList.length > 0 ? { aaaa: aaaaList } : {}),
+        ...(txtList.length > 0 ? { txt: txtList } : {}),
+      };
+      setCache(cacheKey, dnsInfo, 3600000);
+      suppressor.stop();
+      return dnsInfo;
+    } catch {
       // Suppress expected CORS errors
     } finally {
       suppressor.stop();
     }
 
     const dnsInfo: DNSInfo = { ip: null, records: [] };
-    setCache(cacheKey, dnsInfo, 300000); // Cache error for 5 minutes
+    setCache(cacheKey, dnsInfo, 300000);
     return dnsInfo;
   }
 
   /**
-   * Test common security headers
+   * Test common security headers (including Permissions-Policy, COEP, COOP)
    */
   async testSecurityHeaders(targetUrl: string): Promise<SecurityHeaderTest> {
     const headers = await this.analyzeHeaders(targetUrl);
@@ -262,7 +348,7 @@ export class FrontendNetworkAnalysis {
     const weak: string[] = [];
     let score = 100;
 
-    // Check for missing critical headers
+    // Critical headers
     if (!headers.securityHeaders['X-Frame-Options']) {
       missing.push('X-Frame-Options');
       score -= 15;
@@ -279,8 +365,20 @@ export class FrontendNetworkAnalysis {
       missing.push('Content-Security-Policy');
       score -= 25;
     }
+    if (!headers.securityHeaders['Permissions-Policy']) {
+      missing.push('Permissions-Policy');
+      score -= 10;
+    }
+    if (!headers.securityHeaders['Cross-Origin-Opener-Policy']) {
+      missing.push('Cross-Origin-Opener-Policy');
+      score -= 5;
+    }
+    if (!headers.securityHeaders['Cross-Origin-Embedder-Policy']) {
+      missing.push('Cross-Origin-Embedder-Policy');
+      score -= 5;
+    }
 
-    // Check for weak configurations
+    // Weak configurations
     if (headers.securityHeaders['X-Frame-Options'] === 'SAMEORIGIN') {
       weak.push('X-Frame-Options should be DENY');
       score -= 5;

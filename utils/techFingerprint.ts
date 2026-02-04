@@ -28,11 +28,12 @@ const RULES: PatternRule[] = [
     category: 'Frontend',
     patterns: [
       /react[-.]?(?:dom|production|development)?\.(?:min\.)?js/i,
-      /data-reactroot|data-reactid|__REACT_DEVTOOLS_GLOBAL_HOOK__/i,
+      /data-reactroot|data-reactid|__REACT_DEVTOOLS_GLOBAL_HOOK__|__REACT__|__reactContainer\$/i,
       /"react"\s*:\s*["'][\d.]+["']/i,
-      /react\/index\.js|react\.jsx/i,
+      /react\/index\.js|react\.jsx|createRoot|ReactDOM\.render/i,
+      /react-is|scheduler\/cjs/i,
     ],
-    versionPattern: /react[@/-]([\d.]+)|"react"\s*:\s*["']([\d.]+)["']/i,
+    versionPattern: /react[@/-]([\d.]+)|"react"\s*:\s*["']([\d.]+)["']|React\s+([\d.]+)/i,
   },
   {
     name: 'Vite',
@@ -43,7 +44,9 @@ const RULES: PatternRule[] = [
       /__vite_/i,
       /vite\/client/i,
       /@vitejs\/plugin/i,
+      /import\.meta\.hot|vite\/env/i,
     ],
+    versionPattern: /vite[@/-]([\d.]+)|"vite"\s*:\s*["']([\d.]+)["']/i,
   },
   {
     name: 'Next.js',
@@ -53,6 +56,7 @@ const RULES: PatternRule[] = [
       /__NEXT_DATA__/i,
       /next\.js|next\/dist\//i,
       /"next"\s*:\s*["'][\d.]+["']/i,
+      /__next_/i,
     ],
     versionPattern: /next[@/-]([\d.]+)|"next"\s*:\s*["']([\d.]+)["']/i,
   },
@@ -60,16 +64,17 @@ const RULES: PatternRule[] = [
     name: 'Vue',
     category: 'Frontend',
     patterns: [
-      /vue\.(?:min\.)?js/i,
-      /data-v-|v-bind|v-on|v-model|v-if|v-for/i,
+      /vue\.(?:min\.)?js|vue\.runtime/i,
+      /data-v-|v-bind|v-on|v-model|v-if|v-for|v-show|v-cloak|v-html|v-once/i,
       /"vue"\s*:\s*["'][\d.]+["']/i,
+      /__vue__|__VUE__|vue\.createApp|createApp\(/i,
     ],
     versionPattern: /vue[@/-]([\d.]+)|"vue"\s*:\s*["']([\d.]+)["']/i,
   },
   {
     name: 'Nuxt',
     category: 'Frontend',
-    patterns: [/nuxt\.(?:min\.)?js/i, /__NUXT__|_nuxt\//i, /"nuxt"/i],
+    patterns: [/nuxt\.(?:min\.)?js/i, /__NUXT__|_nuxt\//i, /"nuxt"/i, /useNuxtApp|defineNuxtPlugin/i],
     versionPattern: /nuxt[@/-]([\d.]+)/i,
   },
   {
@@ -77,22 +82,66 @@ const RULES: PatternRule[] = [
     category: 'Frontend',
     patterns: [
       /angular\.(?:min\.)?js/i,
-      /ng-version|ng-app|ng-[a-z]+/i,
+      /ng-version|ng-app|ng-[a-z]+|data-ng-[a-z]+/i,
       /"@angular\/core"/i,
+      /_nghost_|_ngcontent_|ng-version/i,
+      /platform-browser-dynamic|NgModule/i,
     ],
-    versionPattern: /angular[@/-]([\d.]+)/i,
+    versionPattern: /angular[@/-]([\d.]+)|ng-version="([\d.]+)"/i,
   },
   {
     name: 'Svelte',
     category: 'Frontend',
-    patterns: [/svelte|svelte\/internal/i, /"svelte"/i],
+    patterns: [/svelte|svelte\/internal/i, /"svelte"/i, /data-svelte-h|svelte-h-|SvelteComponent/i],
     versionPattern: /svelte[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Solid.js',
+    category: 'Frontend',
+    patterns: [/solid-js|solid\.js/i, /data-hydration|createSignal|createEffect/i, /"solid-js"/i],
+    versionPattern: /solid-js[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Preact',
+    category: 'Frontend',
+    patterns: [/preact\/|preact\.js/i, /__preact__|preact\/hooks/i, /"preact"/i],
+    versionPattern: /preact[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Astro',
+    category: 'Frontend',
+    patterns: [/data-astro-|astro-|_astro\//i, /Astro\.|import\.meta\.astro/i, /"astro"/i],
+    versionPattern: /astro[@/-]([\d.]+)/i,
   },
   {
     name: 'Remix',
     category: 'Frontend',
     patterns: [/remix|@remix-run/i, /"@remix-run\/react"/i],
     versionPattern: /remix[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Alpine.js',
+    category: 'Library',
+    patterns: [/x-data|x-show|x-on|x-model|x-if|x-for|x-transition|Alpine\./i],
+    versionPattern: /alpinejs[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'HTMX',
+    category: 'Library',
+    patterns: [/hx-get|hx-post|hx-put|hx-delete|hx-swap|hx-trigger|htmx\./i],
+    versionPattern: /htmx[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Ember',
+    category: 'Frontend',
+    patterns: [/ember\.js|ember\.min\.js/i, /data-ember-|Ember\.|@ember\//i],
+    versionPattern: /ember[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Backbone.js',
+    category: 'Library',
+    patterns: [/backbone\.(?:min\.)?js/i, /Backbone\.Model|Backbone\.View/i],
+    versionPattern: /backbone[@/-]([\d.]+)/i,
   },
   {
     name: 'jQuery',
@@ -106,8 +155,9 @@ const RULES: PatternRule[] = [
     category: 'Frontend',
     patterns: [
       /tailwind|tailwindcss/i,
-      /tw-|class="[^"]*\b(flex|grid|p-|m-|text-|bg-|rounded|shadow|w-|h-)/i,
-      /"tailwindcss"/i,
+      /"tailwindcss"|@tailwind\s+(base|components|utilities)/i,
+      /(?:class|className)=["'][^"']*\b(md:|lg:|xl:|2xl:|sm:|dark:|focus:|hover:bg-|sr-only|ring-|inset-)/i,
+      /tw-|tailwind\.config/i,
     ],
     versionPattern: /tailwindcss[@/-]([\d.]+)|"tailwindcss"\s*:\s*["']([\d.]+)["']/i,
   },
@@ -116,10 +166,26 @@ const RULES: PatternRule[] = [
     category: 'Frontend',
     patterns: [
       /bootstrap[-.]?(?:min\.)?(?:js|css)/i,
-      /class="[^"]*\b(container|row|col-|btn-|navbar|modal)/i,
+      /class="[^"]*\b(container|row|col-|btn-|navbar|modal|card|dropdown|collapse)/i,
       /"bootstrap"/i,
     ],
     versionPattern: /bootstrap[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Bulma',
+    category: 'Frontend',
+    patterns: [
+      /bulma\.(?:min\.)?css|bulma\.css/i,
+      /class="[^"]*\b(has-text-|is-primary|is-link|navbar-burger|hero-body|section)/i,
+      /"bulma"/i,
+    ],
+    versionPattern: /bulma[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Foundation',
+    category: 'Frontend',
+    patterns: [/foundation\.(?:min\.)?(?:js|css)/i, /data-abide|data-responsive-toggle|data-slider/i],
+    versionPattern: /foundation[@/-]([\d.]+)/i,
   },
   {
     name: 'Framer Motion',
@@ -149,7 +215,7 @@ const RULES: PatternRule[] = [
   {
     name: 'Material UI',
     category: 'Library',
-    patterns: [/@mui\/|material-ui|MuiBox|MuiButton/i],
+    patterns: [/@mui\/|material-ui|MuiBox|MuiButton|MuiTextField/i],
     versionPattern: /@mui\/material[@/-]([\d.]+)/i,
   },
   {
@@ -163,7 +229,17 @@ const RULES: PatternRule[] = [
     category: 'Library',
     patterns: [/@radix-ui|radix-ui/i],
   },
-  // --- Routing ---
+  {
+    name: 'Ant Design',
+    category: 'Library',
+    patterns: [/antd|ant-design|ant\.css|antd\.css/i],
+    versionPattern: /antd[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Headless UI',
+    category: 'Library',
+    patterns: [/@headlessui|headlessui/i],
+  },
   {
     name: 'React Router',
     category: 'Library',
@@ -174,7 +250,42 @@ const RULES: PatternRule[] = [
     ],
     versionPattern: /react-router[-@/]([\d.]+)|"react-router-dom"\s*:\s*["']([\d.]+)["']/i,
   },
-  // --- Maps & media ---
+  {
+    name: 'Redux',
+    category: 'Library',
+    patterns: [/redux|__REDUX_DEVTOOLS__|createStore|configureStore/i],
+    versionPattern: /redux[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Zustand',
+    category: 'Library',
+    patterns: [/zustand|from\s+['"]zustand['"]|"zustand"/i],
+    versionPattern: /zustand[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'TanStack Query',
+    category: 'Library',
+    patterns: [/@tanstack\/react-query|useQuery|useMutation|QueryClient/i],
+    versionPattern: /@tanstack\/react-query[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Three.js',
+    category: 'Library',
+    patterns: [/three\.(?:min\.)?js|THREE\.|OrbitControls|WebGLRenderer/i],
+    versionPattern: /three[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'D3.js',
+    category: 'Library',
+    patterns: [/d3\.(?:min\.)?js|d3\.min\.js|d3\.select|d3\.scale/i],
+    versionPattern: /d3[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Chart.js',
+    category: 'Library',
+    patterns: [/chart\.(?:min\.)?js|Chart\.register|new Chart\(/i],
+    versionPattern: /chart\.js[@/-]([\d.]+)/i,
+  },
   {
     name: 'Leaflet',
     category: 'Library',
@@ -196,7 +307,12 @@ const RULES: PatternRule[] = [
     category: 'Library',
     patterns: [/maps\.googleapis\.com|google\.maps|gmaps/i],
   },
-  // --- Fonts & CDN ---
+  {
+    name: 'Socket.io',
+    category: 'Library',
+    patterns: [/socket\.io|io\.connect|io\(/i],
+    versionPattern: /socket\.io[@/-]([\d.]+)/i,
+  },
   {
     name: 'Google Fonts',
     category: 'Library',
@@ -217,7 +333,6 @@ const RULES: PatternRule[] = [
     category: 'Library',
     patterns: [/cdnjs\.cloudflare\.com/i],
   },
-  // --- Analytics & tracking ---
   {
     name: 'Google Analytics',
     category: 'Library',
@@ -236,22 +351,59 @@ const RULES: PatternRule[] = [
       /wp-content|wp-includes|wp-admin/i,
       /wordpress|wp-json\/wp\/v2/i,
       /generator.*wordpress/i,
+      /wp-embed\.js|wp-emoji-release/i,
     ],
     versionPattern: /wordpress[@/-]([\d.]+)|content="WordPress\s+([\d.]+)"/i,
   },
   {
+    name: 'WooCommerce',
+    category: 'Backend',
+    patterns: [/woocommerce|wc-|cart-form|add_to_cart|wc_add_to_cart/i],
+    versionPattern: /woocommerce[@/-]([\d.]+)/i,
+  },
+  {
     name: 'Drupal',
     category: 'Backend',
-    patterns: [/drupal\.js|sites\/default|Drupal\.settings/i],
+    patterns: [/drupal\.js|sites\/default|Drupal\.settings|drupalSettings/i],
     versionPattern: /Drupal\s+([\d.]+)/i,
   },
   {
     name: 'Joomla',
     category: 'Backend',
-    patterns: [/joomla|com_content|Joomla\./i],
+    patterns: [/joomla|com_content|Joomla\.|option=com_/i],
     versionPattern: /Joomla!?\s*([\d.]+)|joomla[@/-]([\d.]+)/i,
   },
-  // --- Backend frameworks (passive fingerprinting) ---
+  {
+    name: 'Magento',
+    category: 'Backend',
+    patterns: [/Mage\.|magento|requirejs\/mixins\/mage/i],
+    versionPattern: /Magento\s+([\d.]+)/i,
+  },
+  {
+    name: 'Shopify',
+    category: 'Backend',
+    patterns: [/Shopify\.|shopify\.com|cdn\.shopify\.com|shopify_/i],
+  },
+  {
+    name: 'Ghost',
+    category: 'Backend',
+    patterns: [/ghost\.org|content-api|ghost-frontend/i],
+  },
+  {
+    name: 'Strapi',
+    category: 'Backend',
+    patterns: [/strapi|@strapi\//i],
+  },
+  // --- Backend languages & frameworks ---
+  {
+    name: 'PHP',
+    category: 'Backend',
+    patterns: [
+      /\.php\b|\.php\?|PHPSESSID|session\.save_path/i,
+      /PHP_SELF|phpinfo|php_version/i,
+      /wp-json\/wp\/|wp-content\/|wp-includes\//i,
+    ],
+  },
   {
     name: 'Laravel',
     category: 'Backend',
@@ -271,6 +423,18 @@ const RULES: PatternRule[] = [
       /formaction.*django|data-django/i,
     ],
     versionPattern: /django[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'Flask',
+    category: 'Backend',
+    patterns: [/flask|Flask\(|werkzeug|url_for\(/i],
+    versionPattern: /flask[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'FastAPI',
+    category: 'Backend',
+    patterns: [/fastapi|uvicorn|starlette/i],
+    versionPattern: /fastapi[@/-]([\d.]+)/i,
   },
   {
     name: 'Express',
@@ -293,13 +457,29 @@ const RULES: PatternRule[] = [
     versionPattern: /rails[@/-]([\d.]+)/i,
   },
   {
-    name: 'PHP',
+    name: 'Java',
     category: 'Backend',
     patterns: [
-      /\.php\b|\.php\?|PHPSESSID|session\.save_path/i,
-      /PHP_SELF|phpinfo|php_version/i,
-      /X-Powered-By:\s*PHP/i,
+      /JSESSIONID|\.jsp\b|java\.lang|javax\./i,
+      /tomcat|Apache Tomcat/i,
+      /springframework|Spring Boot|org\.springframework/i,
     ],
+  },
+  {
+    name: 'Spring',
+    category: 'Backend',
+    patterns: [/springframework|Spring Boot|org\.springframework|spring-boot/i],
+    versionPattern: /spring[-_]?boot[@/-]([\d.]+)/i,
+  },
+  {
+    name: 'ASP.NET',
+    category: 'Backend',
+    patterns: [/__VIEWSTATE|__EVENTVALIDATION|aspnet_client|\.aspx\b/i],
+  },
+  {
+    name: 'Node.js',
+    category: 'Backend',
+    patterns: [/node\.js|process\.env|__dirname|require\s*\(\s*['"]/i],
   },
   // --- Security / headers handled in detectFromHeaders ---
 ];
@@ -392,18 +572,36 @@ function detectFromHeaders(headers: Record<string, string | null> | undefined): 
     add('IIS', 'Server', `Server header: ${server}`);
   }
 
-  // Backend / runtime
+  // Backend / runtime (X-Powered-By can be "PHP/8.2", "Express", "ASP.NET", etc.)
   if (poweredBy) {
-    const name = poweredBy.split('/')[0].trim();
-    if (name) add(name, 'Server', `X-Powered-By: ${poweredBy}`);
+    const raw = poweredBy.trim();
+    const name = raw.split('/')[0].trim();
+    if (name) {
+      if (/php/i.test(name)) add('PHP', 'Backend', `X-Powered-By: ${poweredBy}`);
+      else if (/express/i.test(name)) add('Express', 'Backend', `X-Powered-By: ${poweredBy}`);
+      else if (/asp\.net|dotnet/i.test(name)) add('ASP.NET', 'Backend', `X-Powered-By: ${poweredBy}`);
+      else if (/python/i.test(name)) add('Python', 'Backend', `X-Powered-By: ${poweredBy}`);
+      else add(name, 'Server', `X-Powered-By: ${poweredBy}`);
+    }
   }
   if (xAspnetVersion) {
     add('ASP.NET', 'Backend', `X-AspNet-Version: ${xAspnetVersion}`);
+  }
+  if (server && /tomcat|jetty|jboss/i.test(server)) {
+    add('Java', 'Backend', `Server: ${server}`);
+  }
+  if (server && /gunicorn|uvicorn|waitress/i.test(server)) {
+    add('Python', 'Backend', `Server: ${server}`);
+  }
+  const xRuntime = get('X-Runtime');
+  if (xRuntime && /ruby/i.test(xRuntime)) {
+    add('Ruby', 'Backend', `X-Runtime: ${xRuntime}`);
   }
   if (xGenerator) {
     const g = xGenerator.trim();
     if (/wordpress/i.test(g)) add('WordPress', 'Backend', `X-Generator: ${g}`);
     else if (/drupal/i.test(g)) add('Drupal', 'Backend', `X-Generator: ${g}`);
+    else if (/joomla/i.test(g)) add('Joomla', 'Backend', `X-Generator: ${g}`);
   }
   if (xDrupalCache) add('Drupal', 'Backend', 'X-Drupal-Cache header');
 

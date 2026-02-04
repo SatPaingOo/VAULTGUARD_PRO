@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "NEURAL_SECURITY_OPS_v1.4.3",
+  "app_subtitle": "NEURAL_SECURITY_OPS_v",
   "app_gemini_tagline": "Powered by Gemini 3 Pro & Flash • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Built for Gemini 3 Hackathon",
   "app_hybrid_tagline": "Hybrid: Deterministic Rules + AI Reasoning",
@@ -254,6 +254,8 @@ export default {
     "action": "Action",
     "probe_execution_details": "PROBE_EXECUTION_DETAILS",
     "probe_execution_subtitle": "HTTP probe execution results and responses",
+    "probe_spa_disclaimer_title": "About 200 OK on Single Page Apps (SPAs)",
+    "probe_spa_disclaimer": "On Single Page Applications (SPAs), the server often returns 200 OK for any path (e.g. /admin, /.env) because it serves the same index.html for all routes. A 200 status here may mean the app's fallback page was loaded, not that the probed path is a real, distinct resource. Treat probe 200s on SPAs as indicative, not conclusive.",
     "response_time": "Response Time",
     "vulnerable": "⚠ VULNERABLE",
     "cors_blocked": "⚠ CORS_BLOCKED",
@@ -333,6 +335,11 @@ export default {
     "limited": "Limited",
     "unavailable": "Unavailable",
     "failed": "Failed",
+    "why_blocked_title": "Why DOM / Headers / SSL can show Blocked",
+    "why_dom_blocked": "DOM is fetched from the target; if that request is blocked by CORS, we fall back to an iframe. Cross-origin iframe content cannot be read by the browser (same-origin policy). A CORS extension only affects fetch/XHR, so it can help DOM when the extension allows the first fetch. Ensure the extension is enabled for this page and the target, and that you are not in a context where the extension does not run (e.g. private window).",
+    "why_headers_blocked": "Headers are read via a cross-origin fetch. If the target does not send CORS headers, the browser blocks the response. A CORS extension can allow this. If it still shows Blocked: (1) enable the extension for the scanner origin and the target, (2) wait ~5 minutes and scan again (failed results are cached), or (3) refresh the page and run a new scan.",
+    "why_ssl_blocked": "SSL grade comes from the SSL Labs API, which does not support CORS from browsers. A CORS extension does not change that. We fall back to a simple HTTPS check; if both fail, SSL shows Limited. This is expected in a browser-only scan.",
+    "cors_extension_tip": "If you just enabled a CORS extension: refresh this page, then run a new scan. Previous blocked results may be cached for a few minutes.",
     "executive_intel": "EXECUTIVE_INTEL",
     "forensic_target_reasoning": "Forensic target reasoning and posture",
     "security_score": "SECURITY_SCORE",
@@ -509,7 +516,7 @@ export default {
     "error_unknown_suggestions": ["Check your internet connection", "Verify the API key is correct", "Try again in a few moments"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.4.3",
+    "version_badge": "VAULT_SOC_",
     "evidence_based_badge": "EVIDENCE_BASED_FINDINGS",
     "neural_engine": "NEURAL_ENGINE",
     "frontend_only": "FRONTEND_ONLY",

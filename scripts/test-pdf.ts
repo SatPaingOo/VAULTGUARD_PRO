@@ -7,6 +7,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf-8'));
+const APP_VERSION = pkg.version as string;
+
 // Helper function to convert hex to RGB
 const hexToRgb = (hex: string): [number, number, number] => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -250,7 +253,7 @@ const generateTestPDF = async (logoPath?: string): Promise<{ success: boolean; h
     doc.setFontSize(9); // Smaller font
     doc.setTextColor(150, 150, 150); // Gray color
     doc.setFont("courier", "normal");
-    const versionText = "v1.4.3";
+    const versionText = `v${APP_VERSION}`;
     const versionX = titleX + titleWidth + 3; // Right after title
     doc.text(versionText, versionX, titleY);
     

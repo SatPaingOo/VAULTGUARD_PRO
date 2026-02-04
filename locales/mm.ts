@@ -1,7 +1,7 @@
 
 export default {
   "app_title": "VAULTGUARD_PRO",
-  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v1.4.3",
+  "app_subtitle": "အဆင့်မြင့် နျူရယ် လုံခြုံရေး စစ်ဆေးမှုစနစ် v",
   "app_gemini_tagline": "Gemini 3 Pro & Flash ဖြင့် မောင်းနှင်သည် • 32K Thinking • Search Grounding",
   "app_hackathon_badge": "Gemini 3 Hackathon အတွက် တည်ဆောက်ထားသည်",
   "app_hybrid_tagline": "ပေါင်းစပ်: သတ်မှတ်ချက် စည်းမျဉ်းများ + AI ဆင်ခြင်ချက်",
@@ -253,6 +253,8 @@ export default {
     "action": "လုပ်ဆောင်ရန်",
     "probe_execution_details": "စမ်းသပ်မှု အသေးစိတ်",
     "probe_execution_subtitle": "HTTP probe execution results and responses",
+    "probe_spa_disclaimer_title": "Single Page App (SPA) များတွင် 200 OK အကြောင်း",
+    "probe_spa_disclaimer": "Single Page Application (SPA) များတွင် server က path အများစု (/admin, /.env စသည်) အတွက် 200 OK ပြန်လေ့ရှိပြီး route အားလုံးအတွက် index.html တစ်ခုတည်းကို ပြသသည်။ 200 ဆိုသည်မှာ စစ်ထားသော path က အမှန်တကယ် ရှိသည်ဟု မဆိုလိုပါ။ SPA fallback စာမျက်နှာ လာသည်လည်း ဖြစ်နိုင်သည်။ SPA များတွင် probe 200 ကို ညွှန်ပြချက်အဖြစ်သာ မှတ်ယူပါ။",
     "response_time": "တုံ့ပြန်ချိန်",
     "vulnerable": "⚠ အားနည်းချက် ရှိသည်",
     "cors_blocked": "⚠ CORS ပိတ်ဆို့ထားသည်",
@@ -314,6 +316,11 @@ export default {
     "limited": "ကန့်သတ်ထားသည်",
     "unavailable": "မရရှိနိုင်ပါ",
     "failed": "မအောင်မြင်ပါ",
+    "why_blocked_title": "DOM / Headers / SSL ဘာကြောင့် ပိတ်ဆို့ထားသည် ပြနေနိုင်သလဲ",
+    "why_dom_blocked": "DOM ကို target ကနေ fetch လုပ်ပါတယ်။ CORS ကပိတ်ရင် iframe fallback သုံးပါတယ်။ Cross-origin iframe ရဲ့ content ကို browser က same-origin policy ကြောင့် မဖတ်ခွင့်ပေးပါ။ CORS extension က fetch/XHR ကိုပဲ သက်ရောက်တာမို့၊ ပထမ fetch ကို extension က allow ပေးရင် DOM ရနိုင်ပါတယ်။ Extension ကို ဒီစာမျက်နှာနဲ့ target အတွက် ဖွင့်ထားပါ၊ private window လို extension မအလုပ်လုပ်တဲ့ နေရာမှာ မစစ်ပါနဲ့။",
+    "why_headers_blocked": "Headers ကို cross-origin fetch နဲ့ ဖတ်ပါတယ်။ Target က CORS headers မပေးရင် browser က response ကို ပိတ်ပါတယ်။ CORS extension ဖွင့်ထားရင် ရနိုင်ပါတယ်။ ဖွင့်ထားပြီးသား ပိတ်ဆို့ထားသည် ပြနေရင် (၁) extension ကို scanner နဲ့ target အတွက် enable လုပ်ပါ (၂) မိနစ် ၅ ခန့်စောင့်ပြီး ပြန် scan လုပ်ပါ (မအောင်မြင်တဲ့ ရလဒ်က cache လုပ်ထားတတ်ပါတယ်) (၃) စာမျက်နှာ refresh လုပ်ပြီး scan အသစ် လုပ်ပါ။",
+    "why_ssl_blocked": "SSL grade က SSL Labs API ကလာပါတယ်၊ browser ကနေ CORS မပံ့ပိုးပါ။ CORS extension က ဒါကို မပြောင်းပါ။ HTTPS check ပြန်သုံးပါတယ်။ နှစ်ခုလုံး မအောင်မြင်ရင် SSL က ကန့်သတ်ထားသည် ပြပါတယ်။ Browser နဲ့ပဲ စစ်တဲ့အခါ ပုံမှန် ဖြစ်ပါတယ်။",
+    "cors_extension_tip": "CORS extension ကို ခုမှ ဖွင့်ထားရင် ဒီစာမျက်နှာကို refresh လုပ်ပြီး scan အသစ် လုပ်ပါ။ အရင် ပိတ်ဆို့ထားသည့် ရလဒ် မိနစ်အနည်းငယ် cache လုပ်ထားနိုင်ပါတယ်။",
     "executive_intel": "အဓိက အချက်အလက်များ",
     "forensic_target_reasoning": "မှုခင်းဆိုင်ရာ ဆင်ခြင်တုံတရား နှင့် အခြေအနေ",
     "security_score": "လုံခြုံရေး အဆင့်",
@@ -489,7 +496,7 @@ export default {
     "error_unknown_suggestions": ["အင်တာနက် ချိတ်ဆက်မှု စစ်ပါ", "API key မှန်ကန်မှု စစ်ပါ", "ခဏအကြာ ပြန်ကြိုးစားပါ"]
   },
   "footer": {
-    "version_badge": "VAULT_SOC_1.4.3",
+    "version_badge": "VAULT_SOC_",
     "evidence_based_badge": "သက်သေအခြေပြု တွေ့ရှိချက်များ",
     "neural_engine": "နျူရယ် အင်ဂျင်",
     "frontend_only": "ဖရန့်တင့်သာ",

@@ -13,6 +13,7 @@ import 'jspdf-autotable';
 import { ScanLevel, MissionReport, TechItem, VulnerabilityFinding } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { TelemetryEntry, DispatchedProbe } from '../hooks/useScanner';
+import { APP_VERSION } from '../constants/version';
 import en from '../locales/en.ts';
 
 const LEVEL_COLORS: Record<ScanLevel, string> = {
@@ -251,7 +252,7 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
       doc.setFontSize(9); // Smaller font
       doc.setTextColor(150, 150, 150); // Gray color
       doc.setFont("courier", "normal");
-      const versionText = "v1.4.3";
+      const versionText = `v${APP_VERSION}`;
       const versionX = titleX + titleWidth + 3; // Right after title
       doc.text(versionText, versionX, titleY);
 
@@ -709,6 +710,16 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
         doc.setFont("courier", "bold");
         doc.text(tEn('pdf.probe_execution_details'), 15, yPos);
         yPos += 8;
+
+        doc.setFont("courier", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(80, 80, 80);
+        const spaDisclaimerLines = doc.splitTextToSize(tEn('pdf.probe_spa_disclaimer_title') + ': ' + tEn('pdf.probe_spa_disclaimer'), 180);
+        spaDisclaimerLines.forEach((line: string) => {
+          doc.text(line, 15, yPos);
+          yPos += 4;
+        });
+        yPos += 5;
 
         doc.setFontSize(8);
         dispatchedProbes.forEach((probe: DispatchedProbe) => {
@@ -1469,6 +1480,27 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                   </div>
                 </div>
               </div>
+
+              {(dataQuality.sources.dom === false || dataQuality.sources.headers === false || dataQuality.sources.ssl === false) && (
+                <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <details className="group">
+                    <summary className="text-xs md:text-sm font-semibold text-white/70 cursor-pointer list-none flex items-center gap-2">
+                      <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
+                      {t('results.why_blocked_title')}
+                    </summary>
+                    <p className="text-[10px] md:text-xs text-white/50 mt-3 mb-2">{t('results.cors_extension_tip')}</p>
+                    {dataQuality.sources.dom === false && (
+                      <p className="text-[10px] md:text-xs text-white/50 mb-2"><strong className="text-white/60">DOM:</strong> {t('results.why_dom_blocked')}</p>
+                    )}
+                    {dataQuality.sources.headers === false && (
+                      <p className="text-[10px] md:text-xs text-white/50 mb-2"><strong className="text-white/60">Headers:</strong> {t('results.why_headers_blocked')}</p>
+                    )}
+                    {dataQuality.sources.ssl === false && (
+                      <p className="text-[10px] md:text-xs text-white/50 mb-2"><strong className="text-white/60">SSL:</strong> {t('results.why_ssl_blocked')}</p>
+                    )}
+                  </details>
+                </div>
+              )}
             </div>
           </SectionCard>
         )}
@@ -1759,6 +1791,15 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
             themeColor={themeColor}
           >
             <div className="space-y-4 md:space-y-6">
+              <div className="p-4 md:p-5 rounded-xl md:rounded-2xl bg-amber-500/5 border border-amber-500/20">
+                <div className="flex gap-3">
+                  <AlertCircle className="shrink-0 w-5 h-5 md:w-6 md:h-6 text-amber-500/80 mt-0.5" />
+                  <div>
+                    <div className="text-xs md:text-sm font-bold text-amber-200/90 uppercase tracking-wide mb-1">{t('pdf.probe_spa_disclaimer_title')}</div>
+                    <p className="text-[11px] md:text-sm font-mono text-white/60 leading-relaxed">{t('pdf.probe_spa_disclaimer')}</p>
+                  </div>
+                </div>
+              </div>
               {dispatchedProbes.map((probe: DispatchedProbe, i: number) => (
                 <div key={i} className="p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] bg-black/40 border border-white/5">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">

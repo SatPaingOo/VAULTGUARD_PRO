@@ -51,6 +51,18 @@ export const PROBE_CONSTANTS = {
   PROBE_BATCH_DELAY_MS: 1000,
 } as const;
 
+/** Common sensitive paths to probe (client-side only; no backend). Merged with AI-suggested probes. */
+export const SENSITIVE_PROBE_PATHS: ReadonlyArray<{ method: 'GET'; endpoint: string; description: string; expectedBehavior: string }> = [
+  { method: 'GET', endpoint: '/admin', description: 'Admin panel', expectedBehavior: '404 or 403 expected' },
+  { method: 'GET', endpoint: '/wp-admin', description: 'WordPress admin', expectedBehavior: '404 or redirect' },
+  { method: 'GET', endpoint: '/.env', description: 'Environment file', expectedBehavior: '404 or 403' },
+  { method: 'GET', endpoint: '/api/debug', description: 'Debug API', expectedBehavior: '404 or 403' },
+  { method: 'GET', endpoint: '/config', description: 'Config path', expectedBehavior: '404 or 403' },
+  { method: 'GET', endpoint: '/backup', description: 'Backup path', expectedBehavior: '404 or 403' },
+  { method: 'GET', endpoint: '/phpinfo.php', description: 'PHP info', expectedBehavior: '404 or 403' },
+  { method: 'GET', endpoint: '/.git/config', description: 'Git config', expectedBehavior: '404 or 403' },
+];
+
 // API Key Validation
 export const API_KEY_CONSTANTS = {
   /** Minimum API key length */
