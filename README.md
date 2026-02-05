@@ -8,7 +8,7 @@
 
 **🏆 Built for Gemini 3 Hackathon**
 
-**Version:** 1.6.1  
+**Version:** 1.6.2  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -684,7 +684,11 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.6.1 (Current)
+### v1.6.2 (Current)
+
+- **CSP for hosted scanner** – `vercel.json` Content-Security-Policy: `connect-src` and `frame-src` allow `https:` and `http:` so user can scan any site from the deployed app (no CSP block on fetch/iframe to target)
+
+### v1.6.1
 
 - **Technology DNA** – Stricter detection for Angular, Remix, Redux to reduce false positives (e.g. YouTube/Polymer)
 
