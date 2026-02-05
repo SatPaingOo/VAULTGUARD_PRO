@@ -429,6 +429,7 @@ export const useScanner = () => {
       if (level === 'STANDARD' || level === 'DEEP') {
         addLog(`[AI] Analyzing Technology DNA & Infrastructure...`, 'info', 38);
         if (level === 'DEEP') {
+          addLog(`[AI] DEEP mode: 32K thinking budget enabled (32,768 tokens)`, 'info', 39);
           addLog(`[AI] Deep reasoning mode: Simulating multi-step attack chains...`, 'info', 39);
         }
       }
@@ -505,6 +506,9 @@ export const useScanner = () => {
       if (auditTokens > 0) {
         const formattedTokens = auditTokens.toLocaleString();
         addLog(`[AI] AI reasoning completed (${formattedTokens} tokens processed)`, 'success', 70);
+        if (level === 'DEEP') {
+          addLog(`[AI] DEEP scan used 32K thinking budget (Gemini 3 Pro)`, 'success', 71);
+        }
       }
       
       // Track probe execution for data quality

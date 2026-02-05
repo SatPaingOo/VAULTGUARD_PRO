@@ -8,7 +8,7 @@
 
 **🏆 Built for Gemini 3 Hackathon**
 
-**Version:** 1.6.2  
+**Version:** 1.6.3  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -684,7 +684,11 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.6.2 (Current)
+### v1.6.3 (Current)
+
+- **DEEP scan visibility** – Terminal/telemetry now shows 32K thinking budget: at start “DEEP mode: 32K thinking budget enabled (32,768 tokens)”, on completion “DEEP scan used 32K thinking budget (Gemini 3 Pro)”
+
+### v1.6.2
 
 - **CSP for hosted scanner** – `vercel.json` Content-Security-Policy: `connect-src` and `frame-src` allow `https:` and `http:` so user can scan any site from the deployed app (no CSP block on fetch/iframe to target)
 
