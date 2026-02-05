@@ -110,12 +110,23 @@ interface VirtualHUDProps {
   level: ScanLevel;
 }
 
+function isCrossOrigin(targetUrl: string): boolean {
+  if (!targetUrl || !targetUrl.startsWith('http')) return true;
+  try {
+    const u = new URL(targetUrl, window.location.href);
+    return u.origin !== window.location.origin;
+  } catch {
+    return true;
+  }
+}
+
 export const VirtualHUD = ({ phase, report, onSelectNode, targetUrl, recentFindings = [], level }: VirtualHUDProps) => {
   const { t } = useLanguage();
   const [view, setView] = useState<'VISUAL' | 'MAP' | 'BLUEPRINT'>('VISUAL');
   const [iframeError, setIframeError] = useState(false);
 
   const themeColor = useMemo(() => LEVEL_COLORS[level as ScanLevel] || '#00d4ff', [level]);
+  const embedUnavailable = useMemo(() => isCrossOrigin(targetUrl) || iframeError, [targetUrl, iframeError]);
 
   const lat = report?.targetIntelligence?.hosting?.latitude || 0;
   const lng = report?.targetIntelligence?.hosting?.longitude || 0;
@@ -136,7 +147,7 @@ export const VirtualHUD = ({ phase, report, onSelectNode, targetUrl, recentFindi
       {/* Background Frame Container */}
       <div className="flex-1 relative p-2 sm:p-5 md:p-10 lg:p-14 overflow-hidden h-full">
         <div className="w-full h-full rounded-xl sm:rounded-3xl md:rounded-[4rem] border border-white/5 bg-black/20 overflow-hidden relative shadow-inner">
-           {view === 'VISUAL' && !iframeError && (
+           {view === 'VISUAL' && !embedUnavailable && (
              <iframe 
                src={targetUrl} 
                className="w-full h-full border-none brightness-[0.5] opacity-50 pointer-events-none transition-all duration-700"
@@ -144,7 +155,20 @@ export const VirtualHUD = ({ phase, report, onSelectNode, targetUrl, recentFindi
                title={t('virtualhud.target_reconnaissance')}
              />
            )}
-           {(view === 'BLUEPRINT' || iframeError) && view !== 'MAP' && <NeuralBlueprint color={themeColor} />}
+           {view !== 'MAP' && (view === 'BLUEPRINT' || embedUnavailable) && (
+             <>
+               <NeuralBlueprint color={themeColor} />
+               {view === 'VISUAL' && embedUnavailable && (
+                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
+                   <div className="max-w-sm rounded-2xl border border-white/10 bg-black/80 backdrop-blur-sm px-5 py-4 text-center shadow-xl">
+                     <Info className="w-8 h-8 mx-auto mb-2 text-white/50" />
+                     <div className="text-sm font-bold text-white uppercase tracking-wide mb-1">{t('virtualhud.embed_unavailable_title')}</div>
+                     <p className="text-xs font-mono text-white/50 leading-relaxed">{t('virtualhud.embed_unavailable_desc')}</p>
+                   </div>
+                 </div>
+               )}
+             </>
+           )}
            {view === 'MAP' && <TacticalMap lat={lat} lng={lng} color={themeColor} />}
            
            <div className="absolute inset-0 pointer-events-none hud-grid-bg opacity-10 md:opacity-20" />

@@ -413,13 +413,17 @@ export default {
     "progress": "Progress",
     "tactical_dispatcher": "Tactical_Dispatcher",
     "live_mission_telemetry": "Live_Mission_Telemetry",
-    "telemetry_log": "Telemetry_Log"
+    "telemetry_log": "Telemetry_Log",
+    "telemetry_half": "Half",
+    "telemetry_full": "Full"
   },
   "virtualhud": {
     "target_reconnaissance": "Target Reconnaissance",
     "neural_threat": "Neural_Threat",
     "neural_blueprint": "Neural_Blueprint",
     "target_reconstruction": "Target reconstruction active",
+    "embed_unavailable_title": "Preview unavailable",
+    "embed_unavailable_desc": "Target is cross-origin or blocks embedding. Use Geo or Logic view.",
     "visual": "Visual",
     "geo": "Geo",
     "logic": "Logic"

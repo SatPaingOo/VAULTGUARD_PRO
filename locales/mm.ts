@@ -393,13 +393,17 @@ export default {
     "progress": "လုပ်ဆောင်မှု",
     "tactical_dispatcher": "Tactical_Dispatcher",
     "live_mission_telemetry": "တိုက်ရိုက် လုပ်ဆောင်ချက် အချက်အလက်",
-    "telemetry_log": "တိုက်ရိုက် အချက်အလက် မှတ်တမ်း"
+    "telemetry_log": "တိုက်ရိုက် အချက်အလက် မှတ်တမ်း",
+    "telemetry_half": "တစ်ဝက်",
+    "telemetry_full": "အပြည့်"
   },
   "virtualhud": {
     "target_reconnaissance": "စစ်ဆေးမည့် Website",
     "neural_threat": "နျူရယ် အန္တရာယ်",
     "neural_blueprint": "နျူရယ် Blueprint",
     "target_reconstruction": "Target reconstruction active",
+    "embed_unavailable_title": "မြင်ကွင်း မရနိုင်ပါ",
+    "embed_unavailable_desc": "Target က cross-origin သို့မဟုတ် embed ပိတ်ထားသည်။ Geo သို့မဟုတ် Logic view သုံးပါ။",
     "visual": "မြင်ကွင်း",
     "geo": "ပထဝီ",
     "logic": "Logic"

@@ -8,7 +8,7 @@
 
 **🏆 Built for Gemini 3 Hackathon**
 
-**Version:** 1.5.0  
+**Version:** 1.6.0  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -145,6 +145,14 @@ These updates improve report trust, deployment security, and alignment between U
 
 - **Why is trust low?** – When trust score &lt; 80%, the limitations section title shows "Why is trust low?" so users see why the score is lower.
 - **Console logs in dev only** – [VG] logs are printed to the browser console only in development; production deploy no longer shows scan logs in the console.
+
+---
+
+## 🚀 New in v1.6.0: UX Improvements (Iframe Fallback, Telemetry Panel, SPA Disclaimer)
+
+- **Iframe fallback** – When the target is cross-origin or blocks embedding, the app no longer shows the browser’s broken-page icon. It shows the Neural Blueprint view with a short “Preview unavailable” message.
+- **Live Mission Telemetry** – Panel can be collapsed, shown at half height (320px), or **full height** (viewport minus header). Use the Half/Full button in the telemetry header to switch.
+- **SPA probe disclaimer** – In Probe Execution Details (UI and PDF), a note explains that a 200 OK on Single Page Apps may mean the app’s fallback page, not a real resource.
 
 ---
 
@@ -676,7 +684,13 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.5.0 (Current)
+### v1.6.0 (Current)
+
+- **Iframe fallback UX** – Cross-origin or embed-blocked targets show Blueprint + “Preview unavailable” instead of broken-page icon
+- **Live Mission Telemetry** – Half/Full height toggle; full = viewport minus header
+- **SPA probe disclaimer** – Note in Probe Execution Details (UI + PDF) about 200 OK on SPAs
+
+### v1.5.0
 
 - **Security headers (extended)** – Permissions-Policy, Feature-Policy, COEP, COOP checked and included in header score
 - **Cookie security** – Parsed Set-Cookie with HttpOnly, Secure, SameSite in `HeaderAnalysis.cookieDetails`

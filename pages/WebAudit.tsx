@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, Activity, Server, Terminal, Cpu, Zap, ChevronUp, ChevronDown, 
-  Send, Globe, HardDrive, Network, ChevronRight
+  Send, Globe, HardDrive, Network, ChevronRight, Maximize2, Minimize2
 } from 'lucide-react';
 import { ScanStatus, TelemetryEntry, DispatchedProbe } from '../hooks/useScanner';
 import { MissionReport, ScanLevel, VulnerabilityFinding } from '../services/geminiService';
@@ -208,6 +208,7 @@ const getCurrentActivity = (telemetry: TelemetryEntry[], targetUrl: string, doma
 export const WebAudit = ({ phase, progress, telemetry, targetUrl, report, level, recentFindings = [], dispatchedProbes = [] }: WebAuditProps) => {
   const { t } = useLanguage();
   const [isConsoleExpanded, setIsConsoleExpanded] = useState(true);
+  const [telemetryFullHeight, setTelemetryFullHeight] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const probeScrollRef = useRef<HTMLDivElement>(null);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -385,15 +386,39 @@ export const WebAudit = ({ phase, progress, telemetry, targetUrl, report, level,
 
       {/* Console Overlay */}
       <motion.section 
-        animate={{ height: isConsoleExpanded ? '320px' : '45px' }}
+        animate={{ height: isConsoleExpanded ? (telemetryFullHeight ? 'calc(100vh - 80px)' : '320px') : '45px' }}
+        transition={{ type: 'tween', duration: 0.25 }}
         className="relative z-[60] bg-[#020408]/98 backdrop-blur-3xl border-t border-white/10 shadow-4xl flex flex-col overflow-hidden"
       >
-        <div onClick={() => setIsConsoleExpanded(!isConsoleExpanded)} className="h-[45px] flex-shrink-0 flex justify-between items-center px-8 border-b border-white/5 cursor-pointer hover:bg-white/5">
-          <div className="flex items-center gap-4">
-             <Activity size={14} className="animate-pulse" style={{ color: themeColor }} />
-             <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t('webaudit.live_mission_telemetry')}</span>
+        <div className="h-[45px] flex-shrink-0 flex justify-between items-center px-8 border-b border-white/5">
+          <div
+            onClick={() => setIsConsoleExpanded(!isConsoleExpanded)}
+            className="flex items-center gap-4 cursor-pointer hover:bg-white/5 flex-1 min-w-0"
+          >
+            <Activity size={14} className="animate-pulse shrink-0" style={{ color: themeColor }} />
+            <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{t('webaudit.live_mission_telemetry')}</span>
           </div>
-          {isConsoleExpanded ? <ChevronDown size={16} className="text-white/20" /> : <ChevronUp size={16} className="text-white/20" />}
+          <div className="flex items-center gap-2 shrink-0">
+            {isConsoleExpanded && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setTelemetryFullHeight(!telemetryFullHeight); }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white/70 text-[9px] font-bold uppercase tracking-wider transition-colors"
+                title={telemetryFullHeight ? t('webaudit.telemetry_half') : t('webaudit.telemetry_full')}
+              >
+                {telemetryFullHeight ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                <span className="hidden sm:inline">{telemetryFullHeight ? t('webaudit.telemetry_half') : t('webaudit.telemetry_full')}</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsConsoleExpanded(!isConsoleExpanded)}
+              className="p-1 rounded hover:bg-white/10 text-white/20 hover:text-white/40"
+              aria-label={isConsoleExpanded ? 'Collapse' : 'Expand'}
+            >
+              {isConsoleExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 flex p-5 overflow-hidden">
