@@ -2,7 +2,7 @@
   <img src="public/assets/images/LOGO.png" alt="VaultGuard Pro Logo" width="200" />
 </div>
 
-# VaultGuard Pro: Neural Mission Blueprints (v1.6.0)
+# VaultGuard Pro: Neural Mission Blueprints (v1.6.1)
 
 **Developer Documentation** - Technical architecture, implementation details, and "how it works"
 

@@ -539,24 +539,30 @@ export const useScanner = () => {
             
             addLog(`[PROBE] ${probe.method} ${probe.endpoint}...`, 'probe', 50 + (index * 2));
             
-            // Make REAL HTTP request
+            // Make REAL HTTP request. For GET with no body use minimal headers so the request
+            // is "simple" and does not trigger CORS preflight (OPTIONS). Then CORS extension
+            // can allow the GET response and we get status/body.
             const startTime = Date.now();
             let response: Response;
             let corsBlocked = false;
-            
-            const probeHeaders: Record<string, string> = {
-              'Content-Type': 'application/json',
-              'User-Agent': 'VaultGuard-Pro/1.0',
-              ...expertOptions?.headers,
-            };
+            const hasBody = !!(probe.payload && probe.method !== 'GET');
+            const isSimpleGet = probe.method === 'GET' && !hasBody;
+
+            const probeHeaders: Record<string, string> = isSimpleGet
+              ? { ...expertOptions?.headers }
+              : {
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'VaultGuard-Pro/1.0',
+                  ...expertOptions?.headers,
+                };
             if (expertOptions?.cookies) probeHeaders['Cookie'] = expertOptions.cookies;
 
             try {
               response = await fetch(probeUrl, {
                 method: probe.method,
-                headers: probeHeaders,
-                body: probe.payload ? JSON.stringify(JSON.parse(probe.payload)) : undefined,
-                mode: 'cors', // Try CORS first
+                ...(Object.keys(probeHeaders).length > 0 ? { headers: probeHeaders } : {}),
+                body: hasBody && probe.payload ? JSON.stringify(JSON.parse(probe.payload)) : undefined,
+                mode: 'cors',
                 credentials: 'omit',
               });
             } catch (corsError: any) {
@@ -564,7 +570,7 @@ export const useScanner = () => {
               try {
                 await fetch(probeUrl, {
                   method: probe.method,
-                  headers: probeHeaders,
+                  ...(Object.keys(probeHeaders).length > 0 ? { headers: probeHeaders } : {}),
                   mode: 'no-cors',
                 });
                 // If no-cors succeeds, endpoint exists but we can't read response

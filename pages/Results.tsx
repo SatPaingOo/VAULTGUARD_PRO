@@ -1309,6 +1309,11 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                             </div>
 
                             {/* How to Use Extension */}
+                            <div className="bg-amber-500/10 p-3 rounded-lg mb-3 border border-amber-500/30">
+                              <p className="text-[10px] md:text-xs font-bold text-amber-200/90">
+                                {t('cors_extension.extension_on_then_what')}
+                              </p>
+                            </div>
                             <div className="bg-blue-500/5 p-4 rounded-lg mb-4 border border-blue-500/20">
                               <div className="flex items-start gap-2 mb-3">
                                 <Terminal className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
@@ -1317,26 +1322,12 @@ export const ResultsPage = ({ missionReport, usage, targetUrl, level, onReset, t
                                     {t('cors_extension.how_to_use_title')}
                                   </p>
                                   <ol className="text-[10px] md:text-xs text-white/70 space-y-2 ml-4 list-decimal">
-                                    <li className="flex items-start gap-2">
-                                      <span className="flex-shrink-0">1.</span>
-                                      <span>{t('cors_extension.how_to_step1')}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="flex-shrink-0">2.</span>
-                                      <span>{t('cors_extension.how_to_step2')}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="flex-shrink-0">3.</span>
-                                      <span>{t('cors_extension.how_to_step3')}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="flex-shrink-0">4.</span>
-                                      <span>{t('cors_extension.how_to_step4')}</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="flex-shrink-0">5.</span>
-                                      <span>{t('cors_extension.how_to_step5')}</span>
-                                    </li>
+                                    <li className="flex items-start gap-2"><span className="flex-shrink-0">1.</span><span>{t('cors_extension.how_to_step1')}</span></li>
+                                    <li className="flex items-start gap-2"><span className="flex-shrink-0">2.</span><span>{t('cors_extension.how_to_step2')}</span></li>
+                                    <li className="flex items-start gap-2"><span className="flex-shrink-0">3.</span><span>{t('cors_extension.how_to_step3')}</span></li>
+                                    <li className="flex items-start gap-2"><span className="flex-shrink-0">4.</span><span>{t('cors_extension.how_to_step4')}</span></li>
+                                    <li className="flex items-start gap-2"><span className="flex-shrink-0">5.</span><span>{t('cors_extension.how_to_step5')}</span></li>
+                                    <li className="flex items-start gap-2"><span className="flex-shrink-0">6.</span><span>{t('cors_extension.how_to_step6')}</span></li>
                                   </ol>
                                 </div>
                               </div>

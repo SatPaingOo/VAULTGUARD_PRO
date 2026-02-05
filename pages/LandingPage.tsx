@@ -35,6 +35,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
   const [urlValidation, setUrlValidation] = useState<{ isValid: boolean; error?: string; isChecking?: boolean }>({ isValid: false });
   const [isValidating, setIsValidating] = useState(false);
   const [isExpertModalOpen, setIsExpertModalOpen] = useState(false);
+  const [isCorsHowToModalOpen, setIsCorsHowToModalOpen] = useState(false);
   const [expertHeaderPairs, setExpertHeaderPairs] = useState<{ key: string; value: string }[]>([{ key: '', value: '' }]);
   const [expertCookies, setExpertCookies] = useState('');
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -60,16 +61,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
 
   const themeColor = LEVEL_COLORS[level];
 
-  // Lock body scroll when Expert Mode modal is open so background doesn't scroll
+  // Lock body scroll when any modal is open so background doesn't scroll
   useEffect(() => {
-    if (isExpertModalOpen) {
+    if (isExpertModalOpen || isCorsHowToModalOpen) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = prev;
       };
     }
-  }, [isExpertModalOpen]);
+  }, [isExpertModalOpen, isCorsHowToModalOpen]);
 
   // Handle mobile keyboard with Visual Viewport API
   useEffect(() => {
@@ -523,6 +524,67 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
           </AnimatePresence>,
           document.body
         )}
+
+        {/* CORS Extension How-To Modal */}
+        {createPortal(
+          <AnimatePresence>
+            {isCorsHowToModalOpen && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsCorsHowToModalOpen(false)}
+                  className="fixed inset-0 z-[1000] bg-black/70 backdrop-blur-sm"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ type: 'tween', duration: 0.2 }}
+                  className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1001] w-full max-w-md mx-4 rounded-2xl border border-blue-500/30 bg-black/95 shadow-2xl overflow-hidden"
+                >
+                  <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-blue-400" />
+                      <h3 className="text-sm font-black uppercase text-white">{t('cors_extension.how_to_use_title')}</h3>
+                    </div>
+                    <button type="button" onClick={() => setIsCorsHowToModalOpen(false)} className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10" aria-label="Close">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="p-5 space-y-4 max-h-[min(70vh,400px)] overflow-y-auto">
+                    <div className="bg-amber-500/10 p-3 rounded-lg border border-amber-500/30">
+                      <p className="text-[10px] md:text-xs font-semibold text-amber-200/90">{t('cors_extension.extension_on_then_what')}</p>
+                    </div>
+                    <ol className="text-[10px] md:text-xs text-white/80 space-y-2 ml-4 list-decimal">
+                      <li>{t('cors_extension.how_to_step1')}</li>
+                      <li>{t('cors_extension.how_to_step2')}</li>
+                      <li>{t('cors_extension.how_to_step3')}</li>
+                      <li>{t('cors_extension.how_to_step4')}</li>
+                      <li>{t('cors_extension.how_to_step5')}</li>
+                      <li>{t('cors_extension.how_to_step6')}</li>
+                    </ol>
+                    <div className="pt-2 border-t border-red-500/20 bg-red-500/5 rounded p-2">
+                      <p className="text-[10px] font-semibold text-red-400/90">{t('cors_extension.security_warning_title')}</p>
+                      <p className="text-[10px] text-white/70 mt-0.5">{t('cors_extension.security_warning_desc')}</p>
+                    </div>
+                  </div>
+                  <div className="px-5 py-3 border-t border-white/5 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setIsCorsHowToModalOpen(false)}
+                      className="px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-blue-500/50 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                    >
+                      {t('error_modal.close')}
+                    </button>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
         
         {/* Mission Intensity Selection */}
         <div className="w-full flex flex-col gap-6 md:gap-10 mt-6 md:mt-8">
@@ -937,8 +999,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                     <p className="text-[10px] md:text-xs text-white/80 leading-relaxed mb-3">
                       {t('cors_extension.pro_tip_desc')}
                     </p>
-                    
-                    <div className="bg-black/30 p-2 rounded mb-2">
+                    <div className="bg-black/30 p-2 rounded mb-3">
                       <p className="text-[10px] text-white/90 font-mono mb-1">
                         <strong className="text-blue-400">{t('cors_extension.recommended')}</strong> "{t('cors_extension.extension_name')}"
                       </p>
@@ -946,7 +1007,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                         {t('cors_extension.extension_stats')}
                       </p>
                     </div>
-                    
                     <div className="flex flex-wrap gap-2 mb-2">
                       <a 
                         href="https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" 
@@ -957,6 +1017,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onInitiate }) => {
                         <ExternalLink className="w-3 h-3" />
                         {t('cors_extension.install_button')}
                       </a>
+                      <button
+                        type="button"
+                        onClick={() => setIsCorsHowToModalOpen(true)}
+                        className="text-[10px] px-2 py-1.5 bg-white/10 text-white/90 border border-white/20 rounded hover:bg-white/20 transition-colors flex items-center gap-1"
+                      >
+                        <InfoIcon className="w-3 h-3" />
+                        {t('cors_extension.how_to_use_button')}
+                      </button>
                     </div>
                     
                     <div className="mt-2 pt-2 border-t border-blue-500/20">

@@ -8,7 +8,7 @@
 
 **🏆 Built for Gemini 3 Hackathon**
 
-**Version:** 1.6.0  
+**Version:** 1.6.1  
 **Status:** Production Ready  
 **License:** GNU General Public License v3.0 (GPL-3.0)
 
@@ -684,7 +684,11 @@ Open browser DevTools (F12) to see:
 
 ## 🔄 Version History
 
-### v1.6.0 (Current)
+### v1.6.1 (Current)
+
+- **Technology DNA** – Stricter detection for Angular, Remix, Redux to reduce false positives (e.g. YouTube/Polymer)
+
+### v1.6.0
 
 - **Iframe fallback UX** – Cross-origin or embed-blocked targets show Blueprint + “Preview unavailable” instead of broken-page icon
 - **Live Mission Telemetry** – Half/Full height toggle; full = viewport minus header

@@ -80,12 +80,13 @@ const RULES: PatternRule[] = [
   {
     name: 'Angular',
     category: 'Frontend',
+    // Require strong Angular signals to avoid false positives (e.g. YouTube/Polymer)
     patterns: [
       /angular\.(?:min\.)?js/i,
-      /ng-version|ng-app|ng-[a-z]+|data-ng-[a-z]+/i,
-      /"@angular\/core"/i,
-      /_nghost_|_ngcontent_|ng-version/i,
+      /"@angular\/core"|@angular\/core\//i,
+      /_nghost_|_ngcontent_/i,
       /platform-browser-dynamic|NgModule/i,
+      /ng-version="[\d.]+"/i,
     ],
     versionPattern: /angular[@/-]([\d.]+)|ng-version="([\d.]+)"/i,
   },
@@ -116,7 +117,12 @@ const RULES: PatternRule[] = [
   {
     name: 'Remix',
     category: 'Frontend',
-    patterns: [/remix|@remix-run/i, /"@remix-run\/react"/i],
+    // Require Remix framework signals, not generic "remix" text
+    patterns: [
+      /@remix-run\//i,
+      /"@remix-run\/react"|"@remix-run\/node"/i,
+      /remix\.(?:min\.)?js|remix\/esm\/client/i,
+    ],
     versionPattern: /remix[@/-]([\d.]+)/i,
   },
   {
@@ -253,7 +259,11 @@ const RULES: PatternRule[] = [
   {
     name: 'Redux',
     category: 'Library',
-    patterns: [/redux|__REDUX_DEVTOOLS__|createStore|configureStore/i],
+    // Require Redux API or devtools to avoid generic "redux" in minified code
+    patterns: [
+      /__REDUX_DEVTOOLS__|createStore|configureStore|getState|dispatch\(/i,
+      /"redux"\s*:\s*["'][\d.]+["']|from\s+['"]redux['"]/i,
+    ],
     versionPattern: /redux[@/-]([\d.]+)/i,
   },
   {
@@ -358,7 +368,13 @@ const RULES: PatternRule[] = [
   {
     name: 'WooCommerce',
     category: 'Backend',
-    patterns: [/woocommerce|wc-|cart-form|add_to_cart|wc_add_to_cart/i],
+    // Only match in WordPress context to avoid false positives (e.g. YouTube, generic sites)
+    patterns: [
+      /wp-content\/plugins\/woocommerce|wp-json\/wc\//i,
+      /woocommerce.*wp-content|wp-content.*woocommerce/i,
+      /wc-add-to-cart.*wp-|wp-.*woocommerce/i,
+      /cart-form.*wp-json|wp-json.*wc\//i,
+    ],
     versionPattern: /woocommerce[@/-]([\d.]+)/i,
   },
   {
