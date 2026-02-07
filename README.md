@@ -1403,12 +1403,12 @@ VaultGuard Pro is built with a focus on technical integrity and collaborative su
 
 - 👨‍💻 **[Sat Paing Oo](https://satpaingoo.github.io/portfolio)** - Lead Developer & Neural Architect
 - 🛡️ **[Nwe Nwe Win Than](https://www.linkedin.com/in/nwe-nwe-win-than)** - Security Audit, Logic Verification & **Personal Support**
-- 🎙️ **[NAME]** - Narrative Design & Voiceover Artist
-- 🎬 **[NAME]** - Video Production & Motion Graphics
+- 🎙️ **[MHK](https://github.com/myathtookhine)** - Voiceover
+- 🎬 **[War War](https://th.linkedin.com/in/min-war-war-thae-swe-096083116)** - Video Production
 
 ### ✨ Special Recognition
 
-- 🌟 **[NAME]** - **Project Patron** (For providing the foundation, resources, and unwavering support that made this innovation possible.)
+- 🌟 **[Tin Zaw Min]** - **Project Patron** (For providing the foundation, resources, and unwavering support that made this innovation possible.)
 
 ---
 
